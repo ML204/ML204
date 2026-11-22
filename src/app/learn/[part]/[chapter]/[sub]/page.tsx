@@ -6,15 +6,7 @@ import { CompletionToggle } from '@/components/subchapter/CompletionToggle';
 import { getTopicFiles } from '@/lib/topicFiles';
 import { TopicResourceFiles } from '@/components/subchapter/TopicResourceFiles';
 
-// Dynamically import the MDX content for each sub-chapter
-async function getSubchapterModule(part: string, chapter: string, sub: string) {
-  try {
-    const mod = await import(`@/content/${part}/${chapter}/${sub}.mdx`);
-    return mod;
-  } catch {
-    return null;
-  }
-}
+import { getSubchapterContent } from '@/lib/contentRegistry';
 
 interface Params {
   part: string;
@@ -48,8 +40,8 @@ export default async function SubchapterPage({
 
   if (!part || !chapter || !subchapter) return notFound();
 
-  // Load MDX
-  const mod = await getSubchapterModule(partSlug, chapterSlug, subSlug);
+  // Load MDX Content
+  const Content = await getSubchapterContent(partSlug, chapterSlug, subSlug);
   const topicFiles = getTopicFiles(subSlug);
 
   // Prev / Next navigation
@@ -61,8 +53,6 @@ export default async function SubchapterPage({
   const idx = allSubs.findIndex((s) => s.slug === subSlug && s.chapterSlug === chapterSlug);
   const prev = idx > 0 ? allSubs[idx - 1] : null;
   const next = idx < allSubs.length - 1 ? allSubs[idx + 1] : null;
-
-  const Content = mod?.default;
 
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
