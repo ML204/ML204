@@ -1,0 +1,454 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { OLSFigure } from '@/components/figures/OLSFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Ordinary Least Squares (OLS)',
+  description: 'Master Ordinary Least Squares in matrix form: population model, RSS expansion, matrix differentiation, normal equations, and residual orthogonality.',
+};
+
+<Section label="What you'll learn">
+
+- Why representing linear regression in **matrix notation** simplifies multidimensional estimation.
+- How to expand the matrix Sum of Squared Residuals ($\text{RSS} = \mathbf{e}^T\mathbf{e}$) step by step.
+- How to differentiate quadratic matrix forms to derive the **Normal Equations** $\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{X}^T\mathbf{y}$.
+- The closed-form analytical OLS estimator $\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$ and its full-rank requirements.
+- The fundamental geometric property of OLS: **residual orthogonality** ($\mathbf{X}^T\mathbf{e} = \mathbf{0}$) and why residuals sum to zero when an intercept is present.
+
+</Section>
+
+<Section label="Explained in detail">
+
+### 1. The True Model in Matrix Form
+
+In multiple linear regression, we relate a continuous dependent target variable $y$ to $k$ explanatory feature variables across $n$ observations. In scalar summation notation, this equation quickly becomes unwieldy. Matrix algebra provides a clean, rigorous, and computationally efficient representation.
+
+The population regression model in matrix notation is:
+
+$$
+\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}
+$$
+
+Let's break down each component and its exact dimensions:
+
+- **$\mathbf{X}$ is an $n \times k$ Design Matrix**: Contains the observations on $k$ independent variables across $n$ training instances. When the model includes an intercept (constant term), the first column of $\mathbf{X}$ consists entirely of ones ($\mathbf{1}$).
+- **$\mathbf{y}$ is an $n \times 1$ Vector**: The observed values of the dependent target variable.
+- **$\boldsymbol{\varepsilon}$ is an $n \times 1$ Vector of Disturbances**: The unobserved random errors or influences not captured by the features.
+- **$\boldsymbol{\beta}$ is a $k \times 1$ Vector of True Parameters**: The fixed but unknown population coefficients we wish to estimate.
+
+The model decomposes into a **systematic component** ($\mathbf{X}\boldsymbol{\beta}$) and a **stochastic component** ($\boldsymbol{\varepsilon}$). Our goal in estimation is to infer the unknown population vector $\boldsymbol{\beta}$ using sample observations.
+
+#### Matrix Dimensions Check
+Matrix dimensions must align under standard matrix multiplication:
+
+$$
+(n \times k) \times (k \times 1) = n \times 1
+$$
+
+Thus, $\mathbf{X}\boldsymbol{\beta}$ has dimensions $n \times 1$, which matches the dimension of $\mathbf{y}$ and $\boldsymbol{\varepsilon}$.
+
+![Dimension check for the scalar product y'X beta-hat](/images/ordinary-least-squares/matrix_dimensions.png)
+
+---
+
+### 2. Estimates, Fitted Values, and Residuals
+
+Let $\hat{\boldsymbol{\beta}}$ denote the estimated parameter vector calculated from our sample data. 
+
+The **fitted (predicted) values** $\hat{\mathbf{y}}$ are obtained by projecting the design matrix through our parameter estimate:
+
+$$
+\hat{\mathbf{y}} = \mathbf{X}\hat{\boldsymbol{\beta}}
+$$
+
+The **residual vector** $\mathbf{e}$ is the sample difference between the actual observations and the fitted predictions:
+
+$$
+\mathbf{e} = \mathbf{y} - \hat{\mathbf{y}} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}
+$$
+
+#### Disturbances ($\boldsymbol{\varepsilon}$) vs. Residuals ($\mathbf{e}$)
+Students often conflate the theoretical error term with the empirical residual. They represent fundamentally different concepts:
+
+| Property | Disturbance $\boldsymbol{\varepsilon}$ | Residual $\mathbf{e}$ |
+| :--- | :--- | :--- |
+| **Meaning** | Unobserved noise in the true population model | Observed minus fitted sample prediction |
+| **Observable?** | **No** (theoretical population quantity) | **Yes** (calculated directly from sample data) |
+| **Role** | Part of the data-generating process | Generated after estimating $\hat{\boldsymbol{\beta}}$ |
+
+<Callout kind="warning">
+  **Crucial Distinction**: In general, $\boldsymbol{\varepsilon} \ne \mathbf{e}$. Never infer properties of the unobserved population disturbances solely because sample residuals happen to satisfy mathematical identities by construction!
+</Callout>
+
+---
+
+### 3. The OLS Criterion: Minimizing the Sum of Squared Residuals (RSS)
+
+The Ordinary Least Squares criterion selects the estimate $\hat{\boldsymbol{\beta}}$ that minimizes the scalar sum of squared residuals:
+
+$$
+\text{RSS} = \sum_{i=1}^{n} e_i^2 = \mathbf{e}^T\mathbf{e}
+$$
+
+Substituting the residual definition $\mathbf{e} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$:
+
+$$
+\text{RSS} = (\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}})^T (\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}})
+$$
+
+Recall the transpose property for matrix products and differences:
+$$
+(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T, \qquad (\mathbf{A} - \mathbf{B})^T = \mathbf{A}^T - \mathbf{B}^T
+$$
+
+Applying this to our residual expression:
+$$
+(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}})^T = \mathbf{y}^T - (\mathbf{X}\hat{\boldsymbol{\beta}})^T = \mathbf{y}^T - \hat{\boldsymbol{\beta}}^T\mathbf{X}^T
+$$
+
+Substituting this back into RSS and distributing terms:
+
+$$
+\begin{aligned}
+\text{RSS} &= (\mathbf{y}^T - \hat{\boldsymbol{\beta}}^T\mathbf{X}^T)(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}) \\
+&= \mathbf{y}^T\mathbf{y} - \mathbf{y}^T\mathbf{X}\hat{\boldsymbol{\beta}} - \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y} + \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}
+\end{aligned}
+$$
+
+#### Why is $\mathbf{y}^T\mathbf{X}\hat{\boldsymbol{\beta}}$ a Scalar?
+Let's verify the dimensions of the middle term:
+$$
+\underbrace{\mathbf{y}^T}_{1 \times n} \times \underbrace{\mathbf{X}}_{n \times k} \times \underbrace{\hat{\boldsymbol{\beta}}}_{k \times 1}
+$$
+Multiplying from left to right:
+$$
+(1 \times n) \times (n \times k) = 1 \times k
+$$
+$$
+(1 \times k) \times (k \times 1) = 1 \times 1
+$$
+
+A $1 \times 1$ matrix is a single real number (scalar). Because every scalar equals its own transpose:
+
+$$
+\mathbf{y}^T\mathbf{X}\hat{\boldsymbol{\beta}} = (\mathbf{y}^T\mathbf{X}\hat{\boldsymbol{\beta}})^T = \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y}
+$$
+
+The two cross-terms in the expansion are identical! Combining them yields the **Master Expanded RSS**:
+
+$$
+\text{RSS} = \mathbf{y}^T\mathbf{y} - 2\hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y} + \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}
+$$
+
+---
+
+### 4. Differentiating RSS with Respect to $\hat{\boldsymbol{\beta}}$
+
+To find the coefficient vector $\hat{\boldsymbol{\beta}}$ that minimizes RSS, we take the vector derivative of RSS with respect to $\hat{\boldsymbol{\beta}}$ and equate it to the zero vector.
+
+#### Useful Matrix Differentiation Rules
+1. **Linear Form**: For constant vectors $\mathbf{a}$ and variable vector $\mathbf{b}$:
+   $$
+   \frac{\partial (\mathbf{b}^T\mathbf{a})}{\partial \mathbf{b}} = \mathbf{a}
+   $$
+2. **Quadratic Form**: For a square matrix $\mathbf{A}$:
+   $$
+   \frac{\partial (\boldsymbol{\beta}^T\mathbf{A}\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} = (\mathbf{A} + \mathbf{A}^T)\boldsymbol{\beta}
+   $$
+   If $\mathbf{A}$ is **symmetric** ($\mathbf{A}^T = \mathbf{A}$), this simplifies to:
+   $$
+   \frac{\partial (\boldsymbol{\beta}^T\mathbf{A}\boldsymbol{\beta})}{\partial \boldsymbol{\beta}} = 2\mathbf{A}\boldsymbol{\beta}
+   $$
+
+#### Deriving the Quadratic-Form Rule via Differentials
+Let $f(\boldsymbol{\beta}) = \boldsymbol{\beta}^T\mathbf{A}\boldsymbol{\beta}$. Using the product rule in differential form:
+$$
+df = d\boldsymbol{\beta}^T\mathbf{A}\boldsymbol{\beta} + \boldsymbol{\beta}^T\mathbf{A}\,d\boldsymbol{\beta}
+$$
+Because the second term is a scalar, it equals its transpose:
+$$
+\boldsymbol{\beta}^T\mathbf{A}\,d\boldsymbol{\beta} = (\boldsymbol{\beta}^T\mathbf{A}\,d\boldsymbol{\beta})^T = d\boldsymbol{\beta}^T\mathbf{A}^T\boldsymbol{\beta}
+$$
+Factoring out $d\boldsymbol{\beta}^T$:
+$$
+df = d\boldsymbol{\beta}^T(\mathbf{A} + \mathbf{A}^T)\boldsymbol{\beta}
+$$
+Therefore, the gradient is $(\mathbf{A} + \mathbf{A}^T)\boldsymbol{\beta}$.
+
+#### Differentiating the Three RSS Terms
+Differentiating each term of $\text{RSS} = \mathbf{y}^T\mathbf{y} - 2\hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y} + \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}$:
+
+1. **Term 1 ($\mathbf{y}^T\mathbf{y}$)**: Does not depend on $\hat{\boldsymbol{\beta}}$:
+   $$
+   \frac{\partial (\mathbf{y}^T\mathbf{y})}{\partial \hat{\boldsymbol{\beta}}} = \mathbf{0}
+   $$
+2. **Term 2 ($-2\hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y}$)**: Applying the linear rule where $\mathbf{a} = \mathbf{X}^T\mathbf{y}$:
+   $$
+   \frac{\partial (-2\hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y})}{\partial \hat{\boldsymbol{\beta}}} = -2\mathbf{X}^T\mathbf{y}
+   $$
+3. **Term 3 ($\hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}$)**: Here $\mathbf{A} = \mathbf{X}^T\mathbf{X}$. Since $(\mathbf{X}^T\mathbf{X})^T = \mathbf{X}^T(\mathbf{X}^T)^T = \mathbf{X}^T\mathbf{X}$, the matrix is symmetric:
+   $$
+   \frac{\partial (\hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}})}{\partial \hat{\boldsymbol{\beta}}} = 2\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}
+   $$
+
+Combining all three derivatives gives the **RSS Gradient Vector**:
+
+$$
+\frac{\partial \text{RSS}}{\partial \hat{\boldsymbol{\beta}}} = -2\mathbf{X}^T\mathbf{y} + 2\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}
+$$
+
+---
+
+### 5. Normal Equations and the OLS Estimator
+
+At the minimum, the gradient must equal the zero vector:
+
+$$
+-2\mathbf{X}^T\mathbf{y} + 2\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{0}
+$$
+
+Dividing by $2$ and rearranging gives the celebrated **Normal Equations**:
+
+$$
+\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{X}^T\mathbf{y}
+$$
+
+If the $k \times k$ matrix $\mathbf{X}^T\mathbf{X}$ is invertible (non-singular), we premultiply both sides by $(\mathbf{X}^T\mathbf{X})^{-1}$:
+
+$$
+(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+$$
+
+Since $(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{X} = \mathbf{I}_k$, we arrive at the **Closed-Form OLS Estimator**:
+
+$$
+\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}
+$$
+
+#### When Does $(\mathbf{X}^T\mathbf{X})^{-1}$ Fail to Exist?
+The matrix $\mathbf{X}^T\mathbf{X}$ is non-invertible if:
+1. **$n < k$ (Underdetermined system)**: Fewer observations than independent features.
+2. **Perfect Multicollinearity**: One or more columns of $\mathbf{X}$ are exact linear combinations of other columns (e.g., redundant or duplicate features).
+
+The **full column rank condition** ($\text{rank}(\mathbf{X}) = k$) guarantees that $\mathbf{X}^T\mathbf{X}$ is strictly positive definite and invertible.
+
+---
+
+### 6. Verifying the Stationary Point is a Minimum
+
+To confirm that the stationary point is a strict local minimum rather than a maximum or saddle point, we evaluate the second derivative (Hessian matrix):
+
+$$
+\frac{\partial^2 \text{RSS}}{\partial \hat{\boldsymbol{\beta}} \partial \hat{\boldsymbol{\beta}}^T} = 2\mathbf{X}^T\mathbf{X}
+$$
+
+If $\mathbf{X}$ has full column rank, then for any non-zero vector $\mathbf{v} \ne \mathbf{0}$:
+$$
+\mathbf{v}^T (2\mathbf{X}^T\mathbf{X}) \mathbf{v} = 2(\mathbf{X}\mathbf{v})^T(\mathbf{X}\mathbf{v}) = 2 \|\mathbf{X}\mathbf{v}\|^2 > 0
+$$
+
+Since the quadratic form is strictly positive for all non-zero vectors, the Hessian matrix $2\mathbf{X}^T\mathbf{X}$ is **positive definite**. Consequently, the stationary point $\hat{\boldsymbol{\beta}}$ is guaranteed to be a unique global minimum.
+
+---
+
+### 7. Fundamental Property: Residual Orthogonality ($\mathbf{X}^T\mathbf{e} = \mathbf{0}$)
+
+Starting from the normal equations $\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{X}^T\mathbf{y}$ and substituting the residual definition $\mathbf{e} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$:
+
+$$
+\begin{aligned}
+\mathbf{X}^T\mathbf{e} &= \mathbf{X}^T(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}) \\
+&= \mathbf{X}^T\mathbf{y} - \mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} \\
+&= \mathbf{X}^T\mathbf{y} - \mathbf{X}^T\mathbf{y} \\
+&= \mathbf{0}
+\end{aligned}
+$$
+
+$$
+\mathbf{X}^T\mathbf{e} = \mathbf{0}
+$$
+
+This equation demonstrates that the residual vector $\mathbf{e}$ is **strictly orthogonal to every single column of the design matrix $\mathbf{X}$**!
+
+![Conceptual illustration of residual orthogonality. The residual direction is perpendicular to the column-space direction.](/images/ordinary-least-squares/residual_orthogonality.png)
+
+#### Column-by-Column Interpretation
+If $\mathbf{x}_j$ is the $j$-th column of $\mathbf{X}$, then $\mathbf{X}^T\mathbf{e} = \mathbf{0}$ implies:
+
+$$
+\mathbf{x}_j^T\mathbf{e} = \sum_{i=1}^{n} X_{ij} e_i = 0 \qquad \text{for every feature } j = 1, \dots, k
+$$
+
+In sample terms, every regressor has zero sample correlation with the OLS residuals.
+
+#### Consequences When the Model Includes an Intercept
+When the regression includes a constant intercept term, the first column of $\mathbf{X}$ is a column of ones: $\mathbf{1} = [1, 1, \dots, 1]^T$.
+
+Evaluating the first element of $\mathbf{X}^T\mathbf{e} = \mathbf{0}$:
+
+$$
+\mathbf{1}^T\mathbf{e} = \sum_{i=1}^{n} e_i = 0
+$$
+
+The sum of OLS residuals is always zero! Dividing by the sample size $n$ gives the sample mean of residuals:
+
+$$
+\bar{e} = \frac{1}{n}\sum_{i=1}^{n} e_i = 0
+$$
+
+<Callout kind="tip">
+  **Note on Intercept Requirement**: The properties $\sum e_i = 0$ and $\bar{e} = 0$ hold **only** when the model includes an intercept column. In regressions forced through the origin without an intercept, the residuals generally do not sum to zero!
+</Callout>
+
+</Section>
+
+<OLSFigure />
+
+<Section label="What to try">
+
+- **Switch to the "Matrix Inspector" tab**: Inspect each intermediate matrix ($\mathbf{X}$, $\mathbf{X}^T\mathbf{X}$, $(\mathbf{X}^T\mathbf{X})^{-1}$, $\mathbf{X}^T\mathbf{y}$) computed live.
+- **Drag an observation vertically**: Watch the OLS closed-form parameters $\hat{\beta}_0$ and $\hat{\beta}_1$ update instantly.
+- **Inspect the Orthogonality verification**: Notice how $\mathbf{1}^T\mathbf{e} = \sum e_i = 0.00$ and $\mathbf{x}^T\mathbf{e} = \sum x_i e_i = 0.00$ hold true regardless of where you move the data points.
+- **Click "Collinear Preset"**: Observe how a perfectly straight line yields $\text{RSS} = 0.000$ and zero residuals.
+
+</Section>
+
+<Section label="Key ideas at a glance">
+
+### Summary Reference Table
+
+| Concept | Mathematical Form | Meaning |
+| :--- | :--- | :--- |
+| **True Model** | $\mathbf{y} = \mathbf{X}\boldsymbol{\beta} + \boldsymbol{\varepsilon}$ | Data-generating process with unobserved disturbance $\boldsymbol{\varepsilon}$ |
+| **Fitted Values** | $\hat{\mathbf{y}} = \mathbf{X}\hat{\boldsymbol{\beta}}$ | Orthogonal projection of $\mathbf{y}$ onto column space $\text{col}(\mathbf{X})$ |
+| **Residuals** | $\mathbf{e} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$ | Sample prediction errors ($n \times 1$) |
+| **RSS Criterion** | $\text{RSS} = \mathbf{e}^T\mathbf{e}$ | Scalar quantity minimized by the OLS estimator |
+| **Expanded RSS** | $\mathbf{y}^T\mathbf{y} - 2\hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y} + \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}$ | Quadratic polynomial in parameter vector $\hat{\boldsymbol{\beta}}$ |
+| **RSS Gradient** | $-2\mathbf{X}^T\mathbf{y} + 2\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}$ | Vector of first partial derivatives equated to $\mathbf{0}$ |
+| **Normal Equations** | $\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{X}^T\mathbf{y}$ | Linear system of $k$ equations in $k$ unknowns |
+| **OLS Estimator** | $\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$ | Closed-form analytical solution (requires full column rank) |
+| **Residual Orthogonality** | $\mathbf{X}^T\mathbf{e} = \mathbf{0}$ | Residual vector is perpendicular to every regressor column |
+| **Zero Mean Residuals** | $\sum_{i=1}^n e_i = 0 \text{ and } \bar{e} = 0$ | Guaranteed whenever $\mathbf{X}$ includes a constant column |
+
+</Section>
+
+<Section label="Check your understanding">
+
+<Quiz
+  questions={[
+    {
+      id: 'ols-q1',
+      kind: 'mcq',
+      text: "Why does the term yᵀXβ̂ equal its transpose β̂ᵀXᵀy in the matrix RSS expansion?",
+      options: [
+        "Because the product evaluates to a 1×1 matrix (a scalar), and any scalar equals its transpose.",
+        "Because the design matrix X is always square and symmetric.",
+        "Because the true parameters β are assumed to be orthonormal.",
+        "Because the target vector y has zero sample mean.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Multiplying dimensions (1×n) × (n×k) × (k×1) yields a 1×1 dimension (a scalar). Since a scalar number equals its own transpose, yᵀXβ̂ = (yᵀXβ̂)ᵀ = β̂ᵀXᵀy, allowing the two cross terms to combine into -2β̂ᵀXᵀy.",
+      figureHint: "Refer to Figure 1.1 / matrix dimensions check in Section 3.",
+    },
+    {
+      id: 'ols-q2',
+      kind: 'mcq',
+      text: "Under what mathematical condition is the closed-form estimator β̂ = (XᵀX)⁻¹Xᵀy guaranteed to exist?",
+      options: [
+        "When X has full column rank (rank(X) = k and n ≥ k), meaning no feature column is a perfect linear combination of others.",
+        "When the residuals follow a perfect Gaussian distribution.",
+        "When the number of observations n is equal to the number of features k.",
+        "When the learning rate α is set to a sufficiently small value.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The inverse (XᵀX)⁻¹ exists if and only if XᵀX is non-singular. This requires that X has full column rank (rank k), which implies n ≥ k and absence of perfect multicollinearity among explanatory features.",
+      figureHint: "Review Section 5 on Normal Equations and Invertibility.",
+    },
+    {
+      id: 'ols-q3',
+      kind: 'mcq',
+      text: "Which of the following is true regarding OLS residuals when the regression includes an intercept?",
+      options: [
+        "The sum of residuals is strictly zero (∑ eᵢ = 0), and the sample mean residual is zero (ē = 0).",
+        "The residuals are identical to the unobserved population disturbances ε.",
+        "The sum of residuals is strictly positive.",
+        "Residual orthogonality only holds if the features are independent.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "When an intercept is included, the first column of X is a vector of ones 1. The orthogonality property Xᵀe = 0 guarantees 1ᵀe = ∑ eᵢ = 0, which directly implies ē = 0.",
+      figureHint: "Inspect the Orthogonality verification in the interactive OLS figure.",
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="OLS in Matrix Form"
+  oneLiner="Ordinary Least Squares finds β̂ = (XᵀX)⁻¹Xᵀy by orthogonally projecting target y onto the column space of design matrix X, guaranteeing Xᵀe = 0."
+  takeaways={[
+    'Matrix notation unifies multiple regression into compact equations: y = Xβ + ε.',
+    'RSS = eᵀe expands into yᵀy - 2β̂ᵀXᵀy + β̂ᵀXᵀXβ̂ because yᵀXβ̂ is a 1×1 scalar.',
+    'Setting the gradient ∂RSS/∂β̂ = -2Xᵀy + 2XᵀXβ̂ to zero yields the normal equations XᵀXβ̂ = Xᵀy.',
+    'Residuals are strictly orthogonal to every regressor column: Xᵀe = 0.',
+    'When an intercept column 1 is included, residuals always sum to zero (∑ eᵢ = 0, ē = 0).',
+  ]}
+  commonTrap="Confusing the unobservable population disturbances ε with the computable sample residuals e = y - Xβ̂. In general, ε ≠ e."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="ordinary-least-squares"
+  topicTitle="Ordinary Least Squares (OLS)"
+  referenceChecklist={[
+    'Wrote the matrix population model y = Xβ + ε and stated dimensions.',
+    'Distinguished between unobserved disturbance ε and sample residual e.',
+    'Explained why yᵀXβ̂ is a scalar and equals its transpose.',
+    'Derived the normal equations XᵀXβ̂ = Xᵀy from the RSS gradient.',
+    'Explained the full column rank requirement for inverting XᵀX.',
+    'Stated the residual orthogonality property Xᵀe = 0 and its consequence for intercepts.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="resources/ordinary-least-squares"
+  items={[
+    {
+      title: "OLS Matrix Form Lecture Notes (PDF)",
+      type: "pdf",
+      description: "Author's comprehensive reference notes covering matrix dimensions, derivative proofs, normal equations, and residual orthogonality.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/ordinary-least-squares/OLS.pdf"
+    },
+    {
+      title: "OLS in Matrix Form LaTeX Source Code (.tex)",
+      type: "code",
+      description: "Complete editable LaTeX source file for the study notes with tcolorbox styling and mathematical derivations.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/ordinary-least-squares/OLS_matrix_notes.tex"
+    },
+    {
+      title: "StatQuest: Multiple Regression and Matrix Formulation",
+      type: "video",
+      description: "Visual walkthrough of multiple regression, matrix design, and least squares geometry.",
+      url: "https://www.youtube.com/watch?v=zITIFTsivN8"
+    },
+  ]}
+/>
+
+</Section>

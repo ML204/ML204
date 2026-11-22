@@ -21,6 +21,8 @@ export const contentRegistry: Record<string, Loader> = {
     import('@/content/math-foundations/calculus/sgd-vs-batch.mdx'),
   'classical-ml/supervised-regression/linear-regression': () =>
     import('@/content/classical-ml/supervised-regression/linear-regression.mdx'),
+  'classical-ml/supervised-regression/ordinary-least-squares': () =>
+    import('@/content/classical-ml/supervised-regression/ordinary-least-squares.mdx'),
 };
 
 export async function getSubchapterContent(part: string, chapter: string, sub: string): Promise<ComponentType | null> {
