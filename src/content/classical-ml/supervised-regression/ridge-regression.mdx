@@ -1,0 +1,464 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { RidgeFigure } from '@/components/figures/RidgeFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Ridge Regression',
+  description: 'Master Ridge Regression (L2 regularization): multicollinearity, coefficient shrinkage, mathematical derivation, geometry, bias-variance tradeoff, and feature scaling.',
+};
+
+<Section label="What you'll learn">
+
+- Why Ordinary Least Squares (OLS) produces massive variance and erratic coefficients when predictors are **multicollinear**.
+- How adding an $L_2$ squared magnitude penalty shrinks coefficients toward zero without discarding features.
+- The step-by-step matrix derivation of the closed-form Ridge estimator $\hat{\boldsymbol{\beta}}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)^{-1}\mathbf{X}^T\mathbf{y}$.
+- The mathematical proof of why adding $\lambda \mathbf{I}_p$ guarantees strict positive definiteness and invertibility.
+- The geometric tangency between the elliptical OLS contours and the circular $L_2$ constraint boundary.
+- The **Bias-Variance Trade-off** and why accepting small bias dramatically reduces total prediction error.
+- Why **feature standardization** ($Z$-score scaling) is mandatory prior to running Ridge Regression.
+
+</Section>
+
+<Section label="Explained in detail">
+
+### 1. The Problem: Why Do We Need Ridge Regression?
+
+In standard Ordinary Least Squares (OLS), our only goal is to minimize training error:
+
+$$
+\min_{\boldsymbol{\beta}} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+
+When features are uncorrelated and the sample size $n$ is vastly larger than the number of predictors $p$, OLS is optimal. However, fitting the observed training data with zero bias is **not** the true goal of machine learning. Our ultimate objective is **generalization**—making accurate predictions on brand new, unseen test data.
+
+When predictors are strongly correlated with one another (**multicollinearity**), OLS breaks down disastrously.
+
+![What correlation between predictors means: two features carrying overlapping information](/images/ridge-regression/01_multicollinearity.png)
+
+#### What Is Multicollinearity?
+Suppose we want to predict a person's blood pressure using two features:
+1. Weight in kilograms ($x_1$).
+2. Weight in pounds ($x_2$).
+
+Because $x_2 \approx 2.2 \times x_1$, these two predictors carry virtually identical information. In matrix terms, the columns of the design matrix $\mathbf{X}$ are nearly linearly dependent.
+
+When you attempt to solve the normal equations:
+$$
+\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}} = \mathbf{X}^T\mathbf{y}
+$$
+
+The matrix $\mathbf{X}^T\mathbf{X}$ becomes **ill-conditioned** (its determinant is near zero, and its smallest eigenvalue approaches zero).
+
+The variance of the OLS coefficient vector is given by:
+$$
+\text{Var}(\hat{\boldsymbol{\beta}}_{\text{OLS}}) = \sigma^2 (\mathbf{X}^T\mathbf{X})^{-1}
+$$
+
+When $\mathbf{X}^T\mathbf{X}$ is nearly singular, the entries of its inverse $(\mathbf{X}^T\mathbf{X})^{-1}$ explode to enormous magnitudes!
+
+![Simulation showing severe instability in OLS coefficient estimates across random samples](/images/ridge-regression/02_coefficient_stability.png)
+
+As shown in the simulation above, running OLS on slightly different random samples of the same population produces wild oscillations: one sample might estimate $\hat{\beta}_1 = +520$ and $\hat{\beta}_2 = -510$, while the next yields $\hat{\beta}_1 = -340$ and $\hat{\beta}_2 = +355$. The model overfits sample noise, resulting in poor out-of-sample predictive performance.
+
+---
+
+### 2. Ridge Intuition: Shrinkage and Regularization
+
+How do we tame this extreme sensitivity? We introduce **regularization**: we restrict how large the coefficients are allowed to grow.
+
+Instead of letting OLS assign massive canceling coefficients ($+500$ and $-500$) to collinear features, **Ridge Regression** imposes a penalty on the total squared magnitude of the coefficient vector.
+
+#### What Is Shrinkage?
+Shrinkage pulls estimated coefficients toward zero. By restraining coefficient sizes:
+- The model becomes far less sensitive to tiny fluctuations or measurement noise in the training sample.
+- Coefficients become stable and interpretable.
+- The model trades a slight increase in training error (**bias**) for a massive reduction in parameter sensitivity (**variance**).
+
+<Callout kind="warning">
+  **What Ridge Is Not**: Ridge Regression shrinks coefficients continuously toward zero, but it **never sets coefficients exactly to zero**. Ridge keeps all $p$ features in the model. If you require sparse feature selection (eliminating variables completely), you need **Lasso ($L_1$) Regularization**.
+</Callout>
+
+---
+
+### 3. Mathematical Foundation: The Ridge Cost Function
+
+Ridge Regression augments the classical OLS Residual Sum of Squares (RSS) with an **$L_2$ penalty** (proportional to the squared Euclidean norm of the coefficient vector):
+
+$$
+J(\boldsymbol{\beta}) = \underbrace{\|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2}_{\text{RSS (Data Fit)}} + \underbrace{\lambda \|\boldsymbol{\beta}\|_2^2}_{L_2\text{ Penalty (Complexity)}}
+$$
+
+In explicit summation notation across $n$ samples and $p$ features:
+
+$$
+J(\boldsymbol{\beta}) = \sum_{i=1}^{n} \left( y_i - \sum_{j=1}^{p} X_{ij}\beta_j \right)^2 + \lambda \sum_{j=1}^{p} \beta_j^2
+$$
+
+#### Deconstructing the Objective Function
+- **$\|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2$ (Data Fit)**: Measures how poorly the model predicts the observed training targets.
+- **$\sum_{j=1}^{p} \beta_j^2$ (Model Complexity)**: Measures the overall size of the coefficient vector. Large slopes receive a heavy quadratic penalty.
+- **$\lambda \ge 0$ (Tuning Hyperparameter)**: Controls the balance between fitting the data and keeping coefficients small.
+
+| Penalty Level | Value of $\lambda$ | Optimization Behavior |
+| :--- | :--- | :--- |
+| **Zero Penalty** | $\lambda = 0$ | Penalty vanishes; objective is identical to unregularized **OLS**. |
+| **Small Penalty** | Small $\lambda > 0$ | Mild shrinkage; stabilizes ill-conditioned matrix without hurting fit. |
+| **Optimal Penalty** | Moderate $\lambda$ | Minimizes total test-set prediction error (lowest MSE). |
+| **Infinite Penalty** | $\lambda \to \infty$ | Penalty dominates data fit; all coefficients shrink to zero ($\hat{\boldsymbol{\beta}} \to \mathbf{0}$). |
+
+#### Why Is It Called an $L_2$ Penalty?
+The Euclidean length of a vector is its $L_2$ norm: $\|\boldsymbol{\beta}\|_2 = \sqrt{\sum \beta_j^2}$. Ridge penalizes the square of this norm: $\|\boldsymbol{\beta}\|_2^2$. Squaring ensures the penalty is smooth, continuously differentiable, and convex, yielding an exact analytical closed-form solution.
+
+---
+
+### 4. Step-by-Step Derivation of the Ridge Estimator
+
+Let us derive the exact matrix formula for $\hat{\boldsymbol{\beta}}_{\text{Ridge}}$ step by step. (We assume here that features are standardized and the intercept is handled separately).
+
+#### Step 1: Write the Matrix Objective
+$$
+J(\boldsymbol{\beta}) = (\mathbf{y} - \mathbf{X}\boldsymbol{\beta})^T (\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+$$
+
+#### Step 2: Expand the Residual Product
+Using the matrix transpose identity $(\mathbf{A} - \mathbf{B})^T = \mathbf{A}^T - \mathbf{B}^T$:
+$$
+J(\boldsymbol{\beta}) = (\mathbf{y}^T - \boldsymbol{\beta}^T\mathbf{X}^T)(\mathbf{y} - \mathbf{X}\boldsymbol{\beta}) + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+$$
+Distributing terms:
+$$
+J(\boldsymbol{\beta}) = \mathbf{y}^T\mathbf{y} - \mathbf{y}^T\mathbf{X}\boldsymbol{\beta} - \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+$$
+Because the scalar quantity $\mathbf{y}^T\mathbf{X}\boldsymbol{\beta}$ equals its transpose $\boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y}$:
+$$
+J(\boldsymbol{\beta}) = \mathbf{y}^T\mathbf{y} - 2\boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+$$
+
+#### Step 3: Combine Quadratic Terms
+Using the $p \times p$ identity matrix $\mathbf{I}_p$, we write $\lambda \boldsymbol{\beta}^T\boldsymbol{\beta} = \boldsymbol{\beta}^T(\lambda \mathbf{I}_p)\boldsymbol{\beta}$. Factoring out $\boldsymbol{\beta}$:
+$$
+J(\boldsymbol{\beta}) = \mathbf{y}^T\mathbf{y} - 2\boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\beta}^T (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p) \boldsymbol{\beta}
+$$
+
+#### Step 4: Differentiate with Respect to $\boldsymbol{\beta}$
+Applying standard matrix differentiation rules:
+$$
+\frac{\partial (-2\boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y})}{\partial \boldsymbol{\beta}} = -2\mathbf{X}^T\mathbf{y}
+$$
+Because $\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p$ is symmetric:
+$$
+\frac{\partial}{\partial \boldsymbol{\beta}} \left[ \boldsymbol{\beta}^T (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p) \boldsymbol{\beta} \right] = 2(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)\boldsymbol{\beta}
+$$
+Combining gives the gradient:
+$$
+\frac{\partial J}{\partial \boldsymbol{\beta}} = -2\mathbf{X}^T\mathbf{y} + 2(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)\boldsymbol{\beta}
+$$
+
+#### Step 5: Set Gradient to Zero & Solve
+At the global minimum:
+$$
+-2\mathbf{X}^T\mathbf{y} + 2(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)\hat{\boldsymbol{\beta}} = \mathbf{0}
+$$
+$$
+(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)\hat{\boldsymbol{\beta}} = \mathbf{X}^T\mathbf{y}
+$$
+
+Multiplying both sides by the inverse $(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)^{-1}$:
+
+$$
+\hat{\boldsymbol{\beta}}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)^{-1}\mathbf{X}^T\mathbf{y}
+$$
+
+This is the celebrated **Closed-Form Ridge Regression Estimator**!
+
+---
+
+### 5. Why Does Adding $\lambda \mathbf{I}_p$ Guarantee Invertibility?
+
+Notice the profound difference between OLS and Ridge:
+- **OLS**: $(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$ requires $\mathbf{X}^T\mathbf{X}$ to be non-singular (fails when $p > n$ or multicollinear).
+- **Ridge**: $(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)^{-1}\mathbf{X}^T\mathbf{y}$ is **always invertible** for any $\lambda > 0$!
+
+#### Proof of Strict Positive Definiteness
+For any non-zero vector $\mathbf{v} \ne \mathbf{0}$:
+$$
+\begin{aligned}
+\mathbf{v}^T (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p) \mathbf{v} &= \mathbf{v}^T \mathbf{X}^T\mathbf{X} \mathbf{v} + \lambda \mathbf{v}^T\mathbf{v} \\
+&= (\mathbf{X}\mathbf{v})^T(\mathbf{X}\mathbf{v}) + \lambda \|\mathbf{v}\|^2 \\
+&= \|\mathbf{X}\mathbf{v}\|^2 + \lambda \|\mathbf{v}\|^2
+\end{aligned}
+$$
+Even if $\mathbf{X}\mathbf{v} = \mathbf{0}$ (collinear features), the second term $\lambda \|\mathbf{v}\|^2 > 0$ strictly exceeds zero whenever $\lambda > 0$.
+
+In terms of eigenvalues: if the eigenvalues of $\mathbf{X}^T\mathbf{X}$ are $d_1, \dots, d_p \ge 0$, then the eigenvalues of $\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p$ are:
+$$
+d_1 + \lambda, \quad d_2 + \lambda, \quad \dots, \quad d_p + \lambda
+$$
+Every single eigenvalue is shifted strictly away from zero by $\lambda$, guaranteeing that the matrix is non-singular, well-conditioned, and invertible.
+
+#### A Tiny Numerical Demonstration
+Consider an extreme case with two identical, perfectly collinear predictors:
+$$
+\mathbf{X} = \begin{bmatrix} 1 & 1 \\ 2 & 2 \\ 3 & 3 \end{bmatrix}, \qquad \mathbf{y} = \begin{bmatrix} 2 \\ 4 \\ 6 \end{bmatrix}
+$$
+Computing $\mathbf{X}^T\mathbf{X}$:
+$$
+\mathbf{X}^T\mathbf{X} = \begin{bmatrix} 14 & 14 \\ 14 & 14 \end{bmatrix}, \qquad \det(\mathbf{X}^T\mathbf{X}) = 14(14) - 14(14) = 0
+$$
+OLS is completely paralyzed; it cannot invert $\mathbf{X}^T\mathbf{X}$.
+
+Now apply Ridge with $\lambda = 1$:
+$$
+\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_2 = \begin{bmatrix} 15 & 14 \\ 14 & 15 \end{bmatrix}
+$$
+$$
+\det = 15^2 - 14^2 = 225 - 196 = 29 > 0
+$$
+The system inverts effortlessly! By symmetry, Ridge divides the influence equally: $\hat{\beta}_1 = \hat{\beta}_2 = \frac{28}{30} \approx 0.933$.
+
+---
+
+### 6. The Regularization Parameter $\lambda$ & Coefficient Paths
+
+As we vary $\lambda$ continuously from $0$ to large values, we trace the **coefficient shrinkage paths**:
+
+![Paths traced by regression coefficients as the regularization penalty increases](/images/ridge-regression/03_ridge_coefficient_paths.png)
+
+1. At $\lambda = 0$: Coefficients start at their unconstrained OLS values (often wildly dispersed).
+2. As $\lambda$ increases: All coefficients shrink toward zero at rates governed by the eigenvalues of the feature correlation matrix.
+3. As $\lambda \to \infty$: All coefficients asymptotically approach zero, but never become strictly zero at any finite $\lambda$.
+
+---
+
+### 7. Geometric Intuition: The Circular $L_2$ Constraint
+
+Ridge Regression can be equivalently formulated as a **constrained optimization problem** (Lagrangian duality):
+
+$$
+\min_{\boldsymbol{\beta}} \text{RSS}(\boldsymbol{\beta}) \quad \text{subject to} \quad \sum_{j=1}^{p} \beta_j^2 \le s
+$$
+
+where $s$ is a budget constraint inversely related to $\lambda$.
+
+![Geometric illustration of Ridge Regression: RSS contour ellipses meeting the circular constraint boundary](/images/ridge-regression/04_ridge_geometry.png)
+
+In 2D parameter space $(\beta_1, \beta_2)$:
+- **The OLS Contours (Blue Ellipses)**: Centered at the unconstrained minimum $\hat{\boldsymbol{\beta}}_{\text{OLS}}$. Each ellipse represents parameter combinations with equal RSS.
+- **The Ridge Constraint (Green Circle)**: The inequality $\beta_1^2 + \beta_2^2 \le s$ defines a **smooth circle (disk)** centered at the origin.
+- **The Ridge Solution (Red Dot)**: The constrained optimum is the point where the expanding RSS ellipse first touches the circular boundary.
+
+<Callout kind="tip">
+  **Why Ridge Doesn't Sparsify**: Because the $L_2$ constraint boundary is a smooth circle with no sharp vertices on the coordinate axes, the elliptical contour touches the circle along its smooth arc rather than precisely on the axis. Thus, both $\beta_1$ and $\beta_2$ remain non-zero!
+</Callout>
+
+---
+
+### 8. The Bias-Variance Trade-Off
+
+Why would we deliberately add bias to our estimates? The answer lies in the **Mean Squared Error (MSE)** decomposition of an estimator:
+
+$$
+\text{MSE}(\hat{\boldsymbol{\beta}}) = \mathbb{E}\left[\|\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}\|^2\right] = \text{Bias}^2(\hat{\boldsymbol{\beta}}) + \text{Variance}(\hat{\boldsymbol{\beta}})
+$$
+
+![The Bias-Variance Trade-off: total error curve reaches a minimum at optimal lambda](/images/ridge-regression/05_bias_variance.png)
+
+- **At $\lambda = 0$ (OLS)**: $\text{Bias} = 0$, but when predictors are correlated, $\text{Variance}$ is enormous. Total error is high.
+- **As $\lambda$ increases**: We introduce a small amount of bias (coefficients are shrunk toward zero). In exchange, parameter variance drops precipitously.
+- **At $\lambda^*$ (Sweet Spot)**: The reduction in variance far outstrips the minor gain in bias, yielding the lowest total prediction error!
+- **As $\lambda \to \infty$**: Bias becomes dominant (underfitting), causing total MSE to rise again.
+
+---
+
+### 9. Feature Standardization: Why Must We Scale Predictors?
+
+The Ridge penalty adds $\lambda \sum_{j=1}^{p} \beta_j^2$. Notice that the penalty treats all coefficients symmetrically!
+
+Suppose feature $x_1$ is household income in dollars ($\$80,000$) and feature $x_2$ is number of bedrooms ($3$).
+- A one-unit change in bedrooms corresponds to a large slope (e.g., $\beta_2 = 30,000$).
+- A one-unit change in dollar income corresponds to a tiny slope (e.g., $\beta_1 = 0.5$).
+
+If features are unscaled, the penalty $\beta_2^2 = (30,000)^2 = 900,000,000$ will dwarf $\beta_1^2 = 0.25$! Ridge will brutally penalize the bedroom coefficient simply because of the units used to measure it.
+
+![Standardization brings all features to mean zero and variance one](/images/ridge-regression/06_standardization.png)
+
+#### Standardization Formula ($Z$-Score)
+Before applying Ridge Regression, every predictor must be scaled to mean $0$ and standard deviation $1$:
+
+$$
+z_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j}
+$$
+
+#### Never Penalize the Intercept!
+The intercept $\beta_0$ represents the baseline target value when all features are zero. Penalizing $\beta_0$ would unfairly force predictions toward zero simply because of the vertical origin of $y$. In practice:
+1. We center the target: $y_i \leftarrow y_i - \bar{y}$.
+2. Or we omit $\beta_0$ from the penalty matrix: $\text{diag}(0, \lambda, \lambda, \dots, \lambda)$.
+
+---
+
+### 10. Choosing Optimal $\lambda$ via Cross-Validation
+
+How do we pick the best value for $\lambda$? Because $\lambda$ is a hyperparameter, it cannot be learned by minimizing training error (which would always choose $\lambda = 0$).
+
+Instead, we use **$K$-Fold Cross-Validation**:
+
+![K-Fold Cross-Validation workflow: splitting into folds and testing on validation holdouts](/images/ridge-regression/07_cross_validation_workflow.png)
+
+1. Split training data into $K$ equal subsets (folds).
+2. For a grid of candidate $\lambda$ values: train on $K-1$ folds and evaluate validation MSE on the remaining fold.
+3. Average validation errors across all $K$ iterations.
+4. Select the $\lambda^*$ that achieves the minimum average cross-validation MSE.
+
+</Section>
+
+<RidgeFigure />
+
+<Section label="What to try">
+
+- **Drag the $\lambda$ Slider from $0$ to $20$**:
+  - In **Geometric Contours View**: Watch the green circular constraint disk shrink toward the origin. Notice how the red tangency point $\hat{\boldsymbol{\beta}}_{\text{Ridge}}$ glides along the trajectory path from $\hat{\boldsymbol{\beta}}_{\text{OLS}}$ toward $(0, 0)$.
+  - In **Coefficient Shrinkage Paths View**: Observe how both $\beta_1$ and $\beta_2$ decay smoothly toward zero without ever abruptly dropping to zero.
+- **Inspect the Live Readouts**:
+  - At $\lambda = 0$: Variance is high ($\approx 4.2$), $\text{Bias}^2 = 0$.
+  - At $\lambda \approx 4.0$: Variance drops by over $70\%$, while $\text{Bias}^2$ increases only slightly, giving a superior overall model.
+- **Click the Presets**: Switch between Unregularized OLS, Balanced Ridge, and Heavy Regularization.
+
+</Section>
+
+<Section label="Key ideas at a glance">
+
+### Summary Reference Table
+
+| Concept | Ordinary Least Squares (OLS) | Ridge Regression ($L_2$) |
+| :--- | :--- | :--- |
+| **Objective Function** | $\min \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2$ | $\min \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2 + \lambda \|\boldsymbol{\beta}\|_2^2$ |
+| **Closed-Form Solution** | $\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$ | $\hat{\boldsymbol{\beta}} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I}_p)^{-1}\mathbf{X}^T\mathbf{y}$ |
+| **Matrix Invertibility** | Requires full column rank ($\text{rank}(\mathbf{X}) = p$) | **Always invertible** for any $\lambda > 0$ |
+| **Multicollinearity Impact** | Wild coefficient instability and massive variance | Stabilizes estimates; shrinks coefficients smoothly |
+| **Constraint Shape** | None (unconstrained) | Smooth circle/sphere ($\sum \beta_j^2 \le s$) |
+| **Feature Selection** | None (all features retained) | None (coefficients shrink near zero, but never exact zero) |
+| **Feature Scaling** | Scale-invariant (coefficients adjust units) | **Mandatory** (unscaled units cause unequal penalties) |
+| **Intercept Treatment** | Intercept included in parameters | Intercept $\beta_0$ is **never penalized** |
+
+</Section>
+
+<Section label="Check your understanding">
+
+<Quiz
+  questions={[
+    {
+      id: 'ridge-q1',
+      kind: 'mcq',
+      text: "Why is the matrix (XᵀX + λIₚ) guaranteed to be invertible for any λ > 0, even when XᵀX is singular?",
+      options: [
+        "Because adding λIₚ adds λ to every eigenvalue of XᵀX, making all eigenvalues strictly positive.",
+        "Because the identity matrix forces the design matrix X to become square.",
+        "Because λ eliminates all negative values in the target vector y.",
+        "Because multiplying by λ converts all off-diagonal covariance elements to zero.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Since XᵀX is positive semi-definite (eigenvalues dⱼ ≥ 0), adding λIₚ shifts every eigenvalue to dⱼ + λ. Because λ > 0, every eigenvalue is strictly positive, ensuring det > 0 and guaranteed invertibility.",
+      figureHint: "Review Section 5: Proof of Positive Definiteness.",
+    },
+    {
+      id: 'ridge-q2',
+      kind: 'mcq',
+      text: "Why must continuous features be standardized (z-scored) before applying Ridge Regression?",
+      options: [
+        "Because the L₂ penalty λ∑βⱼ² penalizes all coefficients equally, unfairly punishing features with small measurement scales.",
+        "Because matrix inversion only works if features have mean zero.",
+        "Because standardization guarantees that the optimal λ will always be 1.0.",
+        "Because cross-validation fails if variables are measured in dollars.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Coefficients for features with small numerical units (e.g. square footage vs. number of bathrooms) are inherently large. Without standardization, the penalty disproportionately shrinks coefficients of small-scale variables.",
+      figureHint: "Refer to Section 9 on Feature Standardization.",
+    },
+    {
+      id: 'ridge-q3',
+      kind: 'mcq',
+      text: "What distinguishes Ridge Regression from Lasso Regression regarding variable selection?",
+      options: [
+        "Ridge shrinks coefficients smoothly toward zero but never sets them exactly to zero; Lasso can set coefficients exactly to zero.",
+        "Ridge only works when p > n, whereas Lasso only works when n > p.",
+        "Ridge can only be solved with Gradient Descent, whereas Lasso has a closed-form formula.",
+        "Ridge eliminates multicollinear variables by dropping the second feature completely.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Because the L₂ constraint is a smooth circle with no corners on the coordinate axes, the optimal tangency point rarely occurs on an axis. Ridge retains all features, whereas Lasso's diamond constraint produces exact zeros.",
+      figureHint: "Inspect Figure 3.4 and the Geometric Contours tab.",
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Ridge Regression (L2 Regularization)"
+  oneLiner="Ridge prevents multicollinear overfitting by penalizing squared slopes: β̂_Ridge = (XᵀX + λI)⁻¹Xᵀy, trading a tiny pinch of bias for a massive drop in parameter variance."
+  takeaways={[
+    'Multicollinearity causes XᵀX to be nearly singular, making OLS coefficients wildly unstable.',
+    'Ridge adds λ∑βⱼ² (L₂ penalty), shrinking coefficients smoothly toward zero.',
+    'Adding λI shifts all eigenvalues of XᵀX by +λ, guaranteeing invertibility for any λ > 0.',
+    'Geometrically, Ridge is the tangency between elliptical OLS contours and a circular constraint disk.',
+    'Features must be standardized first, and the intercept β₀ is never penalized.',
+  ]}
+  commonTrap="Assuming Ridge performs automatic feature selection. Ridge shrinks coefficients close to zero, but retains every single predictor in the model."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="ridge-regression"
+  topicTitle="Ridge Regression"
+  referenceChecklist={[
+    'Explained how multicollinearity destabilizes OLS matrix inversion.',
+    'Defined the Ridge cost function J(β) = RSS + λ∑βⱼ².',
+    'Derived the closed-form estimator β̂ = (XᵀX + λI)⁻¹Xᵀy.',
+    'Proved why XᵀX + λI is strictly positive definite for λ > 0.',
+    'Described the geometric intuition of circular L₂ constraints meeting elliptical RSS contours.',
+    'Explained the Bias-Variance trade-off and why feature standardization is mandatory.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="resources/ridge-regression"
+  items={[
+    {
+      title: "Ridge Regression Complete Journey Lecture Notes (PDF)",
+      type: "pdf",
+      description: "Author's comprehensive notes covering multicollinearity, closed-form derivations, positive definiteness proofs, and cross-validation workflows.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/ridge-regression/Ridge_regression.pdf"
+    },
+    {
+      title: "Ridge Regression Study Notes LaTeX Source (.tex)",
+      type: "code",
+      description: "Full editable LaTeX document including simulation code listings, mathematical callout environments, and figure placement.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/ridge-regression/Ridge_Regression_Notes.tex"
+    },
+    {
+      title: "StatQuest: Ridge Regression Step-by-Step",
+      type: "video",
+      description: "Josh Starmer visually illustrates why adding a small penalty λ stabilizes slopes and prevents overfitting on small samples.",
+      url: "https://www.youtube.com/watch?v=Q81RR3yKn30"
+    },
+  ]}
+/>
+
+</Section>

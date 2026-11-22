@@ -23,6 +23,8 @@ export const contentRegistry: Record<string, Loader> = {
     import('@/content/classical-ml/supervised-regression/linear-regression.mdx'),
   'classical-ml/supervised-regression/ordinary-least-squares': () =>
     import('@/content/classical-ml/supervised-regression/ordinary-least-squares.mdx'),
+  'classical-ml/supervised-regression/ridge-regression': () =>
+    import('@/content/classical-ml/supervised-regression/ridge-regression.mdx'),
 };
 
 export async function getSubchapterContent(part: string, chapter: string, sub: string): Promise<ComponentType | null> {
