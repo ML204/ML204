@@ -89,17 +89,46 @@ export default async function SubchapterPage({
         </p>
       )}
 
-      {/* MDX Content */}
+      {/* MDX Content or Student Preparation Card */}
       {Content ? (
         <div className="prose prose-slate max-w-none">
           <Content />
           <CompletionToggle slug={subSlug} />
         </div>
       ) : (
-        <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500">
-          <p className="text-2xl mb-2">🚧</p>
-          <p className="font-semibold">This sub-chapter is coming soon.</p>
-          <p className="text-sm mt-1">We&apos;re working on it — check back later.</p>
+        <div className="rounded-2xl border border-brand-200/80 bg-gradient-to-br from-brand-50/40 via-white to-slate-50/50 p-8 sm:p-10 mb-8 shadow-xs text-center">
+          <div className="w-12 h-12 rounded-2xl bg-brand-100 text-brand-700 flex items-center justify-center text-2xl mx-auto mb-4">
+            📖
+          </div>
+          <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-brand-50 text-brand-700 border border-brand-200 mb-3">
+            Lesson In Preparation
+          </span>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-3">
+            {subchapter.title}
+          </h2>
+          <p className="text-sm text-slate-600 max-w-xl mx-auto leading-relaxed mb-6">
+            The interactive visual diagrams and step-by-step intuitive guide for this topic are currently being prepared.
+            In the meantime, you can review the study notes, summaries, and code resources available in the section below.
+          </p>
+
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <Link
+              href={`/learn/${part.slug}/${chapter.slug}`}
+              className="px-4 py-2 text-xs font-semibold rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs"
+            >
+              ← Back to {chapter.title}
+            </Link>
+            <Link
+              href="/resources"
+              className="px-4 py-2 text-xs font-semibold rounded-xl bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-2xs"
+            >
+              Browse Resource Vault →
+            </Link>
+          </div>
+
+          <div className="mt-6 pt-6 border-t border-slate-100 max-w-sm mx-auto">
+            <CompletionToggle slug={subSlug} />
+          </div>
         </div>
       )}
 

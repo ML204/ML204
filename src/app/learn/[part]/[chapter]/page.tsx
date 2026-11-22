@@ -86,7 +86,7 @@ export default async function ChapterPage({
               rel="noopener noreferrer"
               className="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs sm:text-sm rounded-xl transition-colors text-center whitespace-nowrap"
             >
-              GitHub Folder ↗
+              Study Notes on GitHub ↗
             </a>
 
             {firstSub && (
@@ -140,7 +140,7 @@ export default async function ChapterPage({
                     )}
                     {sub.files.length > 0 && (
                       <span className="inline-flex items-center px-2 py-0.2 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200">
-                        📁 {sub.files.length} {sub.files.length === 1 ? 'file' : 'files'}
+                        📚 {sub.files.length} {sub.files.length === 1 ? 'study file' : 'study files'}
                       </span>
                     )}
                   </div>
@@ -156,7 +156,7 @@ export default async function ChapterPage({
         </div>
       </div>
 
-      {/* Section 2: Chapter Wise Uploaded Files & Notes */}
+      {/* Section 2: Chapter Wise Study Notes & Files */}
       <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
           <div>
@@ -164,11 +164,11 @@ export default async function ChapterPage({
               Chapter Resources
             </span>
             <h2 className="text-lg font-bold text-slate-900">
-              Uploaded Study Notes for {chapter.title}
+              Study Notes & Materials for {chapter.title}
             </h2>
           </div>
           <span className="text-xs font-semibold px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700">
-            {totalFiles} {totalFiles === 1 ? 'file' : 'files'} total
+            {totalFiles} {totalFiles === 1 ? 'file' : 'files'} available
           </span>
         </div>
 
@@ -187,9 +187,9 @@ export default async function ChapterPage({
                     {topic.title}
                   </Link>
                 </div>
-                <code className="text-[11px] text-slate-400 font-mono">
-                  resources/{topic.slug}/
-                </code>
+                <span className="text-[11px] text-slate-500 font-medium">
+                  {topic.files.length} {topic.files.length === 1 ? 'file' : 'files'}
+                </span>
               </div>
 
               {topic.files.length > 0 ? (

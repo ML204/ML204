@@ -38,26 +38,26 @@ export function ResourcesSection({ githubPath, items = [] }: ResourcesSectionPro
 
         {githubPath && (
           <a
-            href={`https://github.com/Inzamam-Ul-Haque/mlens/tree/main/${githubPath}`}
+            href={`https://github.com/hamimLohani/mlens/tree/main/${githubPath}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs"
           >
-            <span>GitHub Code</span>
+            <span>Code & Notes</span>
             <span className="text-slate-400">↗</span>
           </a>
         )}
       </div>
 
       <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-        Deepen your understanding with hand-picked textbooks, video series, and project code hosted on GitHub.
+        Deepen your understanding with hand-picked textbooks, video series, and code notebooks.
       </p>
 
       <div className="space-y-2.5">
         {/* GitHub Repository Item */}
         {githubPath && (
           <a
-            href={`https://github.com/Inzamam-Ul-Haque/mlens/tree/main/${githubPath}`}
+            href={`https://github.com/hamimLohani/mlens/tree/main/${githubPath}`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200/80 hover:border-slate-400 transition-all group"
@@ -66,14 +66,14 @@ export function ResourcesSection({ githubPath, items = [] }: ResourcesSectionPro
             <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2 mb-0.5">
                 <span className="text-xs font-semibold text-slate-900 group-hover:text-brand-600 transition-colors">
-                  Project GitHub Files: /{githubPath}
+                  Topic Code & Notes Repository
                 </span>
                 <span className="text-[10px] px-2 py-0.5 rounded-full font-medium bg-slate-100 text-slate-700 border border-slate-200">
-                  Repository
+                  Open Source
                 </span>
               </div>
               <p className="text-xs text-slate-500">
-                Code examples, Python/NumPy implementations, and data files for this topic.
+                Code examples, Python/NumPy implementations, and study notes for this topic.
               </p>
             </div>
             <span className="text-xs text-slate-400 group-hover:text-brand-600 group-hover:translate-x-0.5 transition-transform">

@@ -292,8 +292,8 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                           {isExpanded && (
                             <div className="px-5 pb-3.5 pt-1 bg-slate-50/40 space-y-1.5 border-t border-slate-50">
                               <div className="flex items-center justify-between pb-1 text-xs">
-                                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400">
-                                  Files in resources/{topic.slug}/
+                                <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
+                                  Study Materials & Notes
                                 </span>
                                 <Link
                                   href={`/learn/${part.partSlug}/${chapter.chapterSlug}/${topic.slug}`}
@@ -355,7 +355,7 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                                 </div>
                               ) : (
                                 <p className="text-xs text-slate-400 italic py-2 text-center">
-                                  No files uploaded to this folder yet.
+                                  Study notes and resources coming soon for this topic.
                                 </p>
                               )}
                             </div>
