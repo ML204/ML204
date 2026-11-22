@@ -46,7 +46,7 @@ export function getTopicFiles(topicSlug: string): TopicFile[] {
           size,
           extension: ext || 'file',
           href: `/api/resources/${topicSlug}/${encodeURIComponent(filename)}`,
-          githubUrl: `https://github.com/hamimlohani/mlens/tree/main/resources/${topicSlug}/${encodeURIComponent(filename)}`,
+          githubUrl: `https://github.com/hamimLohani/mlens/blob/main/resources/${topicSlug}/${encodeURIComponent(filename)}`,
           updatedAt: stat.mtime.toLocaleDateString(),
         };
       });
