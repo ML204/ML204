@@ -1,10 +1,30 @@
 // Local progress tracking — no account needed.
+import { useState, useEffect } from 'react';
 
 const PREFIX = 'mlens:progress:';
 
 export function markComplete(slug: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(PREFIX + slug, 'done');
+  window.dispatchEvent(new Event('mlens:progress-update'));
+}
+
+export function unmarkComplete(slug: string) {
+  if (typeof window === 'undefined') return;
+  localStorage.removeItem(PREFIX + slug);
+  window.dispatchEvent(new Event('mlens:progress-update'));
+}
+
+export function toggleComplete(slug: string): boolean {
+  if (typeof window === 'undefined') return false;
+  const isDone = isComplete(slug);
+  if (isDone) {
+    unmarkComplete(slug);
+    return false;
+  } else {
+    markComplete(slug);
+    return true;
+  }
 }
 
 export function isComplete(slug: string): boolean {
@@ -12,16 +32,31 @@ export function isComplete(slug: string): boolean {
   return localStorage.getItem(PREFIX + slug) === 'done';
 }
 
-export function getProgress(): { total: number; done: number } {
-  if (typeof window === 'undefined') return { total: 0, done: 0 };
-  const keys = Object.keys(localStorage).filter((k) => k.startsWith(PREFIX));
-  const done = keys.filter((k) => localStorage.getItem(k) === 'done').length;
-  return { total: keys.length, done };
+export function getCompletedSlugs(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  const set = new Set<string>();
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith(PREFIX) && localStorage.getItem(key) === 'done') {
+      set.add(key.replace(PREFIX, ''));
+    }
+  }
+  return set;
 }
 
-export function clearProgress() {
-  if (typeof window === 'undefined') return;
-  Object.keys(localStorage)
-    .filter((k) => k.startsWith(PREFIX))
-    .forEach((k) => localStorage.removeItem(k));
+export function useCompletedSlugs(): Set<string> {
+  const [completed, setCompleted] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const update = () => setCompleted(getCompletedSlugs());
+    update();
+    window.addEventListener('mlens:progress-update', update);
+    window.addEventListener('storage', update);
+    return () => {
+      window.removeEventListener('mlens:progress-update', update);
+      window.removeEventListener('storage', update);
+    };
+  }, []);
+
+  return completed;
 }

@@ -28,6 +28,16 @@
 | All topics curriculum directory `/learn` | ✅ Done |
 | Prev / Next navigation between sub-chapters | ✅ Done |
 | Clickable breadcrumb hierarchy throughout all pages | ✅ Done |
+| Supplementary Resources & GitHub component (`ResourcesSection`) | ✅ Done |
+| Dedicated Resources & Books Directory (`/resources`) | ✅ Done |
+| All 130 topic resource directories (`resources/[topic]/`) | ✅ Done (all 130 created) |
+| Dynamic per-topic file detector & downloader (`TopicResourceFiles`) | ✅ Done |
+| Feynman active recall card (`TeachThisCard` & `ExplainInOwnWords`) | ✅ Done |
+| Real-time checklist mastery tracking & progress bar | ✅ Done |
+| Supplementary Resources & GitHub component (`ResourcesSection`) | ✅ Done |
+| Dedicated Resources & Books Directory (`/resources`) | ✅ Done |
+| Feynman active recall card (`TeachThisCard` & `ExplainInOwnWords`) | ✅ Done |
+| Real-time checklist mastery tracking & progress bar | ✅ Done |
 | `FigureBox` — shared figure wrapper | ✅ Done |
 | `FigureControls` — Slider, Toggle, Dropdown, Presets, PlayControls, LiveValuesPanel | ✅ Done |
 | `SubchapterBlocks` — Section, Callout, Analogy, Formula, SymbolTable, Divider | ✅ Done |

@@ -16,7 +16,7 @@ interface FigureBoxProps {
  */
 export function FigureBox({ title, caption, children, controls, liveValues }: FigureBoxProps) {
   return (
-    <div className="figure-box my-8">
+    <div className="figure-box my-6 sm:my-8 rounded-xl sm:rounded-2xl">
       {/* Header */}
       {title && (
         <div className="flex items-center justify-between px-4 py-2.5 border-b border-slate-200 bg-slate-50">

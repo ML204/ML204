@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { SiteHeader } from '@/components/layout/SiteHeader';
 import { Sidebar } from '@/components/layout/Sidebar';
+import { MobileNavProvider } from '@/components/layout/MobileNavContext';
 
 export const metadata: Metadata = {
   title: 'MLens — Interactive ML Book',
@@ -26,13 +27,15 @@ export default function RootLayout({
         />
       </head>
       <body className="flex flex-col min-h-screen">
-        <SiteHeader />
-        <div className="flex flex-1 pt-[var(--header-height)]">
-          <Sidebar />
-          <main className="flex-1 min-w-0 ml-0 md:ml-[var(--sidebar-width)]">
-            {children}
-          </main>
-        </div>
+        <MobileNavProvider>
+          <SiteHeader />
+          <div className="flex flex-1 pt-[var(--header-height)]">
+            <Sidebar />
+            <main className="flex-1 min-w-0 ml-0 md:ml-[var(--sidebar-width)]">
+              {children}
+            </main>
+          </div>
+        </MobileNavProvider>
       </body>
     </html>
   );

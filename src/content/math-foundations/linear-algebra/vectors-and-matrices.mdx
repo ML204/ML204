@@ -3,6 +3,9 @@ import {
   Section, Callout, Analogy, Formula, SymbolTable, Divider
 } from '@/components/subchapter/SubchapterBlocks';
 import { VectorMatrixFigure } from '@/components/figures/VectorMatrixFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'Vectors and Matrices',
@@ -201,6 +204,64 @@ In ML:
         'Vector addition works component-wise: [1 + 3, 2 + (-1)]ᵀ = [4, 1]ᵀ.',
       figureHint: 'Set u to (1, 2) and v to (3, -1) in the figure to view the resulting green vector at (4, 1).',
     },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Vectors and Matrices"
+  oneLiner="A vector is an arrow representing features or direction in space; a matrix is a grid of vectors that stores entire datasets or transforms space."
+  takeaways={[
+    'Vector addition (u + v) combines displacement tip-to-tail (parallelogram rule).',
+    'Scalar multiplication (c · v) stretches, shrinks, or flips direction (when c < 0).',
+    'In ML tabular datasets, row i is an example/sample, while column j is a feature.',
+  ]}
+  commonTrap="Confusing vector addition with scalar addition: you can only add vectors that share the exact same number of dimensions!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="vectors-and-matrices"
+  topicTitle="Vectors and Matrices"
+  referenceChecklist={[
+    'Mentioned that vectors have both direction and magnitude (length).',
+    'Explained vector addition as combining steps or using the parallelogram rule.',
+    'Mentioned how a scalar scales length and flips direction if negative.',
+    'Connected vectors/matrices to how real-world data (pixels, features) are stored.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="resources/01-linear-algebra/01-vectors-and-matrices"
+  items={[
+    {
+      title: "Essence of Linear Algebra: Vectors, What Even Are They?",
+      type: "video",
+      description: "Grant Sanderson (3Blue1Brown) introduces the coordinate vs geometric view of vectors.",
+      url: "https://www.youtube.com/watch?v=fNk_zzaMoEs"
+    },
+    {
+      title: "Mathematics for Machine Learning — Chapter 2: Linear Algebra",
+      type: "book",
+      description: "Free university textbook by Deisenroth, Faisal & Ong covering vectors, spaces, and linear independence.",
+      url: "https://mml-book.github.io/"
+    },
+    {
+      title: "Vector Arithmetic & NumPy Code Cheat Sheet",
+      type: "cheatsheet",
+      description: "Python syntax reference for array shapes, dot products, and vector norms.",
+      url: "https://github.com/Inzamam-Ul-Haque/mlens"
+    }
   ]}
 />
 

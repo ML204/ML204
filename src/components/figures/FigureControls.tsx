@@ -133,10 +133,10 @@ interface LiveValuesPanelProps {
 
 export function LiveValuesPanel({ values }: LiveValuesPanelProps) {
   return (
-    <div className="flex flex-wrap gap-4 px-4 py-2 bg-slate-900 text-sm font-mono rounded-b-xl">
+    <div className="flex flex-wrap gap-x-4 gap-y-2 px-3 sm:px-4 py-2 bg-slate-900 text-xs sm:text-sm font-mono rounded-b-xl">
       {values.map(({ label, value, color = '#a5b4fc' }) => (
         <div key={label} className="flex items-center gap-1.5">
-          <span className="text-slate-400 text-xs">{label}:</span>
+          <span className="text-slate-400 text-[10px] sm:text-xs">{label}:</span>
           <span className="font-semibold tabular-nums" style={{ color }}>{value}</span>
         </div>
       ))}

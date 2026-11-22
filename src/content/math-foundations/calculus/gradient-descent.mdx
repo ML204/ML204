@@ -3,6 +3,9 @@ import { Quiz } from '@/components/quiz/Quiz';
 import {
   Section, Callout, Analogy, Formula, SymbolTable, Divider
 } from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'Gradient Descent',
@@ -171,6 +174,64 @@ The update rule:
       explanation:
         'The gradient points in the direction of steepest increase (uphill). By subtracting it, we move in the direction of steepest decrease (downhill) — which is what we want.',
     },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Gradient Descent"
+  oneLiner="Gradient descent iteratively updates parameters in the opposite direction of the gradient to roll down the loss landscape toward the minimum error."
+  takeaways={[
+    'The gradient ∇L points uphill; subtracting α · ∇L guarantees moving downhill.',
+    'The learning rate α controls step size: too small takes forever, too large diverges.',
+    'At a minimum, the slope is zero (flat), so updates naturally slow down and stop.',
+  ]}
+  commonTrap="Confusing the gradient (slope/direction) with the loss value (elevation/current error)!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="gradient-descent"
+  topicTitle="Gradient Descent"
+  referenceChecklist={[
+    'Explained the fog / hill walking analogy (stepping downhill).',
+    'Mentioned the gradient as the slope and why we subtract it.',
+    'Explained the role of the learning rate α in controlling step size.',
+    'Mentioned what happens when the slope reaches zero at the bottom.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="resources/02-calculus/gradient-descent"
+  items={[
+    {
+      title: "3Blue1Brown: Gradient Descent, How Neural Networks Learn",
+      type: "video",
+      description: "Visual exploration of high-dimensional loss landscapes and gradient steps.",
+      url: "https://www.youtube.com/watch?v=IHZwWFHWa-w"
+    },
+    {
+      title: "Deep Learning (Goodfellow) — Chapter 4: Numerical Computation",
+      type: "book",
+      description: "Rigorous treatment of gradient-based optimization, conditioning, and Jacobian matrices.",
+      url: "https://www.deeplearningbook.org/contents/numerical.html"
+    },
+    {
+      title: "Jupyter Notebook: Gradient Descent From Scratch",
+      type: "github",
+      description: "Clean Python script comparing analytical vs numerical gradients on 1D and 2D loss surfaces.",
+      url: "https://github.com/Inzamam-Ul-Haque/mlens"
+    }
   ]}
 />
 

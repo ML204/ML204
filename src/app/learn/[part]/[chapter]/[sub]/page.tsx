@@ -2,6 +2,9 @@ import { toc } from '@/lib/toc';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { FeedbackBar } from '@/components/subchapter/FeedbackBar';
+import { CompletionToggle } from '@/components/subchapter/CompletionToggle';
+import { getTopicFiles } from '@/lib/topicFiles';
+import { TopicResourceFiles } from '@/components/subchapter/TopicResourceFiles';
 
 // Dynamically import the MDX content for each sub-chapter
 async function getSubchapterModule(part: string, chapter: string, sub: string) {
@@ -47,6 +50,7 @@ export default async function SubchapterPage({
 
   // Load MDX
   const mod = await getSubchapterModule(partSlug, chapterSlug, subSlug);
+  const topicFiles = getTopicFiles(subSlug);
 
   // Prev / Next navigation
   const allSubs = toc.flatMap((p) =>
@@ -61,7 +65,7 @@ export default async function SubchapterPage({
   const Content = mod?.default;
 
   return (
-    <article className="max-w-3xl mx-auto px-5 py-10">
+    <article className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       {/* Breadcrumb */}
       <nav className="text-xs text-slate-400 mb-6 flex items-center gap-1.5 flex-wrap">
         <Link href="/" className="hover:text-brand-600 transition-colors">Home</Link>
@@ -89,6 +93,7 @@ export default async function SubchapterPage({
       {Content ? (
         <div className="prose prose-slate max-w-none">
           <Content />
+          <CompletionToggle slug={subSlug} />
         </div>
       ) : (
         <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-10 text-center text-slate-500">
@@ -97,6 +102,9 @@ export default async function SubchapterPage({
           <p className="text-sm mt-1">We&apos;re working on it — check back later.</p>
         </div>
       )}
+
+      {/* Uploaded community & personal notes for this topic */}
+      <TopicResourceFiles topicSlug={subSlug} topicTitle={subchapter.title} files={topicFiles} />
 
       {/* Feedback */}
       <FeedbackBar subchapterSlug={`${partSlug}/${chapterSlug}/${subSlug}`} />
