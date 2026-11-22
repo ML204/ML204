@@ -1,0 +1,165 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { LearningRateFigure } from '@/components/figures/LearningRateFigure';
+
+export const metadata = {
+  title: 'Learning Rate & Convergence',
+  description: 'How the learning rate controls the speed and stability of gradient descent — and what happens when it is wrong.',
+};
+
+<Section label="What is it?">
+
+The **learning rate** (written $\alpha$) is a small positive number that controls how big each step is during gradient descent. It is one of the most important settings in machine learning.
+
+</Section>
+
+<Section label="Why we need it">
+
+Gradient descent knows which direction to move (downhill), but not how far to step.
+
+If you take tiny steps, you will eventually reach the minimum — but it will take a very long time.
+
+If you take huge steps, you might jump over the minimum and end up somewhere worse. Take even bigger steps and the loss can grow instead of shrink — the model **diverges**.
+
+The learning rate is the dial that controls step size. Finding a good value is one of the first things you tune in any ML project.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+Recall the gradient descent update rule:
+
+$$
+w \leftarrow w - \alpha \cdot \nabla L(w)
+$$
+
+The gradient $\nabla L$ tells us the direction and steepness of the slope. The learning rate $\alpha$ scales that by telling us: *of that full slope, what fraction of a step do we take?*
+
+**Too small ($\alpha \approx 0.001$):** Each step barely moves. The ball creeps toward the minimum. Training takes thousands of steps. It may never get there in a reasonable time.
+
+**Just right ($\alpha \approx 0.1$):** Steps are large enough to converge in tens to hundreds of steps, but small enough not to overshoot. The loss decreases smoothly.
+
+**Too large ($\alpha \approx 1.0+$):** Each step overshoots the minimum. The ball lands on the other side of the valley, then jumps back over again — going further each time. The loss oscillates or grows. The model **diverges**.
+
+<Analogy>
+  Imagine adjusting the temperature on a shower. Tiny turns and you wait forever for it to warm up. Huge turns and you slam between freezing and scalding. A moderate turn gets you to the right temperature quickly and smoothly.
+</Analogy>
+
+**How do you pick a learning rate in practice?**
+
+1. Start around $0.01$ or $0.1$ and watch the loss curve.
+2. If the loss decreases smoothly → good.
+3. If the loss barely moves → try 10× larger.
+4. If the loss oscillates or increases → try 10× smaller.
+5. Use a **learning rate schedule** to start larger and decrease over time.
+
+</Section>
+
+<LearningRateFigure />
+
+<Section label="What to try">
+
+- The figure shows **three runs side by side**: slow (small α), good (medium α), and fast/diverging (large α).
+- **Drag the α slider** and press **Run all** to see how all three paths change.
+- Watch the **Loss vs Steps** chart on the right: a good α produces a smooth, steeply falling curve. Too-small α falls slowly. Too-large α bounces or climbs.
+- Try the **"Goldilocks"** preset to see the ideal convergence, then **"Diverge"** to see the loss explode.
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="Effect of learning rate on the update step">
+  $\Delta w = -\alpha \cdot \nabla L(w)$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'α',       meaning: 'Learning rate — a positive scalar, typically 0.0001 to 0.1' },
+    { symbol: '∇L(w)',   meaning: 'Gradient at the current parameter value w' },
+    { symbol: 'Δw',      meaning: 'The change applied to w in this step' },
+  ]}
+/>
+
+<Callout kind="tip">
+  A good rule of thumb: plot the loss vs. steps for a few values of α (e.g. 0.001, 0.01, 0.1). The best α is the one where the loss falls steeply and smoothly. This plot is called the **loss curve**.
+</Callout>
+
+<Callout kind="info">
+  **Learning rate schedules** start with a larger α early in training (when the model is far from the minimum and big steps are fine) and reduce it later (when you need fine adjustments near the minimum). Common schedules: step decay, cosine annealing, warmup.
+</Callout>
+
+<Callout kind="warning">
+  **Common mistake:** choosing a learning rate once and never changing it. In practice, the best α for a large model at step 1 is not the same as at step 10 000.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'lr-q1',
+      kind: 'mcq',
+      text: 'You train a model for 100 steps and the loss barely changes. What is the most likely cause?',
+      options: [
+        'The learning rate is too large',
+        'The learning rate is too small',
+        'The loss function is wrong',
+        'The model has too many layers',
+      ],
+      correctIndex: 1,
+      explanation:
+        'A very small learning rate means each step is tiny, so the loss decreases imperceptibly. Try multiplying the learning rate by 10 and re-run. If the loss now decreases quickly, that was the problem.',
+      figureHint: 'Set α to 0.001 in the figure and watch how slowly the loss curve falls.',
+    },
+    {
+      id: 'lr-q2',
+      kind: 'mcq',
+      text: 'You set α = 2.0 and the loss grows instead of shrinking after each step. What is happening?',
+      options: [
+        'The model has converged',
+        'The gradient is zero',
+        'The learning rate is too large — the model is diverging',
+        'The dataset is too small',
+      ],
+      correctIndex: 2,
+      explanation:
+        'A very large learning rate causes the update to overshoot the minimum. The ball lands on the far side of the valley, then jumps back even further, with each step making things worse. This is divergence.',
+      figureHint: 'Set α to a large value in the figure and press "Diverge" to watch the loss explode.',
+    },
+    {
+      id: 'lr-q3',
+      kind: 'mcq',
+      text: 'What does a learning rate schedule do?',
+      options: [
+        'It changes the loss function during training',
+        'It changes the learning rate during training, usually starting large and decreasing',
+        'It sets the same learning rate for all parameters',
+        'It chooses the best model after training',
+      ],
+      correctIndex: 1,
+      explanation:
+        'A learning rate schedule adjusts α during training. A larger α early in training allows fast progress. A smaller α later allows fine-tuning near the minimum without overshooting.',
+    },
+    {
+      id: 'lr-q4',
+      kind: 'mcq',
+      text: 'All else being equal, which learning rate is most likely to converge smoothly to the minimum?',
+      options: ['0.000001', '0.01', '1.0', '100.0'],
+      correctIndex: 1,
+      explanation:
+        '0.01 is typically in the "just right" range for many problems. 0.000001 is too small to converge quickly. 1.0 and 100.0 are likely too large and risk divergence, depending on the loss landscape.',
+    },
+  ]}
+/>
+
+</Section>

@@ -1,0 +1,166 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { OptimizationFigure } from '@/components/figures/OptimizationFigure';
+
+export const metadata = {
+  title: 'What is Optimization?',
+  description: 'Understanding what it means to minimize a function — the core idea behind all of machine learning.',
+};
+
+<Section label="What is it?">
+
+**Optimization** means finding the input to a function that makes its output as small (or as large) as possible.
+
+In machine learning, we always optimize the same kind of thing: we search for the model's parameters that make the errors as small as possible.
+
+</Section>
+
+<Section label="Why we need it">
+
+Every machine learning model has numbers inside it called **parameters** — for example, the slope and intercept of a line, or the weights of a neural network.
+
+Different parameter values give different predictions. Some predictions are close to the truth. Others are far off.
+
+We need a way to find the parameter values that give the best predictions. That is what optimization does: it searches for the best parameters by minimizing a measure of error called the **loss**.
+
+Without optimization, we would have to try every possible combination of parameter values by hand — which is impossible for real models with millions of parameters.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+Imagine you are tuning a radio. You turn the dial and listen to the signal. When the signal is clear, you stop. You were minimizing the noise.
+
+<Analogy>
+  The dial is the parameter. The noise is the loss. Turning the dial until the signal is clearest is optimization.
+</Analogy>
+
+In math, we write a function $L(w)$ where:
+- $w$ is the parameter (what we can change)
+- $L$ is the loss (what we want to minimize)
+
+The question is: **what value of $w$ makes $L(w)$ the smallest?**
+
+That point is called the **minimum**. At the minimum, the function stops decreasing and starts increasing. The slope is exactly zero.
+
+**Two kinds of minimum:**
+- **Global minimum** — the absolute lowest point of the entire function.
+- **Local minimum** — a point that is lower than its neighbors, but not the lowest overall. The function could be even lower somewhere else.
+
+Simple functions like a parabola have one global minimum. Real ML loss functions are bumpy and have many local minima. Modern optimizers handle this surprisingly well in practice.
+
+</Section>
+
+<OptimizationFigure />
+
+<Section label="What to try">
+
+- **Drag the orange dot** left and right along the curve to explore the loss at different parameter values.
+- Watch the **Loss value** in the panel update as you move.
+- Notice the **green dashed line** marks the global minimum — the lowest possible loss.
+- Try the **"Bumpy"** preset to see a function with local minima. Can you find all the valleys?
+- Try **"Convex"** to see a clean parabola — one minimum, easy to find. Most real loss functions are more like "Bumpy".
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+The optimization problem in ML:
+
+<Formula label="What we want to solve">
+  $w^* = \arg\min_w \; L(w)$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'w',          meaning: 'The parameter (or parameters) we are searching over' },
+    { symbol: 'L(w)',       meaning: 'The loss function — measures how wrong the model is at parameter value w' },
+    { symbol: 'w*',         meaning: 'The optimal parameter — the one that minimizes L' },
+    { symbol: 'argmin',     meaning: 'Short for "the argument that minimizes" — returns the input, not the output' },
+  ]}
+/>
+
+<Callout kind="info">
+  $\arg\min$ returns the **input** that makes the function smallest. $\min$ returns the **output** (the smallest value itself). We want $\arg\min$ — we want the best parameters, not just the best loss score.
+</Callout>
+
+<Callout kind="warning">
+  **Common mistake:** thinking optimization always finds the global minimum. In real ML, we usually find a good local minimum — and that is enough.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'opt-q1',
+      kind: 'mcq',
+      text: 'What does optimization mean in machine learning?',
+      options: [
+        'Making the code run faster',
+        'Finding parameter values that minimize the loss function',
+        'Choosing the right dataset',
+        'Increasing the number of layers in a model',
+      ],
+      correctIndex: 1,
+      explanation:
+        'In ML, optimization means finding the parameters (weights) that make the model\'s loss as small as possible. The loss measures how wrong the model is, so minimizing it means finding the best parameters.',
+      figureHint: 'Drag the orange dot to the lowest point of the curve — that is what the optimizer is trying to find.',
+    },
+    {
+      id: 'opt-q2',
+      kind: 'mcq',
+      text: 'What is the difference between a local minimum and a global minimum?',
+      options: [
+        'They are the same thing',
+        'A local minimum is the lowest point on the entire function; a global minimum is just lower than its neighbors',
+        'A global minimum is the absolute lowest point; a local minimum is just lower than nearby points',
+        'Local minima only exist in neural networks',
+      ],
+      correctIndex: 2,
+      explanation:
+        'A global minimum is the single lowest point of the entire function. A local minimum is a point lower than its immediate neighbors, but there might be an even lower point elsewhere. Real ML loss functions often have many local minima.',
+      figureHint: 'Switch to the "Bumpy" preset and try to find all the valleys — some are local minima, one is the global minimum.',
+    },
+    {
+      id: 'opt-q3',
+      kind: 'mcq',
+      text: 'At the minimum of a loss function, the slope (gradient) is:',
+      options: [
+        'Very large and positive',
+        'Very large and negative',
+        'Zero',
+        'Equal to the loss value',
+      ],
+      correctIndex: 2,
+      explanation:
+        'At any minimum — local or global — the function is momentarily flat. The slope (derivative/gradient) is exactly zero. This is a key fact that optimization algorithms use to know when they have found a minimum.',
+    },
+    {
+      id: 'opt-q4',
+      kind: 'mcq',
+      text: 'What does argmin mean?',
+      options: [
+        'The minimum value of the function',
+        'The input value that makes the function smallest',
+        'The argument that makes the function largest',
+        'A Python function for finding the minimum',
+      ],
+      correctIndex: 1,
+      explanation:
+        'argmin returns the input (argument) that minimizes the function — in ML, that is the optimal parameter w*. It is different from min, which returns the smallest output value.',
+    },
+  ]}
+/>
+
+</Section>

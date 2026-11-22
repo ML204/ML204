@@ -66,9 +66,11 @@ export default async function SubchapterPage({
       <nav className="text-xs text-slate-400 mb-6 flex items-center gap-1.5 flex-wrap">
         <Link href="/" className="hover:text-brand-600 transition-colors">Home</Link>
         <span>/</span>
-        <span>{part.title}</span>
+        <Link href="/learn" className="hover:text-brand-600 transition-colors">Curriculum</Link>
         <span>/</span>
-        <span>{chapter.title}</span>
+        <Link href={`/learn/${part.slug}`} className="hover:text-brand-600 transition-colors">{part.title}</Link>
+        <span>/</span>
+        <Link href={`/learn/${part.slug}/${chapter.slug}`} className="hover:text-brand-600 transition-colors">{chapter.title}</Link>
         <span>/</span>
         <span className="text-slate-700 font-medium">{subchapter.title}</span>
       </nav>

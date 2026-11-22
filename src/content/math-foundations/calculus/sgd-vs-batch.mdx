@@ -1,0 +1,177 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { SGDBatchFigure } from '@/components/figures/SGDBatchFigure';
+
+export const metadata = {
+  title: 'SGD vs Batch GD',
+  description: 'Why we do not use the full dataset every step — and how SGD makes training practical at scale.',
+};
+
+<Section label="What is it?">
+
+**Batch gradient descent** computes the gradient using all training examples before taking one step. **Stochastic gradient descent (SGD)** takes a step after every single example, using an approximate gradient. **Mini-batch gradient descent** is the middle ground — a small random sample of examples per step.
+
+In practice, almost all modern ML uses mini-batch gradient descent and simply calls it "SGD".
+
+</Section>
+
+<Section label="Why we need it">
+
+If your dataset has 10 million examples, computing the full gradient takes 10 million forward passes before you can update the parameters even once.
+
+That is too slow. You would update the model once per hour instead of thousands of times per second.
+
+SGD fixes this by approximating the gradient using a small random subset — a **mini-batch** of, say, 32 or 256 examples. The approximation is noisy, but it is good enough and far faster.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+**Batch gradient descent:**
+
+$$
+w \leftarrow w - \alpha \cdot \frac{1}{n}\sum_{i=1}^{n} \nabla L_i(w)
+$$
+
+One step uses all $n$ examples. The gradient is exact and smooth, but each step is expensive.
+
+**Stochastic gradient descent (true SGD):**
+
+$$
+w \leftarrow w - \alpha \cdot \nabla L_i(w) \quad \text{for a single random } i
+$$
+
+One step uses one random example. Very fast, but the gradient is very noisy — the path zigzags.
+
+**Mini-batch gradient descent (what everyone calls SGD):**
+
+$$
+w \leftarrow w - \alpha \cdot \frac{1}{b}\sum_{i \in \mathcal{B}} \nabla L_i(w)
+$$
+
+One step uses a random batch of $b$ examples (usually 32–512). The gradient is a good approximation, the path is moderately noisy, and the hardware (GPU) runs efficiently.
+
+<Analogy>
+  Batch GD is like asking every student in a school of 10 000 what they think before making one decision. SGD is like asking one random student and acting immediately. Mini-batch is like asking a class of 32 — fast, representative, and practical.
+</Analogy>
+
+**Why does noise help?**
+
+Surprisingly, the noise in SGD is often *useful*. It helps the optimizer escape sharp local minima and find flatter, more generalizable solutions. Pure batch gradient descent can get stuck in a sharp minimum that happens to fit the training data but fails on new data.
+
+</Section>
+
+<SGDBatchFigure />
+
+<Section label="What to try">
+
+- **Press Play** on both paths. The **blue path (Batch GD)** moves smoothly and directly. The **orange path (SGD)** zigzags because each step uses noisy gradient estimates.
+- Use the **Batch size** slider: larger batch → smoother path, closer to Batch GD. Smaller batch → more noise.
+- Notice that **SGD reaches the region near the minimum faster** even though it zigzags — it takes many more steps but each step is cheap.
+- Try **"Escape local min"** preset: watch SGD bounce out of a local minimum that traps Batch GD.
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="Mini-batch gradient descent">
+  $w \leftarrow w - \dfrac{\alpha}{b} \displaystyle\sum_{i \in \mathcal{B}} \nabla L_i(w)$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'b',      meaning: 'Batch size — number of examples used per step (e.g. 32, 128, 256)' },
+    { symbol: 'ℬ',      meaning: 'The mini-batch — a random subset of b training examples' },
+    { symbol: '∇Lᵢ',   meaning: 'Gradient of the loss on the i-th example alone' },
+    { symbol: 'epoch',  meaning: 'One full pass through the entire training dataset' },
+  ]}
+/>
+
+<Callout kind="tip">
+  **Batch size 32–256** is the most common range. Larger batches give smoother gradients but need more memory and can generalize worse. Smaller batches are noisier but can generalize better and use less memory.
+</Callout>
+
+<Callout kind="info">
+  One **epoch** = every training example has been seen once. With 10 000 examples and batch size 100, one epoch = 100 gradient steps.
+</Callout>
+
+<Callout kind="warning">
+  **Common mistake:** using batch size 1 (true SGD) for a large dataset — it is noisy and slow on modern GPUs which are optimized for parallel computation on batches.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'sgd-q1',
+      kind: 'mcq',
+      text: 'Why is full batch gradient descent impractical for large datasets?',
+      options: [
+        'It always gets stuck in local minima',
+        'You must compute the gradient over all examples before taking a single step — too slow',
+        'It requires too much memory for the model weights',
+        'It cannot work with neural networks',
+      ],
+      correctIndex: 1,
+      explanation:
+        'With millions of examples, computing the full gradient requires a full pass through all data before updating parameters even once. Mini-batch SGD takes many cheap approximate steps in the same time — far more efficient.',
+      figureHint: 'Watch the Batch GD path — it moves smoothly but waits for all data before each step.',
+    },
+    {
+      id: 'sgd-q2',
+      kind: 'mcq',
+      text: 'What is an epoch?',
+      options: [
+        'One gradient descent step',
+        'One full pass through the entire training dataset',
+        'The number of batches in a dataset',
+        'The learning rate schedule length',
+      ],
+      correctIndex: 1,
+      explanation:
+        'One epoch means every training example has been used once. With a dataset of 1 000 examples and batch size 100, one epoch consists of 10 gradient steps.',
+    },
+    {
+      id: 'sgd-q3',
+      kind: 'mcq',
+      text: 'The noise in mini-batch SGD is:',
+      options: [
+        'Always harmful and should be eliminated',
+        'Irrelevant to the final model quality',
+        'Sometimes helpful — it can help escape sharp local minima',
+        'The main cause of overfitting',
+      ],
+      correctIndex: 2,
+      explanation:
+        'The gradient noise in SGD is a double-edged feature. It can help the optimizer escape sharp local minima that would trap a smooth optimizer, often leading to flatter minima that generalize better to unseen data.',
+      figureHint: 'Try the "Escape local min" preset — watch SGD bounce out while Batch GD stays trapped.',
+    },
+    {
+      id: 'sgd-q4',
+      kind: 'mcq',
+      text: 'You increase the batch size from 32 to 512. What do you expect to happen to the gradient path?',
+      options: [
+        'It becomes noisier and more erratic',
+        'It becomes smoother and more like full batch gradient descent',
+        'It diverges because the learning rate becomes too large',
+        'Nothing changes — batch size does not affect the gradient',
+      ],
+      correctIndex: 1,
+      explanation:
+        'A larger batch gives a better approximation of the true gradient, so the path is smoother. Very large batches approach full batch gradient descent — smooth but potentially less able to escape sharp local minima.',
+    },
+  ]}
+/>
+
+</Section>

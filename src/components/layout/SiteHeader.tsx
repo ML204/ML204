@@ -18,6 +18,7 @@ export function SiteHeader() {
       {/* Nav links */}
       <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
         <Link href="/" className="hover:text-brand-600 transition-colors">Home</Link>
+        <Link href="/learn" className="hover:text-brand-600 transition-colors">Curriculum</Link>
         <Link href="/#contents" className="hover:text-brand-600 transition-colors">Contents</Link>
       </nav>
 

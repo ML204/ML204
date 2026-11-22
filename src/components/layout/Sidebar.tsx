@@ -30,22 +30,40 @@ export function Sidebar() {
           md:translate-x-0`}
       >
         <nav className="py-4">
+          {/* Quick link to full curriculum */}
+          <div className="px-4 pb-3 mb-2 border-b border-slate-100">
+            <Link
+              href="/learn"
+              className="flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-slate-700 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 rounded-xl border border-slate-200 transition-colors group"
+            >
+              <span className="text-sm">📚</span>
+              <span>All Curriculum</span>
+              <span className="ml-auto text-slate-400 group-hover:text-brand-600">→</span>
+            </Link>
+          </div>
+
           {toc.map((part) => (
             <div key={part.slug} className="mb-2">
               {/* Part heading */}
-              <div className="flex items-center gap-2 px-4 py-2">
+              <Link
+                href={`/learn/${part.slug}`}
+                className="flex items-center gap-2 px-4 py-2 text-slate-500 hover:text-brand-600 transition-colors group"
+              >
                 <span className="text-base">{part.icon}</span>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-xs font-bold uppercase tracking-wider group-hover:text-brand-600">
                   {part.title}
                 </span>
-              </div>
+              </Link>
 
               {/* Chapters */}
               {part.chapters.map((chapter) => (
                 <div key={chapter.slug} className="mb-1">
-                  <p className="px-6 py-1 text-xs font-semibold text-slate-500">
+                  <Link
+                    href={`/learn/${part.slug}/${chapter.slug}`}
+                    className="block px-6 py-1 text-xs font-semibold text-slate-500 hover:text-brand-600 transition-colors"
+                  >
                     {chapter.title}
-                  </p>
+                  </Link>
                   {chapter.subchapters.map((sub) => (
                     <Link
                       key={sub.slug}

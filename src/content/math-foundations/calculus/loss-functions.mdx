@@ -1,0 +1,167 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { LossFunctionsFigure } from '@/components/figures/LossFunctionsFigure';
+
+export const metadata = {
+  title: 'Loss Functions',
+  description: 'What is a loss function, why we need one, and how MSE and MAE behave differently.',
+};
+
+<Section label="What is it?">
+
+A **loss function** is a formula that measures how wrong a model's predictions are. It takes the model's predictions and the true answers, and returns a single number — the loss. A smaller loss means better predictions.
+
+</Section>
+
+<Section label="Why we need it">
+
+A model makes predictions. Those predictions are rarely perfect. We need a way to measure *how far off* they are — a single number that summarizes the total error across all examples.
+
+That number is the loss. It is the thing we minimize during training. Without a loss function, the model has no feedback and cannot improve.
+
+The choice of loss function matters. Different loss functions penalize errors differently, and the right choice depends on your problem.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+Suppose you are predicting house prices. You have 4 houses. The model predicts prices, and you know the actual prices.
+
+<Analogy>
+  The loss function is like a report card. It does not grade each house separately — it gives you one overall score for how well you did across all of them.
+</Analogy>
+
+**Two common loss functions for regression:**
+
+**Mean Squared Error (MSE)** — take each error (prediction − true), square it, then average all the squares:
+
+$$
+\text{MSE} = \frac{1}{n} \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+
+Squaring does two things: it makes all errors positive (so they do not cancel out), and it **punishes large errors heavily** — a error of 10 counts 100 times more than an error of 1.
+
+**Mean Absolute Error (MAE)** — take the absolute value of each error (always positive), then average:
+
+$$
+\text{MAE} = \frac{1}{n} \sum_{i=1}^{n} |y_i - \hat{y}_i|
+$$
+
+MAE treats all errors proportionally. An error of 10 is exactly 10 times worse than an error of 1.
+
+**Which to use?**
+- Use **MSE** when large errors are especially bad (e.g. medical predictions).
+- Use **MAE** when you want to be robust to outliers — one very wrong prediction does not dominate.
+
+</Section>
+
+<LossFunctionsFigure />
+
+<Section label="What to try">
+
+- **Drag any data point** up or down to change its true value. Watch the MSE and MAE update live.
+- **Add an outlier** using the preset — drag one point very far from the others. Notice how MSE shoots up much more than MAE. That is because MSE squares the error.
+- **Switch between MSE and MAE** using the toggle to see which metric changes more for the same data.
+- The **orange line** is the model's current prediction (a horizontal mean line). The vertical bars show individual errors.
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="Mean Squared Error (MSE)">
+  $L_\text{MSE} = \dfrac{1}{n} \displaystyle\sum_{i=1}^{n} (y_i - \hat{y}_i)^2$
+</Formula>
+
+<Formula label="Mean Absolute Error (MAE)">
+  $L_\text{MAE} = \dfrac{1}{n} \displaystyle\sum_{i=1}^{n} |y_i - \hat{y}_i|$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'n',          meaning: 'Number of data points (examples)' },
+    { symbol: 'yᵢ',        meaning: 'True value for the i-th example' },
+    { symbol: 'ŷᵢ',        meaning: 'Predicted value for the i-th example (ŷ = "y-hat")' },
+    { symbol: 'yᵢ − ŷᵢ',  meaning: 'The error (residual) for the i-th example' },
+    { symbol: '(·)²',      meaning: 'Squaring makes the error positive and penalizes large errors heavily' },
+    { symbol: '|·|',       meaning: 'Absolute value makes the error positive without extra squaring' },
+  ]}
+/>
+
+<Callout kind="tip">
+  MSE is the most commonly used loss for regression because it is smooth and easy to differentiate — which makes gradient descent work cleanly.
+</Callout>
+
+<Callout kind="warning">
+  **Common mistake:** confusing loss (training error) with accuracy (a separate evaluation metric). Loss is computed during training to guide updates. Accuracy is computed separately to evaluate the final model.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'loss-q1',
+      kind: 'mcq',
+      text: 'Why do we square the errors in MSE instead of just averaging them?',
+      options: [
+        'To make the numbers bigger so they are easier to read',
+        'To make all errors positive and to penalize large errors more heavily',
+        'Because squaring is faster to compute',
+        'To make the loss equal to zero when the model is perfect',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Positive and negative errors would cancel out if we averaged them directly. Squaring makes every error positive. It also penalizes large errors much more — an error of 10 contributes 100, not 10, to the total.',
+      figureHint: 'Add an outlier preset and watch how MSE reacts compared to MAE.',
+    },
+    {
+      id: 'loss-q2',
+      kind: 'mcq',
+      text: 'You are predicting hospital patient recovery times. One patient has a very unusual condition and is a strong outlier. Which loss function should you prefer?',
+      options: [
+        'MSE, because it is more common',
+        'MAE, because it is less sensitive to that one outlier',
+        'MSE, because it punishes the outlier more and forces the model to focus on it',
+        'Neither — outliers should always be removed first',
+      ],
+      correctIndex: 1,
+      explanation:
+        'MAE treats all errors proportionally, so one extreme outlier does not dominate the loss. MSE squares the error, so an outlier can dominate training and pull the model toward fitting that one unusual case at the expense of all others.',
+    },
+    {
+      id: 'loss-q3',
+      kind: 'mcq',
+      text: 'A model predicts 50 but the true value is 60. What is this model\'s squared error for this one example?',
+      options: ['10', '50', '100', '110'],
+      correctIndex: 2,
+      explanation:
+        'The error is 60 − 50 = 10. The squared error is 10² = 100. MSE then averages these squared errors across all examples.',
+    },
+    {
+      id: 'loss-q4',
+      kind: 'mcq',
+      text: 'If a model\'s predictions are perfect (every prediction equals the true value), what is the loss?',
+      options: [
+        '1',
+        '100',
+        'It depends on the number of examples',
+        '0',
+      ],
+      correctIndex: 3,
+      explanation:
+        'If every prediction equals the true value, every error (yᵢ − ŷᵢ) is zero. Zero squared is zero, and zero in absolute value is zero. The average of all zeros is zero. A perfect model has zero loss.',
+    },
+  ]}
+/>
+
+</Section>

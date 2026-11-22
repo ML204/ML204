@@ -21,7 +21,7 @@ export default function HomePage() {
         </p>
         <div className="flex gap-3 justify-center mt-8">
           <Link
-            href="/learn/math-foundations/gradient-descent/what-is-optimization"
+            href="/learn"
             className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition-colors shadow-sm"
           >
             Start Learning →
@@ -62,18 +62,23 @@ export default function HomePage() {
               <div className="flex items-center gap-3 px-6 py-4 bg-slate-50 border-b border-slate-200">
                 <span className="text-2xl">{part.icon}</span>
                 <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    Part {part.number}
-                  </p>
-                  <h3 className="font-bold text-slate-900">{part.title}</h3>
+                  <Link href={`/learn/${part.slug}`} className="group">
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider group-hover:text-brand-600 transition-colors">
+                      Part {part.number}
+                    </p>
+                    <h3 className="font-bold text-slate-900 group-hover:text-brand-600 transition-colors">{part.title}</h3>
+                  </Link>
                 </div>
               </div>
               <div className="divide-y divide-slate-100">
                 {part.chapters.map((chapter) => (
                   <div key={chapter.slug} className="px-6 py-3">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-                      {chapter.title}
-                    </p>
+                    <Link
+                      href={`/learn/${part.slug}/${chapter.slug}`}
+                      className="inline-block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2 hover:text-brand-600 transition-colors"
+                    >
+                      {chapter.title} →
+                    </Link>
                     <div className="flex flex-wrap gap-2">
                       {chapter.subchapters.map((sub) => (
                         <Link

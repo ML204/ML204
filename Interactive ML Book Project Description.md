@@ -44,15 +44,7 @@ There is a single version of the content. It is written to be understandable for
 
 The book is organized as Part → Chapter → Sub-chapter. The parts follow the learning checklist, with the IoT/TinyML part removed.
 
-| Part | Examples of chapters |
-| --- | --- |
-| 1. Math Foundations | Vectors and matrices, derivatives and gradient descent, probability, statistics, optimization, entropy |
-| 2. Data Handling | Exploring data, cleaning, scaling and encoding, splitting data, data leakage, class imbalance |
-| 3. Classical Machine Learning | Linear and logistic regression, k-NN, decision trees, SVM, ensembles, clustering, PCA, anomaly detection, model quality and metrics |
-| 4. Deep Learning | Neurons and networks, backpropagation, training techniques, CNNs, sequence models, attention and transformers, autoencoders, GANs |
-| 5. Specialized Areas | Time series, computer vision, NLP, large language models, generative models, reinforcement learning |
-| 6. MLOps and Deployment | Experiment tracking, serving a model, monitoring, data drift |
-|  |  |
+Follow **ML_Learning_Checklist.pdf**
 
 Following the checklist, the book can be read in order, while math topics are introduced when a model needs them.
 
