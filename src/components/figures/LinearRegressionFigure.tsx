@@ -256,19 +256,31 @@ export function LinearRegressionFigure() {
             {/* Mobile Top Header */}
             <div className="flex items-center justify-between sm:hidden w-full">
               <Toggle
-                label={showResiduals ? 'Showing Residuals' : 'Residuals hidden'}
+                label={showResiduals ? 'Residuals' : 'Residuals'}
                 value={showResiduals}
                 onChange={setShowResiduals}
               />
-              <button
-                onClick={() => {
-                  setBeta1(olsParams.beta1);
-                  setBeta0(olsParams.beta0);
-                }}
-                className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors active:scale-95 shadow-2xs"
-              >
-                🎯 Auto-Fit OLS
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={() => {
+                    setBeta1(olsParams.beta1);
+                    setBeta0(olsParams.beta0);
+                  }}
+                  className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors active:scale-95 shadow-2xs"
+                >
+                  🎯 Auto-Fit OLS
+                </button>
+                <button
+                  onClick={() => {
+                    setPoints(INITIAL_POINTS);
+                    setBeta1(13.1);
+                    setBeta0(7.6);
+                  }}
+                  className="px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-500 transition-colors active:scale-95"
+                >
+                  ↺ Reset
+                </button>
+              </div>
             </div>
 
             {/* Presets Grid */}

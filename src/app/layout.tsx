@@ -31,7 +31,7 @@ export default function RootLayout({
           <SiteHeader />
           <div className="flex flex-1 pt-[var(--header-height)]">
             <Sidebar />
-            <main className="flex-1 min-w-0 ml-0 md:ml-[var(--sidebar-width)]">
+            <main className="flex-1 min-w-0 ml-0 md:ml-[var(--sidebar-width)] overflow-x-hidden">
               {children}
             </main>
           </div>

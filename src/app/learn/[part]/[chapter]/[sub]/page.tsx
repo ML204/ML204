@@ -55,7 +55,7 @@ export default async function SubchapterPage({
   const next = idx < allSubs.length - 1 ? allSubs[idx + 1] : null;
 
   return (
-    <article className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <article className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full min-w-0">
       {/* Breadcrumb */}
       <nav className="text-xs text-slate-400 mb-6 flex items-center gap-1.5 flex-wrap">
         <Link href="/" className="hover:text-brand-600 transition-colors">Home</Link>

@@ -15,15 +15,54 @@
   html {
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
   body {
     @apply bg-slate-50 text-slate-800;
+    overflow-x: hidden;
+    max-width: 100vw;
   }
 
-  /* KaTeX display math */
+  /* KaTeX display and inline math responsive styling */
+  .katex-display {
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    padding: 0.5rem 0 !important;
+    margin: 1rem 0 !important;
+    max-width: 100% !important;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .katex-display::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .katex-display::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 9999px;
+  }
+
+  .katex {
+    max-width: 100%;
+  }
+
+  /* Responsive image containment */
+  .prose img,
+  article img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 0.75rem;
+  }
+
+  /* Legacy KaTeX display math class */
   .math-display {
     @apply overflow-x-auto py-2;
+    overflow-y: hidden !important;
   }
 }
 
