@@ -32,6 +32,8 @@
 | Dedicated Resources & Books Directory (`/resources`) | ✅ Done |
 | All 130 topic resource directories (`resources/[topic]/`) | ✅ Done (all 130 created) |
 | Dynamic per-topic file detector & downloader (`TopicResourceFiles`) | ✅ Done |
+| Chapter-wise resources grouping on `/resources` (Part & Chapter tree) | ✅ Done |
+| Dedicated Chapter Resources section on `/learn/[part]/[chapter]` | ✅ Done |
 | Feynman active recall card (`TeachThisCard` & `ExplainInOwnWords`) | ✅ Done |
 | Real-time checklist mastery tracking & progress bar | ✅ Done |
 | Supplementary Resources & GitHub component (`ResourcesSection`) | ✅ Done |

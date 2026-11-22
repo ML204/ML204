@@ -45,7 +45,7 @@ export function getTopicFiles(topicSlug: string): TopicFile[] {
           name: filename,
           size,
           extension: ext || 'file',
-          href: `/topic-resources/${topicSlug}/${encodeURIComponent(filename)}`,
+          href: `/api/resources/${topicSlug}/${encodeURIComponent(filename)}`,
           githubUrl: `https://github.com/Inzamam-Ul-Haque/mlens/tree/main/resources/${topicSlug}/${encodeURIComponent(filename)}`,
           updatedAt: stat.mtime.toLocaleDateString(),
         };
