@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { offlineQueue } from '@/lib/offlineQueue';
 
 interface FeedbackBarProps {
   subchapterSlug: string;
@@ -13,13 +14,12 @@ export function FeedbackBar({ subchapterSlug }: FeedbackBarProps) {
 
   function pick(v: string) {
     setChosen(v);
-    // In a future version: send rating to analytics
-    localStorage.setItem(`mlens:clarity:${subchapterSlug}`, v);
+    offlineQueue.enqueue('rating', subchapterSlug, { rating: v });
   }
 
   function sendSuggestion() {
     if (!suggestion.trim()) return;
-    // In a future version: send to backend
+    offlineQueue.enqueue('suggestion', subchapterSlug, { text: suggestion.trim() });
     setSent(true);
   }
 

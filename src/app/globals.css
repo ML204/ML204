@@ -6,8 +6,9 @@
 
 @layer base {
   :root {
-    --font-inter: 'Inter', system-ui, sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-inter: var(--font-inter), 'Inter', system-ui, sans-serif;
+    --font-mono: var(--font-mono), 'JetBrains Mono', 'Fira Code', monospace;
+    --font-bengali: var(--font-bengali), 'Noto Sans Bengali', sans-serif;
     --sidebar-width: 280px;
     --header-height: 56px;
   }

@@ -1,0 +1,43 @@
+{
+  "common": {
+    "appName": "MLens",
+    "tagline": "Machine Learning, explained visually",
+    "freeInteractive": "Free · Visual · Interactive",
+    "heroDesc": "Drag a point. Move a slider. Watch the idea come alive. A free interactive textbook for high school and undergraduate students — no coding required.",
+    "startLearning": "Start Learning",
+    "resources": "Resources",
+    "browseContents": "Browse Contents",
+    "about": "About",
+    "search": "Search topics...",
+    "curriculum": "Curriculum",
+    "contents": "Contents",
+    "offlineNotice": "Needs Internet",
+    "next": "Next",
+    "previous": "Previous",
+    "markComplete": "Mark as Complete",
+    "completed": "Completed",
+    "minutesRead": "min read"
+  },
+  "quiz": {
+    "title": "Check your understanding",
+    "ready": "Ready to test yourself?",
+    "explanationsAfter": "questions · explanations shown after",
+    "takeQuiz": "Take the quiz",
+    "checkAnswer": "Check answer",
+    "nextQuestion": "Next question",
+    "seeResults": "See results",
+    "retakeQuiz": "Retake quiz",
+    "score": "Your Score",
+    "correct": "Correct!",
+    "incorrect": "Not quite."
+  },
+  "feedback": {
+    "wasThisClear": "Was this clear?",
+    "yes": "Yes",
+    "somewhat": "Somewhat",
+    "no": "Not yet",
+    "suggestionPlaceholder": "How can we make this topic clearer?",
+    "send": "Send Feedback",
+    "thankYou": "Thank you for your feedback!"
+  }
+}

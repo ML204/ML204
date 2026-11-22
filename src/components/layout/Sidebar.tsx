@@ -222,6 +222,13 @@ export function Sidebar() {
               >
                 <span>📚</span> Resources
               </Link>
+              <Link
+                href="/credits"
+                onClick={close}
+                className="hover:text-brand-600 transition-colors flex items-center gap-1"
+              >
+                <span>⚖️</span> Credits
+              </Link>
               <a
                 href="https://github.com/hamimLohani/mlens"
                 target="_blank"

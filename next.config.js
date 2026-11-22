@@ -8,10 +8,11 @@ const withMDX = require('@next/mdx')({
 });
 
 const nextConfig = {
-  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
-  outputFileTracingIncludes: {
-    '/api/resources/**/*': ['./resources/**/*'],
+  output: 'export',
+  images: {
+    unoptimized: true,
   },
+  pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
   experimental: {
     mdxRs: false,
   },
