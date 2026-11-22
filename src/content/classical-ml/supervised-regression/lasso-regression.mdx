@@ -1,0 +1,408 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { LassoFigure } from '@/components/figures/LassoFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Lasso Regression',
+  description: 'Master Lasso Regression (L1 regularization): sparsity, diamond geometry, subgradients, KKT conditions, soft-thresholding, and coordinate descent optimization.',
+};
+
+<Section label="What you'll learn">
+
+- Why Lasso (Least Absolute Shrinkage and Selection Operator) uniquely performs **automatic feature selection**.
+- How the geometry of the $L_1$ diamond constraint produces **exact zeros** ($\beta_j = 0$), unlike the smooth $L_2$ circle of Ridge.
+- Why the non-differentiable absolute value function prevents a closed-form matrix inverse and necessitates **subgradients**.
+- The Karush-Kuhn-Tucker (**KKT**) optimality conditions governing sparse solutions.
+- The closed-form **Soft-Thresholding Operator** $\mathcal{S}(z, t) = \text{sign}(z)\max(|z| - t, 0)$.
+- How the **Coordinate Descent** algorithm solves Lasso by cycling through one parameter at a time.
+- How to determine the all-zero threshold $\lambda_{\max}$ and select the optimal hyperparameter via cross-validation.
+
+</Section>
+
+<Section label="Explained in detail">
+
+### 1. The Big Picture: What is Lasso Regression?
+
+In machine learning and statistics, we often encounter datasets with dozens or hundreds of candidate features, many of which may be irrelevant, noisy, or redundant. 
+
+While Ordinary Least Squares (OLS) assigns a non-zero weight to every available feature, and Ridge Regression shrinks coefficients toward zero without ever discarding any, **Lasso Regression** (Least Absolute Shrinkage and Selection Operator) accomplishes two tasks simultaneously:
+1. **Regularization**: It prevents overfitting by shrinking coefficient magnitudes.
+2. **Feature Selection**: It drives uninformative or redundant coefficients to **exactly zero**, producing a sparse, interpretable model.
+
+The Lasso objective function is:
+
+$$
+J(\boldsymbol{\beta}) = \underbrace{\sum_{i=1}^{n} \left( y_i - \sum_{j=1}^{p} X_{ij}\beta_j \right)^2}_{\text{RSS (Data Mismatch)}} + \underbrace{\lambda \sum_{j=1}^{p} |\beta_j|}_{L_1\text{ Penalty (Sparsity)}}
+$$
+
+In matrix notation:
+
+$$
+J(\boldsymbol{\beta}) = \|\mathbf{y} - \mathbf{X}\boldsymbol{\beta}\|_2^2 + \lambda \|\boldsymbol{\beta}\|_1
+$$
+
+where $\lambda \ge 0$ is the regularization tuning parameter.
+
+| Penalty Level | Value of $\lambda$ | Model Behavior |
+| :--- | :--- | :--- |
+| **No Regularization** | $\lambda = 0$ | Penalty vanishes; equivalent to unregularized **OLS**. |
+| **Moderate Regularization** | $\lambda > 0$ | Weak features are pruned to exact zero; informative features are shrunk. |
+| **Maximum Threshold** | $\lambda \ge \lambda_{\max}$ | The penalty is so dominant that **all coefficients become zero** (null model). |
+
+---
+
+### 2. The $L_1$ Penalty and Geometric Intuition
+
+To understand why Lasso produces exact zeros while Ridge does not, we examine the problem from a **constrained optimization** perspective (Lagrangian duality):
+
+$$
+\min_{\boldsymbol{\beta}} \text{RSS}(\boldsymbol{\beta}) \quad \text{subject to} \quad \sum_{j=1}^{p} |\beta_j| \le s
+$$
+
+where $s$ is an allowable coefficient budget inversely related to $\lambda$.
+
+![Comparison between L1 diamond geometry and L2 circular geometry](/images/lasso-regression/l1_l2_geometry.png)
+
+In 2D parameter space $(\beta_1, \beta_2)$:
+- **The OLS Contours (Blue Ellipses)**: Centered at the unconstrained minimum $\hat{\boldsymbol{\beta}}_{\text{OLS}}$. Each ellipse traces parameter combinations that share identical Residual Sum of Squares.
+- **The $L_2$ Constraint (Ridge Circle)**: The constraint $\beta_1^2 + \beta_2^2 \le s$ is a smooth sphere/circle. The expanding ellipse touches the circle along its smooth curved edge, retaining non-zero values for both parameters.
+- **The $L_1$ Constraint (Lasso Diamond)**: The constraint $|\beta_1| + |\beta_2| \le s$ is a **rotated square (diamond)** whose sharp corners (vertices) lie precisely on the coordinate axes:
+  $$(\pm s, 0) \quad \text{and} \quad (0, \pm s)$$
+
+#### Why Corners Cause Exact Zeros
+Because the diamond constraint has sharp pointy corners aligned with the coordinate axes, the expanding elliptical RSS contours have a very high mathematical probability of first making contact with the boundary at a **corner**! 
+
+When contact occurs at the corner $(s, 0)$, parameter $\beta_2$ is **strictly zero**:
+$$
+\hat{\beta}_1 = s, \qquad \hat{\beta}_2 = 0
+$$
+
+Feature $x_2$ is completely pruned from the model!
+
+---
+
+### 3. Optimization: Why Doesn't Lasso Have a Matrix Inverse?
+
+Students often ask: *Why can we invert a matrix to solve Ridge $\hat{\boldsymbol{\beta}}_{\text{Ridge}} = (\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$, but cannot do the same for Lasso?*
+
+The answer lies in calculus. The absolute value function $|x|$ has a sharp, non-differentiable corner (kink) at $x = 0$:
+
+$$
+\frac{d}{dx}|x| = \begin{cases} +1, & x > 0 \\ -1, & x < 0 \\ \text{undefined}, & x = 0 \end{cases}
+$$
+
+Because the derivative does not exist at zero, we cannot differentiate the objective using standard calculus to set up a linear system of equations.
+
+#### Subgradients
+For non-differentiable convex functions, we generalize the derivative using **subgradients**. A scalar $g$ is a subgradient of a convex function $f$ at point $x$ if the line with slope $g$ passing through $(x, f(x))$ lies everywhere on or below the graph of $f$.
+
+For the absolute value function $f(x) = |x|$, the subdifferential is:
+
+$$
+\partial |x| = \begin{cases} \{+1\}, & x > 0 \\ [-1, 1], & x = 0 \\ \{-1\}, & x < 0 \end{cases}
+$$
+
+At the sharp corner $x = 0$, **any slope between $-1$ and $+1$** is a valid subgradient! This continuous interval $[-1, 1]$ is the exact mathematical mechanism that allows solutions to lock onto zero across a wide range of data configurations.
+
+The subgradient optimality condition for Lasso is:
+
+$$
+\mathbf{0} \in 2\mathbf{X}^T(\mathbf{X}\hat{\boldsymbol{\beta}} - \mathbf{y}) + \lambda \partial \|\hat{\boldsymbol{\beta}}\|_1
+$$
+
+---
+
+### 4. Karush-Kuhn-Tucker (KKT) Optimality Conditions
+
+Let $\mathbf{x}_j$ denote the $j$-th column of $\mathbf{X}$, and let $\mathbf{r} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$ denote the final residual vector. The $j$-th coordinate condition from the subgradient equation is:
+
+$$
+0 \in -2\mathbf{x}_j^T\mathbf{r} + \lambda \partial |\hat{\beta}_j|
+$$
+
+Evaluating the three cases of the subdifferential $\partial |\hat{\beta}_j|$ yields the **Coordinate-wise KKT Conditions**:
+
+$$
+\begin{aligned}
+2\mathbf{x}_j^T\mathbf{r} &= \lambda, &\quad &\text{if } \hat{\beta}_j > 0 \\
+2\mathbf{x}_j^T\mathbf{r} &= -\lambda, &\quad &\text{if } \hat{\beta}_j < 0 \\
+|2\mathbf{x}_j^T\mathbf{r}| &\le \lambda, &\quad &\text{if } \hat{\beta}_j = 0
+\end{aligned}
+$$
+
+<Callout kind="tip">
+  **The KKT Threshold Intuition**: For a feature to have a non-zero coefficient, its sample correlation with the residual ($2\mathbf{x}_j^T\mathbf{r}$) must hit the upper or lower boundary $\pm \lambda$. If its correlation falls within the interior deadband $[-\lambda, \lambda]$, the feature is not informative enough to justify its $L_1$ penalty cost, and its coefficient remains locked at **exact zero**!
+</Callout>
+
+---
+
+### 5. The Soft-Thresholding Operator
+
+When predictors are orthogonal ($\mathbf{X}^T\mathbf{X} = \mathbf{I}$), the multivariate Lasso problem uncouples into $p$ independent scalar minimization problems. Each coordinate solution is given by the **Soft-Thresholding Operator**:
+
+$$
+\mathcal{S}(z, t) = \text{sign}(z) \max(|z| - t, 0)
+$$
+
+Equivalently written piecewise:
+
+$$
+\mathcal{S}(z, t) = \begin{cases} z - t, & z > t \\ 0, & -t \le z \le t \\ z + t, & z < -t \end{cases}
+$$
+
+![Soft-thresholding operator with threshold t = 2 showing the deadband where values are zeroed](/images/lasso-regression/soft_thresholding.png)
+
+Notice how soft-thresholding operates:
+1. **Deadband $[-t, t]$**: Any input whose magnitude is less than or equal to $t$ is snapped strictly to zero!
+2. **Outside the Deadband**: Inputs exceeding $t$ in magnitude are preserved, but shrunk toward zero by a constant offset of $t$.
+
+---
+
+### 6. The Coordinate Descent Algorithm
+
+Because we cannot solve for all $p$ coefficients simultaneously in one matrix inversion, how do modern libraries (like `scikit-learn` and `glmnet`) solve Lasso? They use **Coordinate Descent**.
+
+![Flowchart of the coordinate descent optimization loop](/images/lasso-regression/coordinate_descent_flow.png)
+
+#### The Core Idea
+Instead of updating all parameters at once, Coordinate Descent minimizes the objective with respect to **one coordinate $\beta_j$ at a time**, while keeping all other $p - 1$ coordinates fixed at their current values.
+
+Let $\mathbf{r}_j$ be the **partial residual** calculated by removing the effect of feature $j$:
+
+$$
+\mathbf{r}_j = \mathbf{y} - \sum_{k \ne j} \mathbf{x}_k \beta_k = \mathbf{y} - \mathbf{X}\boldsymbol{\beta} + \mathbf{x}_j \beta_j
+$$
+
+The single-coordinate subproblem reduces to:
+
+$$
+\min_{\beta_j} \|\mathbf{r}_j - \mathbf{x}_j \beta_j\|_2^2 + \lambda |\beta_j|
+$$
+
+This univariate problem has a closed-form solution given directly by soft-thresholding!
+
+#### The Coordinate Update Formula
+$$
+\beta_j^{\text{new}} = \frac{\mathcal{S}\left(\mathbf{x}_j^T\mathbf{r}_j, \, \frac{\lambda}{2}\right)}{\mathbf{x}_j^T\mathbf{x}_j}
+$$
+
+When features are standardized so that $\mathbf{x}_j^T\mathbf{x}_j = 1$, the update simplifies to:
+
+$$
+\beta_j^{\text{new}} = \mathcal{S}\left(\mathbf{x}_j^T\mathbf{r}_j, \, \frac{\lambda}{2}\right)
+$$
+
+#### Numerical Example
+Suppose for feature $j$, $\mathbf{x}_j^T\mathbf{r}_j = 7$, $\mathbf{x}_j^T\mathbf{x}_j = 4$, and penalty $\lambda = 2$ (so threshold $t = \lambda/2 = 1$):
+$$
+\mathcal{S}(7, 1) = 7 - 1 = 6 \implies \beta_j^{\text{new}} = \frac{6}{4} = 1.5
+$$
+If instead the correlation was weak, say $\mathbf{x}_j^T\mathbf{r}_j = 0.6$:
+$$
+\mathcal{S}(0.6, 1) = 0 \implies \beta_j^{\text{new}} = 0.0
+$$
+The coefficient is instantly pruned!
+
+The algorithm repeatedly cycles through coordinates $j = 1, 2, \dots, p$ until the maximum coefficient change falls below a convergence tolerance $\epsilon$ (e.g., $10^{-4}$).
+
+---
+
+### 7. Practical Modeling: Scaling and Choosing $\lambda$
+
+#### Mandatory Feature Standardization
+Because the $L_1$ penalty sums the raw absolute values $\sum |\beta_j|$, features measured in large units (e.g., house price in millions vs. number of bathrooms) will have arbitrarily small coefficients and escape penalization.
+
+Always standardize features using training set statistics:
+
+$$
+z_{ij} = \frac{x_{ij} - \bar{x}_j}{s_j}
+$$
+
+#### The All-Zero Threshold ($\lambda_{\max}$)
+At what penalty value do all coefficients become zero? Using the KKT conditions at $\boldsymbol{\beta} = \mathbf{0}$, every coordinate condition $|2\mathbf{x}_j^T\mathbf{y}| \le \lambda$ must hold. Thus:
+
+$$
+\lambda_{\max} = 2 \max_{j=1,\dots,p} |\mathbf{x}_j^T\mathbf{y}|
+$$
+
+Any $\lambda \ge \lambda_{\max}$ yields the trivial null model $\hat{\boldsymbol{\beta}} = \mathbf{0}$. Effective grids for hyperparameter search typically span logarithmically from $\lambda_{\max}$ down to $10^{-4}\lambda_{\max}$.
+
+#### Cross-Validation Workflow
+We select the optimal $\lambda$ using $K$-Fold Cross-Validation:
+
+![Five-fold cross-validation workflow: training on 4 folds, testing on 1 holdout](/images/lasso-regression/five_fold_cv.png)
+
+![Regularization path showing coefficients dropping to zero one by one](/images/lasso-regression/regularization_path.png)
+
+1. **Regularization Path**: As $\lambda$ is decreased from $\lambda_{\max}$, features enter the active set one by one.
+2. **$\lambda_{\text{min}}$ vs $\lambda_{\text{1se}}$**: We can select the $\lambda$ with the absolute lowest cross-validation error ($\lambda_{\text{min}}$), or use the **1-Standard-Error rule** ($\lambda_{\text{1se}}$)—the simplest (sparsest) model whose error is within one standard error of the minimum.
+
+---
+
+### 8. Strengths & Limitations of Lasso
+
+#### Strengths
+- **Interpretability**: Prunes irrelevant features, leaving a compact, readable formula.
+- **High-Dimensional Regression ($p > n$)**: When there are more features than observations, OLS is undefined. Lasso can select at most $n$ predictors and provides stable estimates.
+
+#### Limitations & Motivation for Elastic Net
+1. **Correlated Predictor Selection**: When two features are strongly collinear ($r \approx 0.99$), Lasso tends to arbitrarily select one and zero out the other.
+2. **Constraint on Active Set**: If $p > n$, Lasso can never select more than $n$ variables.
+3. **Over-Shrinkage of Large Slopes**: Because the penalty subtracts a constant offset $t$ from all surviving coefficients, true large signals may suffer excess bias.
+
+These limitations motivate **Elastic Net**, which combines both $L_1$ (Lasso) and $L_2$ (Ridge) penalties: $\lambda_1 \|\boldsymbol{\beta}\|_1 + \lambda_2 \|\boldsymbol{\beta}\|_2^2$.
+
+</Section>
+
+<LassoFigure />
+
+<Section label="What to try">
+
+- **Move the $\lambda$ Slider**:
+  - In **Diamond $L_1$ Geometry View**: Watch the amber diamond shrink as $\lambda$ increases. Notice the moment contact hits the horizontal axis corner ($\beta_2$ drops to exact $0.00$ while $\beta_1$ remains active).
+  - Toggle **"+ Compare Ridge Circle"**: See how the green circular $L_2$ boundary touches the ellipse along a curve, keeping both parameters non-zero, while Lasso snaps to the corner.
+- **Switch to "Soft Thresholding"**:
+  - Examine the red shaded deadband $[-\frac{\lambda}{2}, +\frac{\lambda}{2}]$. Notice how any input within this window is clamped to zero.
+- **Switch to "Regularization Paths"**:
+  - Watch $\beta_2$ intersect the horizontal axis at $\lambda \approx 3.4$ and remain flat at zero.
+
+</Section>
+
+<Section label="Key ideas at a glance">
+
+### Summary Reference Table
+
+| Feature / Property | Ordinary Least Squares | Ridge ($L_2$) | Lasso ($L_1$) |
+| :--- | :--- | :--- | :--- |
+| **Penalty Term** | None | $\lambda \sum \beta_j^2$ | $\lambda \sum |\beta_j|$ |
+| **Constraint Shape** | None | Smooth circle / sphere | Sharp diamond / octahedron |
+| **Analytical Solution** | Yes: $(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T\mathbf{y}$ | Yes: $(\mathbf{X}^T\mathbf{X} + \lambda \mathbf{I})^{-1}\mathbf{X}^T\mathbf{y}$ | No closed-form (solved via Coordinate Descent) |
+| **Differentiability** | Everywhere differentiable | Everywhere differentiable | Non-differentiable at $\beta_j = 0$ (uses Subgradients) |
+| **Feature Selection** | No (all features non-zero) | No (shrinks close to zero, never exact zero) | **Yes** (drives coefficients to exact zero) |
+| **Core Optimizer** | Normal equations | Linear matrix inversion | **Coordinate Descent** & Soft-Thresholding |
+| **Handling $p > n$** | Fails (singular matrix) | Works (stabilizes matrix) | Works (selects at most $n$ features) |
+| **Feature Scaling** | Optional | **Mandatory** | **Mandatory** |
+
+</Section>
+
+<Section label="Check your understanding">
+
+<Quiz
+  questions={[
+    {
+      id: 'lasso-q1',
+      kind: 'mcq',
+      text: "Geometrically, why does Lasso produce exact zeros (sparsity) while Ridge does not?",
+      options: [
+        "Because the L₁ diamond constraint has sharp corners on the coordinate axes that intersect the elliptical RSS contours directly on an axis.",
+        "Because the L₁ norm uses absolute values which automatically converts negative numbers into zeros.",
+        "Because Lasso runs twice as many iterations as Ridge Regression.",
+        "Because the identity matrix cannot be used in L₁ regularization.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The L₁ constraint |β₁| + |β₂| ≤ s defines a diamond with sharp vertices lying exactly on the coordinate axes. The expanding elliptical RSS contour is highly likely to make first contact at one of these corners, setting the other coordinate strictly to zero.",
+      figureHint: "Refer to Figure 3.5 in Diamond L₁ Geometry mode.",
+    },
+    {
+      id: 'lasso-q2',
+      kind: 'mcq',
+      text: "How does the Soft-Thresholding Operator S(z, t) treat an input value z that falls within the interval [-t, t]?",
+      options: [
+        "It sets the output strictly to zero (0.0).",
+        "It inverts the sign of z.",
+        "It divides z by the sample size n.",
+        "It multiplies z by the regularization hyperparameter lambda.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The soft-thresholding operator is defined as S(z, t) = sign(z) max(|z| - t, 0). For any input |z| ≤ t, max(|z| - t, 0) evaluates to zero, creating the deadband that drives coefficients to zero in Coordinate Descent.",
+      figureHint: "Examine the Soft Thresholding tab in the interactive figure.",
+    },
+    {
+      id: 'lasso-q3',
+      kind: 'mcq',
+      text: "What is the all-zero threshold λ_max in Lasso regression?",
+      options: [
+        "The minimum penalty value at which all coefficients are driven to exact zero: λ_max = 2 max_j |x_jᵀy|.",
+        "The largest eigenvalue of the design matrix X.",
+        "The maximum number of training samples allowed in cross-validation.",
+        "The value of lambda where training error equals test error.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "According to the KKT conditions, at β = 0, every coordinate condition |2x_jᵀy| ≤ λ must hold. The smallest λ satisfying this for all features is λ_max = 2 max_j |x_jᵀy|. Any penalty greater than or equal to this threshold produces a null model.",
+      figureHint: "Review Section 7: The All-Zero Threshold.",
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Lasso Regression (L1 Regularization)"
+  oneLiner="Lasso minimizes RSS + λ∑|βⱼ|. Its sharp diamond constraint drives uninformative coefficients to exact zero, performing simultaneous regularization and automatic feature selection via Coordinate Descent."
+  takeaways={[
+    'Lasso uses an L₁ penalty: ∑|βⱼ|.',
+    'Sharp diamond corners on the axes make tangency occur at exact zero (sparsity).',
+    'The kink at zero requires subgradient calculus: ∂|0| = [-1, 1].',
+    'KKT conditions require |2xⱼᵀr| ≤ λ for a coefficient to remain zero.',
+    'Coordinate Descent optimizes one feature at a time using the closed-form Soft-Thresholding Operator.',
+    'Features must be standardized, and λ is tuned via K-fold cross-validation.',
+  ]}
+  commonTrap="Believing Lasso has a closed-form matrix formula like Ridge. Because the absolute value is non-differentiable at zero, Lasso cannot be solved with a simple matrix inverse; it must be solved iteratively via Coordinate Descent."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="lasso-regression"
+  topicTitle="Lasso Regression"
+  referenceChecklist={[
+    'Explained the difference between L₁ and L₂ regularization.',
+    'Described the geometric diamond intuition and why it hits axis corners.',
+    'Defined subgradients and why ordinary derivatives fail at zero.',
+    'Explained the KKT deadband condition for zero coefficients.',
+    'Described how Coordinate Descent uses soft-thresholding to update coefficients.',
+    'Mentioned the all-zero threshold λ_max and feature standardization.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="resources/lasso-regression"
+  items={[
+    {
+      title: "Lasso Regression Revision Notes (PDF)",
+      type: "pdf",
+      description: "Author's comprehensive LaTeX notes covering L1 geometry, subgradient proofs, KKT conditions, coordinate descent derivations, and cross-validation.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/lasso-regression/Lasso_Regression.pdf"
+    },
+    {
+      title: "Lasso Regression Study Notes LaTeX Source (.tex)",
+      type: "code",
+      description: "Full editable LaTeX source code with tcolorbox styling, algorithm pseudocode, and mathematical environments.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/lasso-regression/Lasso_Regression_Notes.tex"
+    },
+    {
+      title: "StatQuest: Lasso Regression (L1 Regularization)",
+      type: "video",
+      description: "Josh Starmer visually explains how Lasso shrinks coefficients to zero and performs automatic feature selection.",
+      url: "https://www.youtube.com/watch?v=NGf0voTMlcs"
+    },
+  ]}
+/>
+
+</Section>
