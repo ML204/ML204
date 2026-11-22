@@ -108,16 +108,28 @@ interface PresetsProps {
 
 export function Presets({ presets, onReset, onBreakIt }: PresetsProps) {
   return (
-    <div className="flex flex-wrap gap-2 items-center">
-      <span className="control-label">Presets:</span>
+    <div className="flex flex-wrap gap-1.5 sm:gap-2 items-center">
+      <span className="control-label text-[10px] sm:text-xs">Presets:</span>
       {presets.map((p) => (
-        <button key={p.label} onClick={p.onApply} className="preset-btn">
+        <button
+          key={p.label}
+          onClick={p.onApply}
+          className="preset-btn text-[11px] sm:text-xs px-2.5 py-1 sm:px-3 sm:py-1.5 active:scale-95 transition-transform"
+        >
           {p.label}
         </button>
       ))}
-      <button onClick={onReset} className="preset-btn text-slate-500">↺ Reset</button>
+      <button
+        onClick={onReset}
+        className="preset-btn text-[11px] sm:text-xs px-2.5 py-1 sm:px-3 sm:py-1.5 text-slate-500 active:scale-95 transition-transform"
+      >
+        ↺ Reset
+      </button>
       {onBreakIt && (
-        <button onClick={onBreakIt} className="preset-btn text-red-600 border-red-200 hover:bg-red-50">
+        <button
+          onClick={onBreakIt}
+          className="preset-btn text-[11px] sm:text-xs px-2.5 py-1 sm:px-3 sm:py-1.5 text-red-600 border-red-200 hover:bg-red-50 active:scale-95 transition-transform"
+        >
           💥 Break it
         </button>
       )}
@@ -133,11 +145,14 @@ interface LiveValuesPanelProps {
 
 export function LiveValuesPanel({ values }: LiveValuesPanelProps) {
   return (
-    <div className="flex flex-wrap gap-x-4 gap-y-2 px-3 sm:px-4 py-2 bg-slate-900 text-xs sm:text-sm font-mono rounded-b-xl">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 px-3 sm:px-4 py-2.5 bg-slate-900 text-xs font-mono rounded-b-xl border-t border-slate-800">
       {values.map(({ label, value, color = '#a5b4fc' }) => (
-        <div key={label} className="flex items-center gap-1.5">
+        <div
+          key={label}
+          className="flex items-center justify-between sm:justify-start gap-1.5 bg-slate-800/60 sm:bg-transparent px-2.5 sm:px-0 py-1 sm:py-0 rounded-lg"
+        >
           <span className="text-slate-400 text-[10px] sm:text-xs">{label}:</span>
-          <span className="font-semibold tabular-nums" style={{ color }}>{value}</span>
+          <span className="font-semibold tabular-nums text-xs" style={{ color }}>{value}</span>
         </div>
       ))}
     </div>
