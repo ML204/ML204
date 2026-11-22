@@ -1,0 +1,66 @@
+@import 'katex/dist/katex.min.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --font-inter: 'Inter', system-ui, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --sidebar-width: 280px;
+    --header-height: 56px;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-800;
+  }
+
+  /* KaTeX display math */
+  .math-display {
+    @apply overflow-x-auto py-2;
+  }
+}
+
+@layer components {
+  /* Figure container */
+  .figure-box {
+    @apply rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden;
+  }
+
+  /* Control panel inside a figure */
+  .figure-controls {
+    @apply flex flex-wrap gap-3 p-4 bg-slate-50 border-t border-slate-200;
+  }
+
+  /* Slider label */
+  .control-label {
+    @apply text-xs font-semibold text-slate-500 uppercase tracking-wider;
+  }
+
+  /* Section divider */
+  .section-divider {
+    @apply border-t border-slate-100 my-10;
+  }
+
+  /* Quiz option button */
+  .quiz-option {
+    @apply w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200
+           bg-white hover:border-brand-400 hover:bg-brand-50
+           transition-all duration-150 cursor-pointer text-sm;
+  }
+  .quiz-option.selected  { @apply border-brand-500 bg-brand-50; }
+  .quiz-option.correct   { @apply border-green-500 bg-green-50 text-green-800; }
+  .quiz-option.incorrect { @apply border-red-400  bg-red-50   text-red-800; }
+
+  /* Preset button */
+  .preset-btn {
+    @apply px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-300
+           bg-white hover:bg-brand-50 hover:border-brand-400 transition-colors;
+  }
+}

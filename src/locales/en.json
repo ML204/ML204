@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "home": "Home",
+    "contents": "Contents",
+    "language": "EN"
+  },
+  "subchapter": {
+    "whatIsIt": "What is it?",
+    "whyWeNeedIt": "Why we need it",
+    "explainedInDetail": "Explained in detail",
+    "figure": "Interactive Figure",
+    "figureExplanation": "What to try",
+    "notes": "Notes & Formula",
+    "quiz": "Quiz",
+    "quizExplanation": "Answers & Explanations",
+    "feedback": "Was this clear?",
+    "feedbackYes": "Yes, very clear",
+    "feedbackSomewhat": "Somewhat",
+    "feedbackNo": "Not yet",
+    "suggestSomething": "Suggest a correction or improvement",
+    "suggestPlaceholder": "What could be clearer?",
+    "suggestSend": "Send",
+    "teachThis": "Explain it in your own words",
+    "teachThisPlaceholder": "Imagine you are explaining this to a friend...",
+    "nextLesson": "Next lesson",
+    "prevLesson": "Previous lesson",
+    "readTime": "min read",
+    "quizStart": "Take the quiz",
+    "quizRetake": "Retake quiz",
+    "quizSubmit": "See results",
+    "quizScore": "You scored",
+    "seeInFigure": "See it in the figure"
+  }
+}

@@ -1,0 +1,177 @@
+import { GradientDescentFigure } from '@/components/figures/GradientDescentFigure';
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+
+export const metadata = {
+  title: 'Gradient Descent',
+  description: 'How machines learn by following the slope of a loss curve downhill.',
+};
+
+<Section label="What is it?">
+
+**Gradient descent** is an algorithm that finds the minimum of a function by taking small steps in the direction that decreases the function the most.
+
+In machine learning, that function is the **loss** — a number that measures how wrong the model is. Gradient descent adjusts the model's parameters to make the loss as small as possible.
+
+</Section>
+
+<Section label="Why we need it">
+
+A model has numbers inside it called **parameters** (or weights). The goal of training is to find the parameter values that make the model's predictions as accurate as possible.
+
+There are billions of possible combinations of parameter values. We cannot try them all. We need a smarter way to search.
+
+Gradient descent is that smarter way. It tells us: at any point, which direction makes the loss go down? Take a small step that way. Repeat.
+
+Almost every machine learning model — from linear regression to GPT — is trained using gradient descent or a variation of it.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+Imagine you are standing on a hilly landscape in thick fog. You cannot see far. You want to reach the lowest valley. What do you do?
+
+**You feel the slope under your feet, and step downhill.**
+
+<Analogy>
+  You are the ball. The hill is the loss function. The valley is the best set of parameters.
+  At each step you check: which way is downhill? Then you move a little in that direction.
+</Analogy>
+
+Here is how the math works, step by step.
+
+**Step 1: Start somewhere.** Pick a starting value for the parameter $w$. It can be random.
+
+**Step 2: Measure the slope.** The slope of the loss at the current $w$ is called the **gradient**, written $\nabla L$ or $\frac{dL}{dw}$. A positive gradient means the loss is going up to the right, so we move left. A negative gradient means the loss is going up to the left, so we move right.
+
+**Step 3: Take a step.** Move $w$ in the opposite direction of the gradient:
+
+$$
+w \leftarrow w - \alpha \cdot \frac{dL}{dw}
+$$
+
+**Step 4: Repeat.** Keep taking steps until the gradient is nearly zero — that means we are at a minimum.
+
+The size of each step is controlled by $\alpha$, called the **learning rate**. Too big and you overshoot. Too small and it takes forever.
+
+</Section>
+
+<GradientDescentFigure />
+
+<Section label="What to try">
+
+- **Press Play** and watch the orange ball roll down toward the minimum. The dashed orange trail shows where it has been.
+- **Change the learning rate** slider. With $\alpha = 0.05$ (slow), it takes many small steps. With $\alpha = 0.5$ (fast), it converges quickly.
+- **Press "Break it"** to set $\alpha = 1.2$. Watch the ball bounce and diverge instead of converging. This is what happens when the learning rate is too large.
+- **Press Step** to move one step at a time and read the live values: $w$, Loss, gradient $\nabla L$, and the number of steps taken.
+
+The red line shows the **gradient** (the slope of the loss curve at the current point). When the ball is to the left of the minimum, the gradient is negative — so the update $w - \alpha \cdot \nabla L$ moves $w$ to the right. At the minimum, the gradient is zero and the ball stops.
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+The update rule:
+
+<Formula label="Gradient Descent Update Rule">
+  $w \leftarrow w - \alpha \cdot \nabla_w L(w)$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'w',      meaning: 'The parameter (weight) being updated' },
+    { symbol: 'α',      meaning: 'Learning rate — a small positive number, e.g. 0.01 to 0.3' },
+    { symbol: '∇L',     meaning: 'Gradient of the loss with respect to w — the slope' },
+    { symbol: 'L(w)',   meaning: 'Loss function — the number we want to minimize' },
+    { symbol: '←',      meaning: 'Assignment: replace the old value with the new one' },
+  ]}
+/>
+
+<Callout kind="tip">
+  The gradient points **uphill**. So subtracting it moves us **downhill**. That is why the minus sign is there.
+</Callout>
+
+<Callout kind="warning">
+  **Common mistake:** confusing the gradient (slope) with the loss (height). The gradient tells you which way to step; the loss tells you how far you still have to go.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'gd-q1',
+      kind: 'mcq',
+      text: 'What does the gradient tell us in gradient descent?',
+      options: [
+        'The current value of the loss',
+        'The direction and steepness of the slope of the loss',
+        'The learning rate to use',
+        'The minimum value of the loss',
+      ],
+      correctIndex: 1,
+      explanation:
+        'The gradient is the derivative of the loss with respect to the parameters. It points in the direction of steepest increase — so we move in the opposite direction to decrease the loss.',
+      figureHint:
+        'In the figure, the red line shows the gradient (slope) at the orange ball. Watch how its angle changes as the ball moves.',
+    },
+    {
+      id: 'gd-q2',
+      kind: 'mcq',
+      text: 'What happens when the learning rate is too large?',
+      options: [
+        'The model learns more slowly',
+        'The gradient becomes zero faster',
+        'The ball overshoots the minimum and may diverge',
+        'The loss function changes shape',
+      ],
+      correctIndex: 2,
+      explanation:
+        'A large learning rate means each step is very big. The ball jumps over the minimum and may land somewhere worse, then jump again — getting further from the minimum each time.',
+      figureHint:
+        'Press "Break it" in the figure to set α = 1.2 and watch the ball bounce and diverge.',
+    },
+    {
+      id: 'gd-q3',
+      kind: 'mcq',
+      text: 'The gradient at the minimum of a loss function is:',
+      options: [
+        'Very large and positive',
+        'Very large and negative',
+        'Exactly zero',
+        'Equal to the learning rate',
+      ],
+      correctIndex: 2,
+      explanation:
+        'At a minimum, the curve is flat — there is no slope. The derivative (gradient) is zero. This is why gradient descent stops updating once it reaches the minimum.',
+      figureHint:
+        'Press Play and watch the ∇L value in the live panel approach zero as the ball settles at the bottom.',
+    },
+    {
+      id: 'gd-q4',
+      kind: 'mcq',
+      text: 'In the update rule w ← w − α · ∇L, why is there a minus sign?',
+      options: [
+        'To make the formula look symmetric',
+        'Because the gradient points downhill',
+        'Because we want to move opposite to the gradient, which points uphill',
+        'To keep the learning rate positive',
+      ],
+      correctIndex: 2,
+      explanation:
+        'The gradient points in the direction of steepest increase (uphill). By subtracting it, we move in the direction of steepest decrease (downhill) — which is what we want.',
+    },
+  ]}
+/>
+
+</Section>
