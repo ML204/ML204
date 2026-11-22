@@ -4,7 +4,7 @@ import { TopicFileBrowser } from './TopicFileBrowser';
 
 export const metadata = {
   title: 'Learning Resources & File Directory — MLens',
-  description: 'Download study notes, code implementations, and view curated textbooks across all 130 machine learning topics.',
+  description: 'Download study notes, code implementations, and view curated textbooks across all machine learning topics.',
 };
 
 interface ResourceCard {
@@ -108,7 +108,7 @@ export default function ResourcesPage() {
         </nav>
         <h1 className="text-3xl font-bold text-slate-900 mb-2">Resource Vault & Study Notes</h1>
         <p className="text-slate-600 text-sm max-w-2xl leading-relaxed">
-          Browse and download study notes, Jupyter notebooks, cheat sheets, and reference textbooks across all 130 topics in the curriculum.
+          Browse and download study notes, Jupyter notebooks, cheat sheets, and reference textbooks across all topics in the curriculum.
         </p>
       </div>
 
@@ -125,7 +125,7 @@ export default function ResourcesPage() {
             </span>
           </div>
           <p className="text-slate-300 text-xs max-w-xl leading-relaxed">
-            Access lecture notes, formula sheets, summaries, and code notebooks organized across all 130 topics. Download materials directly below or explore all files in our open repository.
+            Access lecture notes, formula sheets, summaries, and code notebooks organized across all topics. Download materials directly below or explore all files in our open repository.
           </p>
         </div>
 
@@ -140,14 +140,14 @@ export default function ResourcesPage() {
         </a>
       </div>
 
-      {/* Section 1: All 130 Topics File Directory */}
+      {/* Section 1: All Topics File Directory */}
       <div className="mb-14">
         <div className="mb-4">
           <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
             Topic Files Explorer
           </span>
           <h2 className="text-xl font-bold text-slate-900 mt-0.5">
-            All 130 Topic Resource Directories
+            All Topic Resource Directories
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             Search any topic or file name. Click on any topic to reveal its files, download notes, or jump to the interactive lesson.

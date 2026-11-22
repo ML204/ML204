@@ -153,8 +153,10 @@ export const toc: Part[] = [
         title: 'Supervised — Regression',
         subchapters: [
           { slug: 'linear-regression',             title: 'Linear Regression',                 estimatedMinutes: 8 },
+          { slug: 'ordinary-least-squares',        title: 'Ordinary Least Squares (OLS)',       estimatedMinutes: 8 },
           { slug: 'polynomial-regression',         title: 'Polynomial Regression',             estimatedMinutes: 7 },
-          { slug: 'ridge-and-lasso',               title: 'Ridge and Lasso Regularization',    estimatedMinutes: 7 },
+          { slug: 'ridge-regression',              title: 'Ridge Regression',                  estimatedMinutes: 7 },
+          { slug: 'lasso-regression',              title: 'Lasso Regression',                  estimatedMinutes: 7 },
         ],
       },
       {
