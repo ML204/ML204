@@ -330,13 +330,13 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                                           </div>
                                         </div>
 
-                                        <div className="flex items-center gap-2 flex-shrink-0">
+                                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 sm:gap-2 flex-shrink-0">
                                           <a
                                             href={file.href}
                                             download
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-2xs"
+                                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-2xs text-center"
                                           >
                                             Download
                                           </a>
@@ -344,7 +344,7 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                                             href={file.githubUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="inline-flex px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                                            className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors text-center"
                                           >
                                             GitHub ↗
                                           </a>

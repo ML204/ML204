@@ -38,12 +38,12 @@ export function ResourcesSection({ githubPath, items = [] }: ResourcesSectionPro
 
         {githubPath && (
           <a
-            href={`https://github.com/hamimLohani/mlens/tree/main/${githubPath}`}
+            href={`https://github.com/hamimLohani/mlens/tree/main/resources`}
             target="_blank"
             rel="noopener noreferrer"
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs"
           >
-            <span>Code & Notes</span>
+            <span>Resources</span>
             <span className="text-slate-400">↗</span>
           </a>
         )}

@@ -205,13 +205,13 @@ export default async function ChapterPage({
                         <span className="text-[10px] text-slate-400 font-mono flex-shrink-0">({file.size})</span>
                       </div>
 
-                      <div className="flex items-center gap-2 flex-shrink-0 ml-2">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 sm:gap-2 flex-shrink-0 ml-2">
                         <a
                           href={file.href}
                           download
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-2.5 py-1 rounded bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors text-[11px]"
+                          className="px-2.5 py-1 rounded bg-brand-600 text-white font-semibold hover:bg-brand-700 transition-colors text-[11px] text-center"
                         >
                           Download
                         </a>
@@ -219,7 +219,7 @@ export default async function ChapterPage({
                           href={file.githubUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="px-2 py-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors text-[11px]"
+                          className="inline-flex items-center justify-center px-2 py-1 rounded border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors text-[11px] text-center"
                         >
                           GitHub ↗
                         </a>

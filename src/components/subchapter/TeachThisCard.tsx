@@ -38,7 +38,7 @@ export function TeachThisCard({ topic, oneLiner, takeaways, commonTrap }: TeachT
           onClick={copyCard}
           className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-brand-300 bg-white text-brand-700 hover:bg-brand-50 transition-colors shadow-2xs"
         >
-          {copied ? '✓ Copied' : '📋 Copy Summary'}
+          {copied ? '✓ Copied' : '📋 Copy'}
         </button>
       </div>
 
