@@ -27,6 +27,13 @@ export default function HomePage() {
             Start Learning →
           </Link>
           <Link
+            href="/resources"
+            className="px-6 py-3 bg-brand-50 text-brand-700 font-semibold rounded-xl border border-brand-200 hover:bg-brand-100 transition-colors shadow-xs text-center flex items-center justify-center gap-2"
+          >
+            <span>📚</span>
+            <span>Resources</span>
+          </Link>
+          <Link
             href="#contents"
             className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 transition-colors text-center"
           >
