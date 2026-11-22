@@ -229,7 +229,7 @@ export default async function ChapterPage({
                 </div>
               ) : (
                 <p className="text-[11px] text-slate-400 italic mt-1">
-                  No files uploaded yet. Add files to <code className="font-mono">resources/{topic.slug}/</code>
+                  Study notes and resources coming soon for this topic.
                 </p>
               )}
             </div>

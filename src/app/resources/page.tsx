@@ -112,17 +112,20 @@ export default function ResourcesPage() {
         </p>
       </div>
 
-      {/* GitHub Repository Quick Banner */}
+      {/* Student Study Notes & Resources Banner */}
       <div className="bg-slate-900 text-white rounded-2xl p-6 mb-10 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 mb-1">
-            <span className="text-base">📂</span>
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="text-base">📚</span>
             <h2 className="text-base sm:text-lg font-bold">
-              Project GitHub Repository: <code className="text-brand-300 font-mono text-sm">/resources/[topic]/</code>
+              Topic Study Notes & Learning Materials
             </h2>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500/20 text-brand-300 border border-brand-400/30">
+              Open Source
+            </span>
           </div>
           <p className="text-slate-300 text-xs max-w-xl leading-relaxed">
-            Drop your notes or code files into any topic directory in the project repo. They appear automatically below with instant download links.
+            Access lecture notes, formula sheets, summaries, and code notebooks organized across all 130 topics. Download materials directly below or explore all files in our open repository.
           </p>
         </div>
 
@@ -130,9 +133,9 @@ export default function ResourcesPage() {
           href="https://github.com/hamimlohani/mlens/tree/main/resources"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 font-semibold text-xs text-white transition-colors flex-shrink-0 text-center justify-center shadow-sm"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 font-semibold text-xs text-white transition-colors flex-shrink-0 text-center justify-center shadow-sm"
         >
-          <span>Open Repo on GitHub</span>
+          <span>View on GitHub</span>
           <span>↗</span>
         </a>
       </div>

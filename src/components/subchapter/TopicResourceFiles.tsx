@@ -56,14 +56,14 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
           <div>
             <div className="flex items-center gap-2">
               <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600">
-                Uploaded Notes & Files
+                Study Notes & Files
               </span>
               <span className="text-[10px] px-2 py-0.2 rounded-full font-semibold bg-slate-100 text-slate-600 border border-slate-200">
                 {files.length} {files.length === 1 ? 'file' : 'files'}
               </span>
             </div>
             <h3 className="text-base font-bold text-slate-900">
-              Files in /{dirPath}
+              Topic Resources
             </h3>
           </div>
         </div>
@@ -132,10 +132,10 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5 text-center">
           <p className="text-2xl mb-1.5">🗂️</p>
           <p className="text-xs font-semibold text-slate-700 mb-1">
-            No files found in <code className="font-mono">{dirPath}</code>
+            No notes uploaded for this topic yet
           </p>
           <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-            Drop your PDFs, notes, or Jupyter notebooks into this directory and they will instantly appear here.
+            Lecture notes, summaries, and notebook exercises will be added here. You can also view or contribute notes on GitHub.
           </p>
         </div>
       )}
