@@ -344,6 +344,36 @@ $$
     {
       id: 'ols-q1',
       kind: 'mcq',
+      text: "In the population model y = Xβ + ε with n observations and k features, what are the dimensions of X, y, and β?",
+      options: [
+        "X is n×k, y is n×1, and β is k×1.",
+        "X is k×n, y is 1×n, and β is 1×k.",
+        "X is n×n, y is n×k, and β is k×k.",
+        "X is n×1, y is n×k, and β is 1×k.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The design matrix X contains n rows (observations) and k columns (features). Multiplying (n×k) by parameter vector β (k×1) produces an n×1 vector matching y and disturbance ε.",
+      figureHint: "See Section 1: Dimensions Check.",
+    },
+    {
+      id: 'ols-q2',
+      kind: 'mcq',
+      text: "What is the fundamental difference between the disturbance ε and the residual e?",
+      options: [
+        "Disturbance ε is unobservable noise in the true population model; residual e is the computable sample error e = y - Xβ̂.",
+        "Disturbance ε is always positive, while residual e can be negative.",
+        "Disturbance ε applies only to test data, while residual e applies to training data.",
+        "There is no difference; they are identical quantities in all regressions.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Disturbances ε represent unobserved true population errors. Residuals e = y - ŷ are calculated from sample estimates. In general, ε ≠ e.",
+      figureHint: "Review the comparison table in Section 2.",
+    },
+    {
+      id: 'ols-q3',
+      kind: 'mcq',
       text: "Why does the term yᵀXβ̂ equal its transpose β̂ᵀXᵀy in the matrix RSS expansion?",
       options: [
         "Because the product evaluates to a 1×1 matrix (a scalar), and any scalar equals its transpose.",
@@ -357,7 +387,67 @@ $$
       figureHint: "Refer to Figure 1.1 / matrix dimensions check in Section 3.",
     },
     {
-      id: 'ols-q2',
+      id: 'ols-q4',
+      kind: 'mcq',
+      text: "What is the correct matrix expansion of the Residual Sum of Squares RSS = (y - Xβ̂)ᵀ(y - Xβ̂)?",
+      options: [
+        "yᵀy - 2β̂ᵀXᵀy + β̂ᵀXᵀXβ̂",
+        "yᵀy - β̂ᵀXᵀy + XᵀXβ̂",
+        "yᵀXβ̂ - β̂ᵀXᵀXβ̂",
+        "(y - X)ᵀ(y - X)β̂",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Distributing (yᵀ - β̂ᵀXᵀ)(y - Xβ̂) gives yᵀy - yᵀXβ̂ - β̂ᵀXᵀy + β̂ᵀXᵀXβ̂. Since the cross-terms are identical scalars, they sum to -2β̂ᵀXᵀy.",
+      figureHint: "See Section 3: Master Expanded RSS.",
+    },
+    {
+      id: 'ols-q5',
+      kind: 'mcq',
+      text: "For a symmetric matrix A, what is the vector derivative of the quadratic form βᵀAβ with respect to β?",
+      options: [
+        "Aβ",
+        "2Aβ",
+        "Aᵀβ",
+        "βᵀA",
+      ],
+      correctIndex: 1,
+      explanation:
+        "The general derivative of βᵀAβ is (A + Aᵀ)β. When A is symmetric (Aᵀ = A), this simplifies directly to 2Aβ.",
+      figureHint: "Check Section 4: Deriving the Quadratic-Form Rule.",
+    },
+    {
+      id: 'ols-q6',
+      kind: 'mcq',
+      text: "What is the gradient vector of the Residual Sum of Squares (∂RSS / ∂β̂)?",
+      options: [
+        "-2Xᵀy + 2XᵀXβ̂",
+        "-Xᵀy + XᵀXβ̂",
+        "2Xᵀy - 2XᵀXβ̂",
+        "-2y + 2Xβ̂",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Differentiating yᵀy (0), -2β̂ᵀXᵀy (-2Xᵀy), and β̂ᵀXᵀXβ̂ (2XᵀXβ̂) yields ∂RSS/∂β̂ = -2Xᵀy + 2XᵀXβ̂.",
+      figureHint: "Review Section 4: Differentiating the Three RSS Terms.",
+    },
+    {
+      id: 'ols-q7',
+      kind: 'mcq',
+      text: "Setting the gradient ∂RSS / ∂β̂ = 0 directly produces which fundamental system of equations?",
+      options: [
+        "The Normal Equations: XᵀXβ̂ = Xᵀy",
+        "The Characteristic Equations: det(X - λI) = 0",
+        "The Poisson Equations: ∇²β̂ = 0",
+        "The Gauss-Markov Identity: E[ε|X] = 0",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Equating -2Xᵀy + 2XᵀXβ̂ = 0 and dividing by 2 yields XᵀXβ̂ = Xᵀy, known as the Normal Equations.",
+      figureHint: "See Section 5: Normal Equations and the OLS Estimator.",
+    },
+    {
+      id: 'ols-q8',
       kind: 'mcq',
       text: "Under what mathematical condition is the closed-form estimator β̂ = (XᵀX)⁻¹Xᵀy guaranteed to exist?",
       options: [
@@ -372,7 +462,67 @@ $$
       figureHint: "Review Section 5 on Normal Equations and Invertibility.",
     },
     {
-      id: 'ols-q3',
+      id: 'ols-q9',
+      kind: 'mcq',
+      text: "What does the Hessian matrix ∂²RSS / (∂β̂ ∂β̂ᵀ) = 2XᵀX tell us about the stationary point β̂?",
+      options: [
+        "Because XᵀX is positive definite under full column rank, the stationary point is guaranteed to be a strict global minimum.",
+        "Because the Hessian is zero, the stationary point is a saddle point.",
+        "The Hessian proves that the model has zero training error.",
+        "The Hessian indicates that Gradient Descent is required to confirm the solution.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "For any v ≠ 0, vᵀ(2XᵀX)v = 2||Xv||² > 0. A strictly positive definite Hessian guarantees that the stationary point is a unique global minimum.",
+      figureHint: "See Section 6: Checking That the Stationary Point is a Minimum.",
+    },
+    {
+      id: 'ols-q10',
+      kind: 'mcq',
+      text: "Starting from the normal equations XᵀXβ̂ = Xᵀy, what fundamental orthogonality relation follows for residuals e = y - Xβ̂?",
+      options: [
+        "Xᵀe = 0",
+        "X e = 0",
+        "eᵀy = 0",
+        "eᵀe = 0",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Xᵀe = Xᵀ(y - Xβ̂) = Xᵀy - XᵀXβ̂ = Xᵀy - Xᵀy = 0. The residual vector is strictly orthogonal to every column of the design matrix X.",
+      figureHint: "Review Section 7: Fundamental Property: Xᵀe = 0.",
+    },
+    {
+      id: 'ols-q11',
+      kind: 'mcq',
+      text: "Geometrically, what does the fitted vector ŷ = Xβ̂ represent relative to the target vector y?",
+      options: [
+        "The orthogonal projection of y onto the subspace spanned by the columns of X (col(X)).",
+        "A vector perpendicular to the column space of X.",
+        "The vector with the maximum possible Euclidean norm in ℝⁿ.",
+        "The average value of all feature vectors.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Because the residual vector e = y - ŷ is perpendicular to col(X), ŷ is precisely the orthogonal projection of y onto the column space of X.",
+      figureHint: "Examine Figure 1.2: Residual Orthogonality.",
+    },
+    {
+      id: 'ols-q12',
+      kind: 'mcq',
+      text: "If xⱼ is the j-th column of the design matrix X, what does the condition xⱼᵀe = 0 mean in sample data terms?",
+      options: [
+        "Every regressor column has zero sample inner product (and zero sample correlation) with the OLS residuals.",
+        "The j-th feature has zero variance.",
+        "The j-th coefficient must be equal to zero.",
+        "The target variable y does not depend on feature j.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "xⱼᵀe = ∑ᵢ Xᵢⱼ eᵢ = 0 means that the sample cross-product (covariance) between each explanatory variable and the residuals is identically zero.",
+      figureHint: "See Section 7: Column-by-Column Interpretation.",
+    },
+    {
+      id: 'ols-q13',
       kind: 'mcq',
       text: "Which of the following is true regarding OLS residuals when the regression includes an intercept?",
       options: [
@@ -385,6 +535,36 @@ $$
       explanation:
         "When an intercept is included, the first column of X is a vector of ones 1. The orthogonality property Xᵀe = 0 guarantees 1ᵀe = ∑ eᵢ = 0, which directly implies ē = 0.",
       figureHint: "Inspect the Orthogonality verification in the interactive OLS figure.",
+    },
+    {
+      id: 'ols-q14',
+      kind: 'mcq',
+      text: "What happens to the sum of residuals ∑ eᵢ if a regression model is forced through the origin without an intercept column?",
+      options: [
+        "The residuals generally do NOT sum to zero (∑ eᵢ ≠ 0).",
+        "The residuals are guaranteed to remain zero.",
+        "The residuals all become negative.",
+        "The model cannot be estimated with OLS.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Without an intercept column 1 in X, the equation 1ᵀe = 0 is not part of the normal system Xᵀe = 0. Hence ∑ eᵢ is generally non-zero.",
+      figureHint: "Review the Callout in Section 7 on Intercept Requirements.",
+    },
+    {
+      id: 'ols-q15',
+      kind: 'mcq',
+      text: "What is the dimension of the matrix XᵀX when X is an n×k matrix?",
+      options: [
+        "k×k",
+        "n×n",
+        "n×k",
+        "1×1",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Xᵀ has dimension k×n and X has dimension n×k. Multiplying (k×n) × (n×k) produces a square k×k matrix.",
+      figureHint: "See Section 1: Dimensions Check.",
     },
   ]}
 />

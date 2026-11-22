@@ -174,6 +174,119 @@ The update rule:
       explanation:
         'The gradient points in the direction of steepest increase (uphill). By subtracting it, we move in the direction of steepest decrease (downhill) — which is what we want.',
     },
+    {
+      id: 'gd-q5',
+      kind: 'mcq',
+      text: 'For a multivariable loss function L(w₁, w₂), what mathematical object is the gradient ∇L?',
+      options: [
+        'A vector of all first-order partial derivatives: [∂L/∂w₁, ∂L/∂w₂]ᵀ.',
+        'A single scalar number representing the sum of weights.',
+        'A matrix containing all second derivatives.',
+        'A constant independent of parameter values.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'The gradient ∇L is a vector containing the partial derivatives with respect to each independent parameter. Each component indicates how rapidly the loss changes when varying that specific parameter alone.',
+      figureHint: 'Notice how the ∇L readout shows the exact slope evaluated at the current position.',
+    },
+    {
+      id: 'gd-q6',
+      kind: 'mcq',
+      text: 'Why is the negative gradient -∇L guaranteed to be the direction of steepest descent?',
+      options: [
+        'The directional derivative in direction u is ∇L · u = ‖∇L‖ cos(θ), which is minimized when θ = 180° (u = -∇L / ‖∇L‖).',
+        'Because negative numbers always decrease faster than positive numbers.',
+        'By definition, computers can only subtract values during optimization.',
+        'Because the learning rate α reverses the sign of all vectors.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'The rate of change along any unit vector u is given by the inner product ⟨∇L, u⟩ = ||∇L|| cos(θ). The cosine is minimized at θ = π (cos π = -1), which occurs precisely when u points in the exact opposite direction of the gradient.',
+    },
+    {
+      id: 'gd-q7',
+      kind: 'mcq',
+      text: 'Which of the following is a standard stopping criterion for gradient descent algorithms?',
+      options: [
+        'The Euclidean norm of the gradient falls below a small tolerance threshold: ‖∇L‖ < ε.',
+        'The loss function reaches negative infinity.',
+        'The learning rate α becomes greater than 100.',
+        'The weights w all become exactly equal to 1.0.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'When ||∇L|| < ε, the slope is virtually flat, indicating the parameters are in the immediate vicinity of a stationary point (such as a local or global minimum).',
+    },
+    {
+      id: 'gd-q8',
+      kind: 'mcq',
+      text: 'What is the gradient of the sum of two differentiable loss functions ∇(L₁(w) + L₂(w))?',
+      options: [
+        '∇L₁(w) + ∇L₂(w), due to the linearity of the derivative operator.',
+        '∇L₁(w) · ∇L₂(w).',
+        '∇L₁(w) / ∇L₂(w).',
+        'Zero.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Derivatives are linear operators: the derivative of a sum is the sum of the derivatives. This property allows computing the total gradient in batch gradient descent simply by summing the gradients of individual training examples.',
+    },
+    {
+      id: 'gd-q9',
+      kind: 'mcq',
+      text: 'What is the fundamental idea behind "Gradient Descent with Momentum"?',
+      options: [
+        'Adding a fraction of the previous step\'s velocity vector to the current update to dampen oscillations and accelerate along consistent downhill paths.',
+        'Increasing the batch size after every single step.',
+        'Replacing calculus derivatives with random search.',
+        'Restarting training from scratch whenever loss increases.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Momentum maintains a velocity vector v_t = γ v_{t-1} + α ∇L and updates w ← w - v_t. Like a heavy ball rolling down a valley, momentum builds speed along consistent downhill gradients while canceling out high-frequency transverse oscillations.',
+    },
+    {
+      id: 'gd-q10',
+      kind: 'mcq',
+      text: 'What happens when gradient descent encounters a region known as a "plateau"?',
+      options: [
+        'The gradient is near zero (‖∇L‖ ≈ 0), causing parameter updates to become minuscule and progress to stall.',
+        'The weights immediately explode to infinity.',
+        'The learning rate automatically quadruples.',
+        'The loss becomes negative.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'On flat plateaus, the surface has almost no tilt. Because the update is proportional to the gradient (Δw = -α ∇L), near-zero gradients mean near-zero parameter updates, taking many iterations to traverse the flat region.',
+    },
+    {
+      id: 'gd-q11',
+      kind: 'mcq',
+      text: 'In high-dimensional machine learning models, why are saddle points often more pervasive than true local minima?',
+      options: [
+        'For a critical point (∇L = 0) to be a local minimum, all p eigenvalues of the Hessian must be positive; with thousands of dimensions, having a mix of positive and negative eigenvalues is exponentially more probable.',
+        'High-dimensional models cannot have convex regions.',
+        'Saddle points only exist when the dataset has missing values.',
+        'Matrix multiplication prevents the formation of local minima.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'A local minimum requires curvature to be positive in every single direction simultaneously (p independent conditions). In high dimensions (e.g. p = 1,000,000), it is vastly more likely that at least one direction curves downward, making almost all critical points saddle points.',
+    },
+    {
+      id: 'gd-q12',
+      kind: 'mcq',
+      text: 'What is an "Exact Line Search" in gradient descent?',
+      options: [
+        'Finding the step size α at each iteration that minimizes L(w - α ∇L) along the search ray.',
+        'Drawing a straight line between the first and last training samples.',
+        'Searching every row of the CSV file line by line.',
+        'Using linear regression to replace neural network layers.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Rather than using a fixed, static learning rate α, line search solves a one-dimensional subproblem at every step to pick the optimal step size α* that maximizes the loss reduction along the negative gradient direction.',
+    },
   ]}
 />
 

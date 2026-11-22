@@ -171,6 +171,91 @@ Surprisingly, the noise in SGD is often *useful*. It helps the optimizer escape 
       explanation:
         'A larger batch gives a better approximation of the true gradient, so the path is smoother. Very large batches approach full batch gradient descent — smooth but potentially less able to escape sharp local minima.',
     },
+    {
+      id: 'sgd-q5',
+      kind: 'mcq',
+      text: 'What is the computational time complexity per parameter update step for Pure SGD (batch size 1) versus Full Batch Gradient Descent (dataset size n), with p features?',
+      options: [
+        'Pure SGD is O(p), while Full Batch GD is O(n · p).',
+        'Both methods have identical O(n · p) complexity per step.',
+        'Pure SGD is O(n² · p), while Full Batch GD is O(p).',
+        'Full Batch GD is O(log n), while Pure SGD is O(n).',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Pure SGD processes exactly one training sample per update, requiring O(p) operations. Full Batch GD must compute predictions and residuals across all n samples before updating, costing O(n · p) operations per step.',
+    },
+    {
+      id: 'sgd-q6',
+      kind: 'mcq',
+      text: 'Why is it critical to randomly shuffle the training dataset at the beginning of each epoch in mini-batch SGD?',
+      options: [
+        'To prevent the model from learning spurious correlations or cycles based on sample order and to ensure mini-batch gradients are independent and identically distributed.',
+        'To increase the total number of training samples.',
+        'To invert the signs of the weights.',
+        'To guarantee that the learning rate decreases to zero.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'If data remains unshuffled, mini-batches follow an identical sequence every epoch, which can cause the optimizer to get trapped in predictable oscillatory cycles. Shuffling ensures the gradient estimates are genuinely stochastic and unbiased.',
+    },
+    {
+      id: 'sgd-q7',
+      kind: 'mcq',
+      text: 'Mathematically, why is the mini-batch gradient considered an "unbiased estimator" of the full batch gradient?',
+      options: [
+        'The expected value of the mini-batch gradient over random draws of samples equals the true full-dataset gradient: E[g_batch] = ∇J_total.',
+        'The mini-batch gradient is always equal to 0.',
+        'The mini-batch gradient never has any variance.',
+        'The mini-batch gradient has a magnitude that is strictly larger than 1.0.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Because each mini-batch is sampled uniformly from the dataset, the expected value of the sample mean gradient is mathematically identical to the population mean gradient across all n training observations.',
+    },
+    {
+      id: 'sgd-q8',
+      kind: 'mcq',
+      text: 'How does the variance of the mini-batch gradient estimator scale with mini-batch size b?',
+      options: [
+        'The variance is inversely proportional to batch size: Var(g_batch) ∝ σ² / b.',
+        'The variance increases linearly with batch size: Var(g_batch) ∝ b · σ².',
+        'The variance remains constant regardless of b.',
+        'The variance is proportional to b².',
+      ],
+      correctIndex: 0,
+      explanation:
+        'By the Central Limit Theorem and basic statistics of sample means, averaging b independent sample gradients reduces the estimator variance by a factor of 1/b. Larger batches yield much less noisy, more reliable gradient steps.',
+    },
+    {
+      id: 'sgd-q9',
+      kind: 'mcq',
+      text: 'What are the classic Robbins-Monro conditions on the learning rate schedule α_t that guarantee theoretical convergence of SGD to a stationary point?',
+      options: [
+        '∑ α_t = ∞ (sum diverges) and ∑ α_t² < ∞ (sum of squares converges).',
+        'α_t must remain constant for all time.',
+        '∑ α_t < 1.0 and α_t > 10.',
+        'α_t = 1 / t².',
+      ],
+      correctIndex: 0,
+      explanation:
+        'The condition ∑ α_t = ∞ ensures the step sizes are large enough to travel any finite distance to reach the optimum. The condition ∑ α_t² < ∞ ensures step sizes shrink fast enough to suppress the persistent variance (noise) of the stochastic gradients.',
+    },
+    {
+      id: 'sgd-q10',
+      kind: 'mcq',
+      text: 'Why do models trained with moderate mini-batch sizes (e.g., 32–128) often achieve better test generalization than models trained with massive batch sizes (e.g., 16,384)?',
+      options: [
+        'Stochastic gradient noise acts as implicit regularization, helping the optimizer escape narrow, sharp minima and settle into broad, flat basins that generalize better to unseen data.',
+        'Large batches disable backpropagation.',
+        'Small batches have lower training loss than any large batch.',
+        'Massive batches cause computer memory to round all weights to zero.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Sharp minima are sensitive to small shifts between training and test data distributions. The inherent gradient noise in smaller mini-batches prevents the optimizer from staying in steep, fragile valleys, nudging it toward flatter basins where predictions are robust to perturbations.',
+      figureHint: 'Observe how SGD bounces out of sharp local minima in the figure.',
+    },
   ]}
 />
 

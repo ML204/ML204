@@ -307,7 +307,7 @@ These limitations motivate **Elastic Net**, which combines both $L_1$ (Lasso) an
       correctIndex: 0,
       explanation:
         "The L₁ constraint |β₁| + |β₂| ≤ s defines a diamond with sharp vertices lying exactly on the coordinate axes. The expanding elliptical RSS contour is highly likely to make first contact at one of these corners, setting the other coordinate strictly to zero.",
-      figureHint: "Refer to Figure 3.5 in Diamond L₁ Geometry mode.",
+      figureHint: "Refer to Section 2 and Figure 3.5 in Diamond L₁ Geometry mode.",
     },
     {
       id: 'lasso-q2',
@@ -338,6 +338,186 @@ These limitations motivate **Elastic Net**, which combines both $L_1$ (Lasso) an
       explanation:
         "According to the KKT conditions, at β = 0, every coordinate condition |2x_jᵀy| ≤ λ must hold. The smallest λ satisfying this for all features is λ_max = 2 max_j |x_jᵀy|. Any penalty greater than or equal to this threshold produces a null model.",
       figureHint: "Review Section 7: The All-Zero Threshold.",
+    },
+    {
+      id: 'lasso-q4',
+      kind: 'mcq',
+      text: "What is the subdifferential of the absolute value function f(x) = |x| at the non-differentiable point x = 0?",
+      options: [
+        "The closed interval [-1, 1].",
+        "It is undefined and cannot be evaluated.",
+        "The single point {0}.",
+        "The set {-1, 1} consisting only of the two boundary endpoints.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The subgradient definition requires g(y - 0) ≤ |y| for all y. This inequality holds if and only if |g| ≤ 1, meaning the subdifferential at x = 0 is the entire closed interval ∂|0| = [-1, 1].",
+      figureHint: "Review Section 3: Subgradient Calculus.",
+    },
+    {
+      id: 'lasso-q5',
+      kind: 'mcq',
+      text: "Why is an analytical closed-form solution (like the Normal Equations in OLS or Ridge) impossible for Lasso regression?",
+      options: [
+        "The absolute value term |β_j| is non-differentiable at β_j = 0, preventing the gradient from being set to zero algebraically across all parameters simultaneously.",
+        "The design matrix X is always non-invertible when L₁ regularization is used.",
+        "The cost function is non-convex and possesses multiple local minima.",
+        "Lasso requires computing an infinite series of matrix determinants.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Because the L₁ norm has sharp kinks at zero, the objective function lacks a continuous derivative everywhere. Therefore, no closed-form linear system (XᵀX + λI)⁻¹ exists for Lasso; it must be solved numerically via algorithms like Coordinate Descent.",
+      figureHint: "Review Section 1: Objective Formulation.",
+    },
+    {
+      id: 'lasso-q6',
+      kind: 'mcq',
+      text: "In Coordinate Descent, what is the 'partial residual' r_j when updating coefficient β_j?",
+      options: [
+        "The residual vector computed using all features except feature j: r_j = y - Xβ + x_j β_j.",
+        "The total RSS divided by the number of features p.",
+        "The residual of feature j after projecting it onto the first principal component.",
+        "The difference between the true target y and the mean target ȳ.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "When isolating coefficient β_j, the model prediction is split into ŷ = ∑_{k≠j} x_k β_k + x_j β_j. The partial residual r_j = y - ∑_{k≠j} x_k β_k = y - Xβ + x_j β_j represents what remains to be explained solely by predictor j.",
+      figureHint: "Review Section 5: The Coordinate Descent Algorithm.",
+    },
+    {
+      id: 'lasso-q7',
+      kind: 'mcq',
+      text: "For a standardized feature x_j where x_jᵀx_j = 1, what is the exact Coordinate Descent update rule for β_j?",
+      options: [
+        "β_j = S(x_jᵀr_j, λ/2), which soft-thresholds the correlation between feature j and the partial residual.",
+        "β_j = (x_jᵀx_j + λ)⁻¹ x_jᵀy.",
+        "β_j = sign(x_jᵀr_j) · λ.",
+        "β_j = (x_jᵀr_j) / λ.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Setting the subgradient with respect to β_j to zero yields the univariate solution β_j = S(x_jᵀr_j, λ/2) (or S(2x_jᵀr_j, λ) / (2x_jᵀx_j) depending on whether RSS or MSE scaling is used).",
+      figureHint: "Review Section 5: Step-by-Step Derivation of Coordinate Descent.",
+    },
+    {
+      id: 'lasso-q8',
+      kind: 'mcq',
+      text: "According to the KKT optimality conditions, under what condition does coefficient β̂_j remain strictly equal to 0?",
+      options: [
+        "When the absolute correlation with the residual satisfies |2x_jᵀ(y - Xβ̂)| ≤ λ.",
+        "When the eigenvalue corresponding to feature j is negative.",
+        "When the training MSE is less than 1.0.",
+        "When the variance of feature j exceeds the penalty parameter λ.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The KKT stationarity condition states that 0 = -2x_jᵀr + λ s_j, where s_j ∈ [-1, 1]. This implies 2x_jᵀr = λ s_j, which can only be satisfied when |2x_jᵀr| ≤ λ. If the signal is weaker than λ, the coefficient stays at zero.",
+      figureHint: "Review Section 4: Karush-Kuhn-Tucker (KKT) Conditions.",
+    },
+    {
+      id: 'lasso-q9',
+      kind: 'mcq',
+      text: "Why must features always be standardized (mean 0, unit variance) before fitting a Lasso model?",
+      options: [
+        "The L₁ penalty sums the absolute magnitudes of coefficients equally; larger-scale features would otherwise receive disproportionately low penalties.",
+        "Standardization makes the Lasso objective function strictly concave.",
+        "Without standardization, the subgradient at zero does not exist.",
+        "Standardization guarantees that the design matrix is perfectly orthogonal.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Lasso penalizes ∑|β_j| uniformly across all j. If feature x₁ is measured in meters and x₂ in millimeters (1000× larger), β₁ will naturally be 1000× larger than β₂. Unstandardized Lasso would unfairly penalize and eliminate β₁ purely due to units of measurement.",
+      figureHint: "Review Section 8: Feature Standardization.",
+    },
+    {
+      id: 'lasso-q10',
+      kind: 'mcq',
+      text: "In a high-dimensional regime where the number of predictors p exceeds the number of observations n (p > n), what is a known mathematical limitation of Lasso?",
+      options: [
+        "Lasso can select at most n non-zero predictors before saturating.",
+        "Lasso diverges to infinity and cannot converge.",
+        "Lasso selects all p predictors with equal weights.",
+        "Lasso transforms into an Ordinary Least Squares estimator.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Due to the convex geometry of the polyhedral L₁ ball and the rank of X (rank ≤ n), the Lasso path can select at most n features before the problem becomes saturated, which can be restrictive when many more features are truly relevant.",
+      figureHint: "Review Section 9: Strengths, Weaknesses & Elastic Net Motivation.",
+    },
+    {
+      id: 'lasso-q11',
+      kind: 'mcq',
+      text: "How does Lasso handle a group of highly correlated (collinear) features?",
+      options: [
+        "It tends to arbitrarily pick one feature from the group and shrink all the others to zero.",
+        "It averages their coefficients equally across the entire group.",
+        "It sets all correlated coefficients to infinity.",
+        "It forces all correlated features to have identical non-zero values.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Unlike Ridge (which shrinks correlated coefficients together toward each other), Lasso's diamond geometry tends to select one predictor from a cluster of correlated features arbitrarily and discard the rest, which can make feature selection unstable.",
+      figureHint: "Review Section 9: Collinear Feature Instability.",
+    },
+    {
+      id: 'lasso-q12',
+      kind: 'mcq',
+      text: "What does the 'one-standard-error rule' (1-SE rule) dictate when choosing λ from cross-validation in Lasso?",
+      options: [
+        "Select the largest λ whose cross-validation error is within one standard error of the minimum MSE.",
+        "Select the λ that achieves exactly 1.0 standard error on the training set.",
+        "Select λ = 1.0 regardless of cross-validation results.",
+        "Reject all λ values where the variance across folds is non-zero.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The 1-SE rule chooses the simplest, most regularized (sparsest) model whose CV error is within 1 standard error of the minimal error (λ_1se ≥ λ_min), protecting against overfitting to the specific validation split.",
+      figureHint: "Review Section 7: Cross-Validation & The 1-SE Rule.",
+    },
+    {
+      id: 'lasso-q13',
+      kind: 'mcq',
+      text: "What combination of regularizers does Elastic Net use to overcome Lasso's limitations with correlated predictors?",
+      options: [
+        "A convex combination of both L₁ (Lasso) and L₂ (Ridge) penalties: λ₁ ∑|β_j| + λ₂ ∑β_j².",
+        "An L₀ penalty combined with matrix rank factorization.",
+        "A piecewise constant threshold with zero penalty above a cutoff.",
+        "A double L₁ penalty with alternating signs.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Elastic Net minimizes RSS + λ₁||β||₁ + λ₂||β||₂². The L₂ quadratic curvature ensures grouping of correlated features, while the L₁ component enforces sparsity and feature selection.",
+      figureHint: "Review Section 9: The Elastic Net Solution.",
+    },
+    {
+      id: 'lasso-q14',
+      kind: 'mcq',
+      text: "In the soft-thresholding operator S(z, t), if z = 8 and the threshold is t = 3, what is the output?",
+      options: [
+        "5",
+        "8",
+        "0",
+        "-5",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Using S(z, t) = sign(z) max(|z| - t, 0): sign(8) = +1, |8| - 3 = 5, and max(5, 0) = 5. Therefore, S(8, 3) = 1 × 5 = 5. The coefficient is shrunk toward zero by exactly t.",
+      figureHint: "Test values in the Soft Thresholding tab of the interactive figure.",
+    },
+    {
+      id: 'lasso-q15',
+      kind: 'mcq',
+      text: "As the regularization parameter λ increases from 0 to infinity, what happens to the Bias and Variance of the Lasso estimator?",
+      options: [
+        "Bias increases while Variance decreases.",
+        "Bias decreases while Variance increases.",
+        "Both Bias and Variance increase simultaneously.",
+        "Both Bias and Variance decrease to zero.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Penalizing the magnitude of coefficients constrains the hypothesis space, introducing deliberate estimation bias. In exchange, it dramatically reduces the estimator's sensitivity to sample fluctuations (variance), preventing overfitting.",
+      figureHint: "Review Section 1: The Regularization Tradeoff.",
     },
   ]}
 />

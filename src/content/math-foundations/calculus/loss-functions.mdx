@@ -161,6 +161,92 @@ MAE treats all errors proportionally. An error of 10 is exactly 10 times worse t
       explanation:
         'If every prediction equals the true value, every error (yᵢ − ŷᵢ) is zero. Zero squared is zero, and zero in absolute value is zero. The average of all zeros is zero. A perfect model has zero loss.',
     },
+    {
+      id: 'loss-q5',
+      kind: 'mcq',
+      text: 'How do MSE and MAE differ in their mathematical differentiability at zero residual (y - ŷ = 0)?',
+      options: [
+        'MSE is smooth and differentiable everywhere (derivative is 0 at zero); MAE has a sharp V-shaped corner and is non-differentiable at zero.',
+        'MAE is differentiable everywhere; MSE is non-differentiable.',
+        'Both functions are non-differentiable everywhere.',
+        'Both functions have identical constant derivatives of 1.0.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'The quadratic function e² has derivative 2e, which smoothly approaches 0 as e → 0. In contrast, the absolute value |e| has derivative +1 for e > 0 and -1 for e < 0, creating a sharp kink at e = 0 where the classical derivative does not exist.',
+      figureHint: 'Compare the shape of the MSE and MAE loss curves near the origin in the figure.',
+    },
+    {
+      id: 'loss-q6',
+      kind: 'mcq',
+      text: 'What is the primary motivation behind the Huber loss function?',
+      options: [
+        'It combines the smoothness of MSE near zero with the outlier robustness of MAE for large errors.',
+        'It guarantees zero training error on any dataset.',
+        'It converts regression problems into classification problems.',
+        'It eliminates the need for computing gradients.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Huber loss behaves quadratically (like MSE) when the error is smaller than a threshold δ (providing smooth convergence without bouncing) and linearly (like MAE) for errors larger than δ (preventing extreme outliers from dominating gradient updates).',
+    },
+    {
+      id: 'loss-q7',
+      kind: 'mcq',
+      text: 'In standard machine learning terminology, what is the precise distinction between a "Loss function" and a "Cost function"?',
+      options: [
+        'A loss function evaluates error on a single training example L(yᵢ, ŷᵢ); a cost function averages the loss across the entire training dataset J = (1/n)∑L.',
+        'Loss function refers only to neural networks; cost function refers only to linear models.',
+        'Cost function measures training time in seconds; loss function measures accuracy.',
+        'They are mathematically opposed: maximizing loss minimizes cost.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'In strict convention, the loss function L(y, ŷ) computes the penalty for a single prediction, whereas the cost function J(θ) is the empirical risk over the entire sample of n observations: J(θ) = (1/n) ∑_{i=1}^n L(y_i, f(x_i; θ)).',
+    },
+    {
+      id: 'loss-q8',
+      kind: 'mcq',
+      text: 'Why is Root Mean Squared Error (RMSE = √MSE) frequently preferred when reporting model evaluation to stakeholders?',
+      options: [
+        'It expresses the prediction error in the same physical units as the target variable y (e.g. dollars or kilograms) rather than squared units.',
+        'RMSE is always smaller than MAE.',
+        'RMSE cannot be calculated on negative numbers.',
+        'RMSE eliminates all model variance.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'If predicting house prices in dollars, MSE has units of dollars squared ($²), which is unintuitive. Taking the square root restores the original unit (dollars), making it straightforward to interpret as typical prediction magnitude.',
+    },
+    {
+      id: 'loss-q9',
+      kind: 'mcq',
+      text: 'For a binary classification problem predicting probability p ∈ (0, 1), why is Binary Cross-Entropy used instead of Mean Squared Error?',
+      options: [
+        'Cross-Entropy heavily penalizes confident wrong predictions (loss → ∞ as p → 0 when y = 1) and yields non-saturating gradients with the sigmoid function.',
+        'MSE cannot take decimal inputs between 0 and 1.',
+        'Cross-Entropy is always linear with respect to model weights.',
+        'Cross-Entropy guarantees 100% test accuracy on non-linear data.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'MSE paired with sigmoid causes gradient vanishing when predictions are completely wrong (the derivative approaches 0 in saturated regions). Cross-entropy loss −[y log(p) + (1-y) log(1-p)] cancels the sigmoid denominator in the gradient, keeping updates strong.',
+    },
+    {
+      id: 'loss-q10',
+      kind: 'mcq',
+      text: 'Why does Mean Squared Error in simple linear regression guarantee that gradient descent will never get permanently trapped in a bad local minimum?',
+      options: [
+        'The MSE cost function for linear regression is strictly convex (a smooth paraboloid bowl) with exactly one global minimum.',
+        'Linear regression uses a learning rate of 1.0 automatically.',
+        'Gradient descent always checks every possible parameter combination.',
+        'The residuals in linear regression are always non-negative.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Because the model is linear in its parameters, the composition with the quadratic squared error produces a positive semi-definite Hessian matrix everywhere. The resulting loss surface is convex, meaning every local minimum is the unique global minimum.',
+      figureHint: 'Notice how the MSE curve forms a single smooth convex bowl with one lowest point.',
+    },
   ]}
 />
 

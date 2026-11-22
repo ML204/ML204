@@ -159,6 +159,91 @@ The gradient $\nabla L$ tells us the direction and steepness of the slope. The l
       explanation:
         '0.01 is typically in the "just right" range for many problems. 0.000001 is too small to converge quickly. 1.0 and 100.0 are likely too large and risk divergence, depending on the loss landscape.',
     },
+    {
+      id: 'lr-q5',
+      kind: 'mcq',
+      text: 'Why does unscaled data (e.g. feature x₁ between 0 and 1, feature x₂ between 0 and 100,000) make selecting a single learning rate α difficult?',
+      options: [
+        'It produces elongated elliptical contours where the gradient in one direction is enormous while in the other it is tiny, causing oscillation in steep directions before progress is made in flat directions.',
+        'It changes the loss function into a non-continuous step function.',
+        'It forces the learning rate to be negative.',
+        'It prevents the computation of partial derivatives.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'When features have wildly different scales, the curvature (Hessian) is ill-conditioned: the loss surface looks like a long, narrow canyon. A learning rate small enough to avoid divergence in the steep direction makes agonizingly slow progress along the valley floor.',
+    },
+    {
+      id: 'lr-q6',
+      kind: 'mcq',
+      text: 'What mathematical condition on the learning rate α guarantees convergence for an L-smooth convex function (where L is the Lipschitz constant of the gradient)?',
+      options: [
+        '0 < α < 2 / L',
+        'α must equal exactly 1.0',
+        'α > L²',
+        'α < -L',
+      ],
+      correctIndex: 0,
+      explanation:
+        'By the Descent Lemma in convex optimization, gradient descent with constant step size is guaranteed to decrease the loss at every step if 0 < α < 2/L, with optimal convergence rate achieved around α = 1/L.',
+    },
+    {
+      id: 'lr-q7',
+      kind: 'mcq',
+      text: 'What is the purpose of a "learning rate warmup" phase in modern deep learning?',
+      options: [
+        'Starting with a very small learning rate and ramping up gradually prevents early catastrophic updates when weights are random and gradients are noisy.',
+        'It allows the CPU/GPU hardware to warm up physically before executing floating point arithmetic.',
+        'It makes the model memorize the first batch of data.',
+        'It shrinks the total dataset size by half.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'At initialization, random weights can generate extreme loss and erratic, high-magnitude gradients. Warmup prevents the optimizer from taking huge, destabilizing steps in poor directions before momentum and statistics stabilize.',
+    },
+    {
+      id: 'lr-q8',
+      kind: 'mcq',
+      text: 'How do adaptive optimizers like Adam and RMSprop address the challenge of choosing a fixed learning rate?',
+      options: [
+        'They maintain individual per-parameter learning rates that scale inversely with the square root of past squared gradients.',
+        'They calculate the exact analytical inverse of the Hessian matrix at every step.',
+        'They eliminate the need for gradients entirely.',
+        'They randomly guess a new learning rate on every iteration.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Adaptive optimizers track the second raw moment of each parameter\'s gradients (v_t = β₂ v_{t-1} + (1-β₂) g_t²). Parameters receiving large gradients are stepped with smaller effective step sizes, while parameters with sparse or small gradients receive larger steps.',
+    },
+    {
+      id: 'lr-q9',
+      kind: 'mcq',
+      text: 'What visual symptom on a training loss curve indicates that the learning rate is moderately too high (oscillating near minimum)?',
+      options: [
+        'The loss quickly drops then flattens into a persistent, jagged zigzag without settling at the true minimum.',
+        'The loss drops to zero on step 1.',
+        'The loss curve is a completely straight horizontal line from the start.',
+        'The loss becomes a smooth exponential decay.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'When the learning rate is too large for the local basin curvature, the updates bounce back and forth between opposing walls of the valley instead of descending smoothly to the bottom.',
+      figureHint: 'Observe the step trajectory when α is set to an oscillating threshold.',
+    },
+    {
+      id: 'lr-q10',
+      kind: 'mcq',
+      text: 'What is "Cosine Annealing" learning rate scheduling?',
+      options: [
+        'Decreasing the learning rate smoothly following a cosine curve from an initial maximum down to a near-zero minimum over the course of training.',
+        'Calculating the cosine angle between consecutive gradient vectors.',
+        'Multiplying the learning rate by -1 periodically.',
+        'Setting the learning rate equal to cos(epoch).',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Cosine annealing decays the learning rate α_t according to a half-cosine curve: α_t = α_min + 0.5(α_max - α_min)(1 + cos(π t / T)). It allows substantial exploration early on, smooth decay in the middle, and gentle fine-tuning in late epochs.',
+    },
   ]}
 />
 

@@ -160,6 +160,91 @@ The optimization problem in ML:
       explanation:
         'argmin returns the input (argument) that minimizes the function — in ML, that is the optimal parameter w*. It is different from min, which returns the smallest output value.',
     },
+    {
+      id: 'opt-q5',
+      kind: 'mcq',
+      text: 'What makes a convex optimization problem uniquely desirable in machine learning?',
+      options: [
+        'Any local minimum is guaranteed to be a global minimum.',
+        'It requires no iterations and solves in exactly 0 steps.',
+        'It works only when data has zero noise.',
+        'It produces negative loss values.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'In a convex function (like MSE in linear regression), the bowl-shaped geometry guarantees that there are no deceptive local valleys: every local minimum is automatically a global minimum.',
+      figureHint: 'Select the Parabola preset in the figure to see a convex landscape with a single global basin.',
+    },
+    {
+      id: 'opt-q6',
+      kind: 'mcq',
+      text: 'What is the fundamental difference between model parameters and hyperparameters?',
+      options: [
+        'Parameters are learned automatically by the optimizer (e.g. weights w); hyperparameters are configured before training (e.g. learning rate α).',
+        'Parameters are chosen by the user; hyperparameters are learned from data.',
+        'Parameters only exist in neural networks; hyperparameters exist in all algorithms.',
+        'There is no mathematical difference; the terms are interchangeable.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Parameters (like regression coefficients β or neural net weights W) are adjusted iteratively by the optimization algorithm to minimize the loss. Hyperparameters (like learning rate α, batch size, or regularization penalty λ) guide the optimization process itself and are tuned externally.',
+    },
+    {
+      id: 'opt-q7',
+      kind: 'mcq',
+      text: 'What is a stationary point of a differentiable function?',
+      options: [
+        'A point where the derivative (gradient) is zero.',
+        'A point where the loss is always infinite.',
+        'A point where the training data terminates.',
+        'A point where the learning rate decays to zero.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'A stationary point is any point where the first derivative equals zero: f\'(x) = 0. Depending on the second derivative, a stationary point can be a local minimum, a local maximum, or an inflection/saddle point.',
+    },
+    {
+      id: 'opt-q8',
+      kind: 'mcq',
+      text: 'What distinguishes unconstrained optimization from constrained optimization?',
+      options: [
+        'Unconstrained optimization allows parameters to take any real values in ℝⁿ; constrained optimization restricts them to a feasible set (such as ‖w‖₁ ≤ s).',
+        'Unconstrained optimization does not require calculating derivatives.',
+        'Constrained optimization cannot be solved using calculus.',
+        'Unconstrained optimization only applies to one-dimensional problems.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Unconstrained optimization searches over the entire space ℝⁿ (e.g., standard linear regression). Constrained optimization restricts solutions to satisfy specific bounds or equations, as in Lasso and Ridge regression constraints.',
+    },
+    {
+      id: 'opt-q9',
+      kind: 'mcq',
+      text: 'In high-dimensional non-convex loss surfaces, what geometric feature poses a frequent challenge where the gradient is zero in all directions but some directions curve upward and others curve downward?',
+      options: [
+        'A saddle point',
+        'A global maximum',
+        'A plateau with infinite slope',
+        'A singular coordinate',
+      ],
+      correctIndex: 0,
+      explanation:
+        'A saddle point has zero gradient ∇L = 0, but its Hessian matrix has both positive and negative eigenvalues. Moving in some directions decreases loss, while moving in others increases it. First-order methods can slow down dramatically near saddle points.',
+    },
+    {
+      id: 'opt-q10',
+      kind: 'mcq',
+      text: 'Why do most modern deep learning systems rely on first-order optimization methods (like SGD or Adam) rather than second-order methods (like Newton-Raphson)?',
+      options: [
+        'Second-order methods require computing and inverting the Hessian matrix of size p × p, which is computationally prohibitive for millions of parameters.',
+        'First-order methods are mathematically proven to achieve lower test loss.',
+        'Second-order derivatives are mathematically impossible to compute for neural networks.',
+        'First-order methods do not require evaluating the loss function.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Newton\'s method requires computing the p × p Hessian matrix and solving a linear system O(p³), which requires terabytes of memory and unfeasible compute when p is millions or billions. First-order methods use O(p) memory and computation per step.',
+    },
   ]}
 />
 

@@ -332,6 +332,36 @@ The squared error plummeted from $(6 - 2)^2 = 16$ down to $(6 - 6)^2 = 0$!
     {
       id: 'lr-q2',
       kind: 'mcq',
+      text: 'What is the precise statistical interpretation of the y-intercept β₀ in ŷ = β₀ + β₁x?',
+      options: [
+        'The maximum possible score any student can attain.',
+        'The expected value of the target ŷ when the input feature x is exactly zero.',
+        'The average rate of change in y for every 10-unit increase in x.',
+        'The correlation coefficient between x and y.',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Evaluating ŷ at x = 0 gives ŷ = β₀ + β₁(0) = β₀. It represents the baseline output when the input feature is zero.',
+      figureHint: 'Review Section 1: Understanding the Intercept.',
+    },
+    {
+      id: 'lr-q3',
+      kind: 'mcq',
+      text: 'If the estimated slope is β₁ = 12.5, what does this tell us about the relationship between study hours (x) and exam score (y)?',
+      options: [
+        'Studying guaranteed a 12.5% pass rate for all students.',
+        'Each additional hour of study is associated with a 12.5 point increase in predicted score.',
+        'A student who does not study at all will score 12.5 points.',
+        'The total prediction error is 12.5.',
+      ],
+      correctIndex: 1,
+      explanation:
+        'The slope describes Δŷ / Δx. A 1-unit increase in x produces an expected change of β₁ in ŷ.',
+      figureHint: 'See Section 1: Understanding the Slope.',
+    },
+    {
+      id: 'lr-q4',
+      kind: 'mcq',
       text: 'For an observation with actual score y = 25, if the model predicts ŷ = 20, what is the residual e, and what does it signify?',
       options: [
         'e = -5 (overprediction)',
@@ -345,34 +375,169 @@ The squared error plummeted from $(6 - 2)^2 = 16$ down to $(6 - 6)^2 = 0$!
       figureHint: 'Refer to the residual definition eᵢ = yᵢ - ŷᵢ.',
     },
     {
-      id: 'lr-q3',
+      id: 'lr-q5',
       kind: 'mcq',
       text: 'Why do we minimize Mean Squared Error (MSE) rather than simply summing the raw residuals ∑(yᵢ - ŷᵢ)?',
       options: [
-        'Because raw residuals cannot be computed for decimal numbers',
-        'Because positive and negative residuals can cancel out to zero even when predictions are far off',
-        'Because squaring errors makes training run twice as fast',
-        'Because linear regression is only allowed to predict positive numbers',
+        'Because raw residuals cannot be computed for decimal numbers.',
+        'Because positive and negative residuals can cancel out to zero even when predictions are far off.',
+        'Because squaring errors makes training run twice as fast.',
+        'Because linear regression is only allowed to predict positive numbers.',
       ],
       correctIndex: 1,
       explanation:
         'If one residual is +10 and another is -10, their sum is 0. Squaring eliminates sign cancellation and aggressively penalizes large errors.',
-      figureHint: 'Review Section 3.3 in the notes: 5 + 10 - 5 - 10 = 0.',
+      figureHint: 'Review Section 3: Why Not Simply Sum the Residuals?',
     },
     {
-      id: 'lr-q4',
+      id: 'lr-q6',
+      kind: 'mcq',
+      text: 'Given residuals of [+5, +10, -5, -10], what is the Residual Sum of Squares (RSS)?',
+      options: [
+        '0',
+        '100',
+        '250',
+        '50',
+      ],
+      correctIndex: 2,
+      explanation:
+        'RSS = 5² + 10² + (-5)² + (-10)² = 25 + 100 + 25 + 100 = 250.',
+      figureHint: 'Check the RSS worked calculation in Section 3.',
+    },
+    {
+      id: 'lr-q7',
+      kind: 'mcq',
+      text: 'How is the Mean Squared Error (MSE) cost function related to the Residual Sum of Squares (RSS)?',
+      options: [
+        'MSE is the square root of RSS: MSE = √RSS.',
+        'MSE is the average squared error: J = RSS / n.',
+        'MSE is always twice the value of RSS: MSE = 2 × RSS.',
+        'MSE ignores outliers, whereas RSS includes them.',
+      ],
+      correctIndex: 1,
+      explanation:
+        'MSE divides RSS by the sample size n: J = (1/n) ∑ (yᵢ - ŷᵢ)², representing the average squared penalty per training point.',
+      figureHint: 'See Section 3: Mean Squared Error (MSE).',
+    },
+    {
+      id: 'lr-q8',
+      kind: 'mcq',
+      text: 'In the walking down a misty mountain analogy for Gradient Descent, what represents the steepest downhill direction?',
+      options: [
+        'The positive gradient (∇J)',
+        'The negative gradient (-∇J)',
+        'The learning rate α',
+        'The y-intercept β₀',
+      ],
+      correctIndex: 1,
+      explanation:
+        'The gradient ∇J points uphill in the direction of steepest increase. To minimize cost, we must move in the opposite direction: the negative gradient -∇J.',
+      figureHint: 'Refer to the Gradient Descent mountain analogy in Section 4.',
+    },
+    {
+      id: 'lr-q9',
+      kind: 'mcq',
+      text: 'What is the correct Gradient Descent update rule for parameter θ?',
+      options: [
+        'θ_new = θ_old + α (∂J / ∂θ)',
+        'θ_new = θ_old - α (∂J / ∂θ)',
+        'θ_new = α θ_old - (∂J / ∂θ)',
+        'θ_new = (θ_old - α) / (∂J / ∂θ)',
+      ],
+      correctIndex: 1,
+      explanation:
+        'We subtract α times the partial derivative: θ_new = θ_old - α (∂J / ∂θ). The minus sign ensures we descend toward the minimum.',
+      figureHint: 'Review Section 4: The Update Rule.',
+    },
+    {
+      id: 'lr-q10',
+      kind: 'mcq',
+      text: 'What is the partial derivative of the MSE cost function with respect to the intercept β₀?',
+      options: [
+        '∂J / ∂β₀ = (2/n) ∑ (ŷᵢ - yᵢ)',
+        '∂J / ∂β₀ = (2/n) ∑ (ŷᵢ - yᵢ) xᵢ',
+        '∂J / ∂β₀ = (1/n) ∑ (yᵢ - ŷᵢ)²',
+        '∂J / ∂β₀ = 2(β₀ + β₁)',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Applying the chain rule to (1/n) ∑ (yᵢ - (β₀ + β₁xᵢ))² with respect to β₀ yields (2/n) ∑ (ŷᵢ - yᵢ).',
+      figureHint: 'See Section 4: The Gradients for Simple Linear Regression.',
+    },
+    {
+      id: 'lr-q11',
+      kind: 'mcq',
+      text: 'Why does the partial derivative ∂J / ∂β₁ include the feature factor xᵢ, whereas ∂J / ∂β₀ does not?',
+      options: [
+        'Because β₁ is multiplied by xᵢ in the prediction equation ŷ = β₀ + β₁xᵢ, so the chain rule brings out xᵢ.',
+        'Because xᵢ is always greater than 1.',
+        'Because β₀ is an unobservable random variable.',
+        'Because the intercept is computed only after the slope is zero.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'By the calculus chain rule: d/dβ₁ [yᵢ - (β₀ + β₁xᵢ)]² = 2(yᵢ - ŷᵢ)(-xᵢ) = 2(ŷᵢ - yᵢ)xᵢ.',
+      figureHint: 'Inspect the two gradient formulas in Section 4.',
+    },
+    {
+      id: 'lr-q12',
       kind: 'mcq',
       text: 'In Gradient Descent, what occurs if the learning rate α is set excessively large?',
       options: [
-        'The algorithm stops immediately on the first step',
-        'The model is mathematically guaranteed to find the global minimum',
-        'The steps can overshoot the minimum valley and oscillate or diverge to infinity',
-        'The slope β₁ is locked at zero',
+        'The algorithm stops immediately on the first step.',
+        'The model is mathematically guaranteed to find the global minimum.',
+        'The steps can overshoot the minimum valley and oscillate or diverge to infinity.',
+        'The slope β₁ is locked at zero.',
       ],
       correctIndex: 2,
       explanation:
         'An excessively large learning rate takes huge steps that overshoot the minimum point of the cost parabola, causing the cost J to increase and diverge.',
-      figureHint: 'Examine the Learning Rate Comparison diagram in Section 4.4.',
+      figureHint: 'Examine the Learning Rate Comparison diagram in Section 4.',
+    },
+    {
+      id: 'lr-q13',
+      kind: 'mcq',
+      text: 'Why is it critical in Gradient Descent to update β₀ and β₁ simultaneously rather than sequentially?',
+      options: [
+        'Because updating sequentially means computing the second gradient using a modified state, diverging from the true gradient vector.',
+        'Because computers cannot perform additions in sequence.',
+        'Because β₀ and β₁ must always sum to 1.',
+        'Because sequential updates make the loss function non-convex.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'In true gradient descent, all partial derivatives must be evaluated at the exact same parameter point (β₀, β₁) before executing updates.',
+      figureHint: 'Check the Common Trap in the Teach-This card.',
+    },
+    {
+      id: 'lr-q14',
+      kind: 'mcq',
+      text: 'In the worked numerical example with x = 2, y = 6, initial β₀ = 0, β₁ = 1, and α = 0.1, what was the updated slope β₁ after 1 step?',
+      options: [
+        '1.0',
+        '1.8',
+        '2.6',
+        '3.2',
+      ],
+      correctIndex: 2,
+      explanation:
+        'Prediction ŷ = 0 + 1(2) = 2. Gradient ∂J/∂β₁ = 2(2 - 6)(2) = -16. Update: β₁ = 1 - 0.1(-16) = 1 + 1.6 = 2.6.',
+      figureHint: 'Review Step 4 in the Hand-Worked Calculation.',
+    },
+    {
+      id: 'lr-q15',
+      kind: 'mcq',
+      text: 'What is the statistical distinction between β (beta) and β̂ (beta-hat)?',
+      options: [
+        'β represents unknown population parameters; β̂ represents sample estimates computed from data.',
+        'β is used only for non-linear models, while β̂ is for linear models.',
+        'β is always an integer, while β̂ can be a decimal.',
+        'β is the learning rate, while β̂ is the loss function.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Standard statistical notation reserves unadorned Greek letters (β) for true fixed population quantities, and puts a hat (β̂) over sample estimates.',
+      figureHint: 'Check the Callout: Statistical Convention: Beta vs. Beta-Hat.',
     },
   ]}
 />

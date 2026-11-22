@@ -354,6 +354,36 @@ Instead, we use **$K$-Fold Cross-Validation**:
     {
       id: 'ridge-q1',
       kind: 'mcq',
+      text: "What is the primary motivation for introducing the Ridge penalty in linear regression?",
+      options: [
+        "To stabilize coefficient estimates and prevent variance explosion caused by multicollinear predictors.",
+        "To convert a linear regression model into a classification model.",
+        "To eliminate all non-linear relationships in the dataset.",
+        "To make training error exactly zero on the training set.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "When features are correlated, XᵀX is near-singular, making Var(β̂) = σ²(XᵀX)⁻¹ explode. Ridge imposes an L₂ constraint to drastically reduce this variance.",
+      figureHint: "Review Section 1: Multicollinearity and Coefficient Instability.",
+    },
+    {
+      id: 'ridge-q2',
+      kind: 'mcq',
+      text: "What is the mathematical formulation of the Ridge Regression cost function?",
+      options: [
+        "J(β) = ||y - Xβ||₂² + λ ||β||₂²",
+        "J(β) = ||y - Xβ||₂ + λ ||β||₁",
+        "J(β) = ||y - Xβ||₂² / λ",
+        "J(β) = ||Xβ||₂² + λ ||y||₂²",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Ridge augments the classical RSS with an L₂ penalty: J(β) = RSS(β) + λ ∑ⱼ βⱼ² = ||y - Xβ||₂² + λ ||β||₂².",
+      figureHint: "See Section 3: Mathematical Foundation.",
+    },
+    {
+      id: 'ridge-q3',
+      kind: 'mcq',
       text: "Why is the matrix (XᵀX + λIₚ) guaranteed to be invertible for any λ > 0, even when XᵀX is singular?",
       options: [
         "Because adding λIₚ adds λ to every eigenvalue of XᵀX, making all eigenvalues strictly positive.",
@@ -367,7 +397,97 @@ Instead, we use **$K$-Fold Cross-Validation**:
       figureHint: "Review Section 5: Proof of Positive Definiteness.",
     },
     {
-      id: 'ridge-q2',
+      id: 'ridge-q4',
+      kind: 'mcq',
+      text: "What is the closed-form analytical estimator for Ridge Regression?",
+      options: [
+        "β̂_Ridge = (XᵀX + λI)⁻¹ Xᵀy",
+        "β̂_Ridge = (XᵀX)⁻¹ Xᵀy - λI",
+        "β̂_Ridge = (XᵀX - λI)⁻¹ Xᵀy",
+        "β̂_Ridge = Xᵀy / (1 + λ)",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Setting the gradient ∂J/∂β = -2Xᵀy + 2(XᵀX + λI)β to zero yields (XᵀX + λI)β = Xᵀy, which inverts to β̂_Ridge = (XᵀX + λI)⁻¹Xᵀy.",
+      figureHint: "See Section 4: Step 6 of the Derivation.",
+    },
+    {
+      id: 'ridge-q5',
+      kind: 'mcq',
+      text: "What happens to the Ridge coefficient estimates as the penalty parameter λ approaches infinity (λ → ∞)?",
+      options: [
+        "All penalized coefficients shrink asymptotically toward zero (β̂ → 0).",
+        "The coefficients become identical to the unconstrained OLS estimates.",
+        "The coefficients grow infinitely large.",
+        "The matrix (XᵀX + λI) becomes singular.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "As λ → ∞, the penalty dominates the data fit, forcing all penalized slopes toward zero, yielding a horizontal line equal to the mean target value.",
+      figureHint: "Examine Section 6: Coefficient Paths.",
+    },
+    {
+      id: 'ridge-q6',
+      kind: 'mcq',
+      text: "In the extreme numerical example where X has two identical columns X = [[1,1],[2,2],[3,3]] and y = [2,4,6]ᵀ, how does Ridge (λ = 1) solve the collinearity?",
+      options: [
+        "By dropping the second feature completely.",
+        "By splitting the influence equally: β̂₁ = β̂₂ = 28/30 ≈ 0.933.",
+        "By setting both coefficients to 0.",
+        "It fails with a zero-division error.",
+      ],
+      correctIndex: 1,
+      explanation:
+        "By symmetry, Ridge divides the total slope of 2 equally between the two identical predictors: β̂₁ = β̂₂ = 28 / (28 + 2λ) = 28/30 ≈ 0.933.",
+      figureHint: "Check Section 5: A Tiny Numerical Demonstration.",
+    },
+    {
+      id: 'ridge-q7',
+      kind: 'mcq',
+      text: "What geometric shape represents the constraint boundary in 2D Ridge Regression (β₁² + β₂² ≤ s)?",
+      options: [
+        "A smooth circle (or disk) centered at the origin.",
+        "A rotated square (diamond) with sharp corners on the axes.",
+        "A triangle pointing along the positive diagonal.",
+        "An open hyperbola.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The inequality β₁² + β₂² ≤ s defines a circle of radius √s centered at the origin (an L₂ sphere in higher dimensions).",
+      figureHint: "Refer to Figure 3.4 in Geometric Contours mode.",
+    },
+    {
+      id: 'ridge-q8',
+      kind: 'mcq',
+      text: "Why does Ridge Regression generally NOT set coefficients exactly to zero?",
+      options: [
+        "Because the smooth circular constraint boundary has no sharp corners on the coordinate axes, so tangency occurs along a curve.",
+        "Because the learning rate is too small.",
+        "Because Ridge only applies to datasets with positive features.",
+        "Because the inverse of XᵀX always contains non-zero entries.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Tangency between elliptical OLS contours and a smooth circle almost never occurs exactly on a coordinate axis, retaining all features in the model.",
+      figureHint: "See Section 7: Geometric Intuition.",
+    },
+    {
+      id: 'ridge-q9',
+      kind: 'mcq',
+      text: "According to the Bias-Variance decomposition, why does increasing λ initially reduce total test MSE?",
+      options: [
+        "Because the massive reduction in parameter variance far outstrips the small increase in bias.",
+        "Because increasing λ eliminates irreducible measurement noise.",
+        "Because bias and variance are both reduced to zero simultaneously.",
+        "Because training error drops to zero at high λ.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "MSE = Bias² + Variance + Irreducible Noise. Near λ = 0, variance drops steeply while bias grows slowly, producing a net reduction in overall prediction error.",
+      figureHint: "Inspect Figure 3.4 / Section 8 on Bias-Variance Trade-off.",
+    },
+    {
+      id: 'ridge-q10',
       kind: 'mcq',
       text: "Why must continuous features be standardized (z-scored) before applying Ridge Regression?",
       options: [
@@ -382,7 +502,52 @@ Instead, we use **$K$-Fold Cross-Validation**:
       figureHint: "Refer to Section 9 on Feature Standardization.",
     },
     {
-      id: 'ridge-q3',
+      id: 'ridge-q11',
+      kind: 'mcq',
+      text: "Why is the intercept parameter β₀ excluded from the Ridge L₂ penalty?",
+      options: [
+        "Because penalizing β₀ would inappropriately shrink the baseline prediction toward zero depending solely on the origin of y.",
+        "Because β₀ is always equal to 1 in all models.",
+        "Because the derivative with respect to β₀ is undefined.",
+        "Because β₀ has zero variance across samples.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The intercept sets the vertical baseline. Penalizing it would bias predictions toward zero simply because of how the target variable's origin is calibrated.",
+      figureHint: "See Section 9: Never Penalize the Intercept!",
+    },
+    {
+      id: 'ridge-q12',
+      kind: 'mcq',
+      text: "Why can the optimal regularization parameter λ NOT be chosen by minimizing error on the training dataset?",
+      options: [
+        "Because training error is always minimized at λ = 0 (OLS), which fails to protect against overfitting.",
+        "Because the computer runs out of memory at λ > 0.",
+        "Because training error is undefined when λ > 0.",
+        "Because λ is a matrix rather than a scalar.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "The penalty term strictly increases training RSS for any λ > 0. Training error alone will always pick λ = 0, defeating the purpose of regularization.",
+      figureHint: "Review Section 10: Choosing Optimal Lambda.",
+    },
+    {
+      id: 'ridge-q13',
+      kind: 'mcq',
+      text: "In K-fold cross-validation, how is candidate parameter λ evaluated?",
+      options: [
+        "By training on K-1 folds and measuring average Mean Squared Error on the held-out validation folds.",
+        "By testing the model on the training data 10 times.",
+        "By computing the determinant of XᵀX.",
+        "By selecting the λ that drives the most coefficients to zero.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "K-fold CV systematically rotates through K validation subsets to obtain an unbiased estimate of out-of-sample generalization error for each candidate λ.",
+      figureHint: "Examine Figure 3.7: Cross-Validation Workflow.",
+    },
+    {
+      id: 'ridge-q14',
       kind: 'mcq',
       text: "What distinguishes Ridge Regression from Lasso Regression regarding variable selection?",
       options: [
@@ -395,6 +560,21 @@ Instead, we use **$K$-Fold Cross-Validation**:
       explanation:
         "Because the L₂ constraint is a smooth circle with no corners on the coordinate axes, the optimal tangency point rarely occurs on an axis. Ridge retains all features, whereas Lasso's diamond constraint produces exact zeros.",
       figureHint: "Inspect Figure 3.4 and the Geometric Contours tab.",
+    },
+    {
+      id: 'ridge-q15',
+      kind: 'mcq',
+      text: "When computing feature standard deviations sⱼ for z-scoring (z = (x - μ)/s), why must we fit statistics on training data only?",
+      options: [
+        "To prevent data leakage from validation or test sets into the training pipeline.",
+        "Because test data does not have feature values.",
+        "Because standard deviations on test data are always zero.",
+        "Because scikit-learn throws an error if test statistics are used.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Calculating means or standard deviations using the entire dataset leaks information about the test distribution into model training.",
+      figureHint: "Review the Critical Rule in Section 9: Avoid Data Leakage.",
     },
   ]}
 />
