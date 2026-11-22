@@ -16,6 +16,23 @@ export function VectorMatrixFigure() {
   const [showSum, setShowSum] = useState(true);
   const [scalarC, setScalarC] = useState(1);
 
+  // String buffers for smooth coordinate input editing
+  const [inputVx, setInputVx] = useState('3.0');
+  const [inputVy, setInputVy] = useState('2.0');
+  const [inputUx, setInputUx] = useState('1.0');
+  const [inputUy, setInputUy] = useState('3.0');
+
+  // Synchronize input strings when v or u change via drag or presets
+  useEffect(() => {
+    setInputVx(v.x.toFixed(1));
+    setInputVy(v.y.toFixed(1));
+  }, [v.x, v.y]);
+
+  useEffect(() => {
+    setInputUx(u.x.toFixed(1));
+    setInputUy(u.y.toFixed(1));
+  }, [u.x, u.y]);
+
   // Scaled v
   const sv = { x: v.x * scalarC, y: v.y * scalarC };
   // Sum = sv + u
@@ -324,16 +341,120 @@ export function VectorMatrixFigure() {
         </div>
       }
       liveValues={
-        <LiveValuesPanel
-          values={[
-            { label: 'v',        value: `[${v.x.toFixed(1)}, ${v.y.toFixed(1)}]ᵀ`,   color: '#60a5fa' },
-            { label: '‖v‖',      value: magV.toFixed(2),                             color: '#60a5fa' },
-            { label: 'u',        value: `[${u.x.toFixed(1)}, ${u.y.toFixed(1)}]ᵀ`,   color: '#fb923c' },
-            { label: '‖u‖',      value: magU.toFixed(2),                             color: '#fb923c' },
-            { label: 'v + u',    value: `[${sum.x.toFixed(1)}, ${sum.y.toFixed(1)}]ᵀ`, color: '#86efac' },
-            { label: '‖v + u‖',  value: magSum.toFixed(2),                           color: '#86efac' },
-          ]}
-        />
+        <div className="bg-slate-900 border-t border-slate-800 px-3 sm:px-4 py-2.5 rounded-b-xl text-xs font-mono select-none">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-3">
+            {/* Vector v card */}
+            <div className="flex items-center justify-between bg-slate-800/80 px-3 py-1.5 rounded-xl border border-blue-500/30 gap-2">
+              <div className="flex items-center gap-1 min-w-0">
+                <span className="text-blue-400 font-bold">v:</span>
+                <span className="text-slate-400">[</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={inputVx}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    setInputVx(text);
+                    const val = parseFloat(text);
+                    if (!isNaN(val)) {
+                      setV((prev) => ({ ...prev, x: Math.max(-5.5, Math.min(5.5, val)) }));
+                    }
+                  }}
+                  onBlur={() => setInputVx(v.x.toFixed(1))}
+                  className="w-12 bg-slate-950 text-blue-400 font-mono text-center font-bold px-1 py-0.5 rounded border border-blue-500/40 focus:outline-none focus:ring-1 focus:ring-blue-400 text-xs"
+                  title="Click to edit x₁ of vector v"
+                />
+                <span className="text-slate-400">,</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={inputVy}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    setInputVy(text);
+                    const val = parseFloat(text);
+                    if (!isNaN(val)) {
+                      setV((prev) => ({ ...prev, y: Math.max(-5.5, Math.min(5.5, val)) }));
+                    }
+                  }}
+                  onBlur={() => setInputVy(v.y.toFixed(1))}
+                  className="w-12 bg-slate-950 text-blue-400 font-mono text-center font-bold px-1 py-0.5 rounded border border-blue-500/40 focus:outline-none focus:ring-1 focus:ring-blue-400 text-xs"
+                  title="Click to edit x₂ of vector v"
+                />
+                <span className="text-blue-400 text-[10px]">]ᵀ</span>
+              </div>
+              <div className="flex items-center gap-1.5 pl-2 border-l border-slate-700/60 flex-shrink-0">
+                <span className="text-slate-400 text-[10px]">‖v‖:</span>
+                <span className="text-blue-400 font-bold">{magV.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Vector u card */}
+            <div className="flex items-center justify-between bg-slate-800/80 px-3 py-1.5 rounded-xl border border-orange-500/30 gap-2">
+              <div className="flex items-center gap-1 min-w-0">
+                <span className="text-orange-400 font-bold">u:</span>
+                <span className="text-slate-400">[</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={inputUx}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    setInputUx(text);
+                    const val = parseFloat(text);
+                    if (!isNaN(val)) {
+                      setU((prev) => ({ ...prev, x: Math.max(-5.5, Math.min(5.5, val)) }));
+                    }
+                  }}
+                  onBlur={() => setInputUx(u.x.toFixed(1))}
+                  className="w-12 bg-slate-950 text-orange-400 font-mono text-center font-bold px-1 py-0.5 rounded border border-orange-500/40 focus:outline-none focus:ring-1 focus:ring-orange-400 text-xs"
+                  title="Click to edit y₁ of vector u"
+                />
+                <span className="text-slate-400">,</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={inputUy}
+                  onChange={(e) => {
+                    const text = e.target.value;
+                    setInputUy(text);
+                    const val = parseFloat(text);
+                    if (!isNaN(val)) {
+                      setU((prev) => ({ ...prev, y: Math.max(-5.5, Math.min(5.5, val)) }));
+                    }
+                  }}
+                  onBlur={() => setInputUy(u.y.toFixed(1))}
+                  className="w-12 bg-slate-950 text-orange-400 font-mono text-center font-bold px-1 py-0.5 rounded border border-orange-500/40 focus:outline-none focus:ring-1 focus:ring-orange-400 text-xs"
+                  title="Click to edit y₂ of vector u"
+                />
+                <span className="text-orange-400 text-[10px]">]ᵀ</span>
+              </div>
+              <div className="flex items-center gap-1.5 pl-2 border-l border-slate-700/60 flex-shrink-0">
+                <span className="text-slate-400 text-[10px]">‖u‖:</span>
+                <span className="text-orange-400 font-bold">{magU.toFixed(2)}</span>
+              </div>
+            </div>
+
+            {/* Sum vector card */}
+            <div className="flex items-center justify-between bg-slate-800/80 px-3 py-1.5 rounded-xl border border-green-500/30 gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-green-400 font-bold">v + u:</span>
+                <span className="text-green-400 font-semibold truncate">
+                  [{sum.x.toFixed(1)}, {sum.y.toFixed(1)}]ᵀ
+                </span>
+              </div>
+              <div className="flex items-center gap-1.5 pl-2 border-l border-slate-700/60 flex-shrink-0">
+                <span className="text-slate-400 text-[10px]">‖v+u‖:</span>
+                <span className="text-green-400 font-bold">{magSum.toFixed(2)}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-2 flex items-center justify-between text-[10px] text-slate-400 px-1">
+            <span>✏️ Click boxes to type exact coordinates, or drag dots on canvas</span>
+            <span className="hidden sm:inline">Range: [-5.5, 5.5]</span>
+          </div>
+        </div>
       }
     >
       <div ref={containerRef} className="relative w-full select-none touch-none">
