@@ -83,22 +83,24 @@ export function Formula({ children, label }: { children: React.ReactNode; label?
 
 export function SymbolTable({ rows }: { rows: { symbol: string; meaning: string }[] }) {
   return (
-    <table className="w-full text-sm my-4">
-      <thead>
-        <tr className="border-b border-slate-200">
-          <th className="text-left pb-2 font-semibold text-slate-500 w-20">Symbol</th>
-          <th className="text-left pb-2 font-semibold text-slate-500">Meaning</th>
-        </tr>
-      </thead>
-      <tbody>
-        {rows.map(({ symbol, meaning }) => (
-          <tr key={symbol} className="border-b border-slate-100">
-            <td className="py-2 font-mono text-brand-700">{symbol}</td>
-            <td className="py-2 text-slate-700">{meaning}</td>
+    <div className="w-full overflow-x-auto my-4 rounded-xl border border-slate-200 bg-white shadow-2xs">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="border-b border-slate-200 bg-slate-50">
+            <th className="text-left px-3.5 py-2.5 font-semibold text-slate-700 w-24">Symbol</th>
+            <th className="text-left px-3.5 py-2.5 font-semibold text-slate-700">Meaning</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {rows.map(({ symbol, meaning }) => (
+            <tr key={symbol} className="border-b border-slate-100 last:border-b-0">
+              <td className="px-3.5 py-2 font-mono text-brand-700">{symbol}</td>
+              <td className="px-3.5 py-2 text-slate-700">{meaning}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
 

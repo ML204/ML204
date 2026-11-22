@@ -89,7 +89,7 @@ export function ResourcesSection({ githubPath, items = [] }: ResourcesSectionPro
             <div className="flex items-start gap-3 p-3 rounded-xl bg-white border border-slate-200/80 hover:border-brand-300 transition-all group">
               <span className="text-lg flex-shrink-0 mt-0.5">{meta.icon}</span>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-0.5">
+                <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                   <span className="text-xs font-semibold text-slate-900 group-hover:text-brand-600 transition-colors">
                     {item.title}
                   </span>

@@ -59,6 +59,28 @@
     border-radius: 0.75rem;
   }
 
+  /* Code blocks & pre tags mobile safety */
+  .prose pre {
+    max-width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 0.75rem;
+  }
+
+  .prose code {
+    word-break: break-word;
+  }
+
+  .prose pre code {
+    word-break: normal;
+    white-space: pre;
+  }
+
+  /* Touch optimization */
+  button, a {
+    touch-action: manipulation;
+  }
+
   /* Table responsive styling in prose */
   .prose table {
     width: 100%;

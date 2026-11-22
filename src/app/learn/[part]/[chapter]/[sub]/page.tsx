@@ -129,7 +129,7 @@ export default async function SubchapterPage({
       <FeedbackBar subchapterSlug={`${partSlug}/${chapterSlug}/${subSlug}`} />
 
       {/* Prev / Next */}
-      <div className="mt-10 flex gap-3 justify-between">
+      <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-between">
         {prev ? (
           <Link
             href={`/learn/${prev.partSlug}/${prev.chapterSlug}/${prev.slug}`}
@@ -138,17 +138,17 @@ export default async function SubchapterPage({
             <span className="text-xs text-slate-400 font-medium mb-0.5">← Previous</span>
             <span className="text-sm font-semibold text-slate-700">{prev.title}</span>
           </Link>
-        ) : <div className="flex-1" />}
+        ) : <div className="hidden sm:block flex-1" />}
 
         {next ? (
           <Link
             href={`/learn/${next.partSlug}/${next.chapterSlug}/${next.slug}`}
-            className="flex-1 flex flex-col items-end px-4 py-3 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 transition-colors"
+            className="flex-1 flex flex-col items-start sm:items-end px-4 py-3 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 transition-colors"
           >
             <span className="text-xs text-slate-400 font-medium mb-0.5">Next →</span>
             <span className="text-sm font-semibold text-slate-700">{next.title}</span>
           </Link>
-        ) : <div className="flex-1" />}
+        ) : <div className="hidden sm:block flex-1" />}
       </div>
     </article>
   );

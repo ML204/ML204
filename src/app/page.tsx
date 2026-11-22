@@ -5,30 +5,30 @@ export default function HomePage() {
   const parts = toc;
 
   return (
-    <div className="max-w-4xl mx-auto px-6 py-16">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       {/* Hero */}
-      <div className="text-center mb-16">
+      <div className="text-center mb-12 sm:mb-16">
         <span className="inline-block px-3 py-1 text-xs font-semibold text-brand-600 bg-brand-50 rounded-full border border-brand-200 mb-4">
           Free · Visual · Interactive
         </span>
-        <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-slate-900 mb-4 leading-tight">
           Machine Learning,{' '}
           <span className="text-brand-600">explained visually</span>
         </h1>
-        <p className="text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
           Drag a point. Move a slider. Watch the idea come alive. A free interactive
           textbook for high school and undergraduate students — no coding required.
         </p>
-        <div className="flex gap-3 justify-center mt-8">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8 max-w-xs sm:max-w-none mx-auto">
           <Link
             href="/learn"
-            className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition-colors shadow-sm"
+            className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition-colors shadow-sm text-center"
           >
             Start Learning →
           </Link>
           <Link
             href="#contents"
-            className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 transition-colors"
+            className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 transition-colors text-center"
           >
             Browse Contents
           </Link>

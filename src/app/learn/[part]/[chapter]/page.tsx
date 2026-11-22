@@ -79,7 +79,7 @@ export default async function ChapterPage({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 sm:gap-3">
             <a
               href={`https://github.com/hamimLohani/mlens/tree/main/resources`}
               target="_blank"
