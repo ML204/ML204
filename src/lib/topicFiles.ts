@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import { toc } from './toc';
 
 export interface TopicFile {
   name: string;
@@ -8,6 +9,17 @@ export interface TopicFile {
   href: string;
   githubUrl: string;
   updatedAt: string;
+}
+
+export interface TopicDirectory {
+  slug: string;
+  title: string;
+  partNumber: number;
+  partTitle: string;
+  chapterTitle: string;
+  chapterSlug: string;
+  partSlug: string;
+  files: TopicFile[];
 }
 
 export function getTopicFiles(topicSlug: string): TopicFile[] {
@@ -42,4 +54,28 @@ export function getTopicFiles(topicSlug: string): TopicFile[] {
     console.error(`Error reading topic files for ${topicSlug}:`, err);
     return [];
   }
+}
+
+export function getAllTopicsWithFiles(): TopicDirectory[] {
+  const result: TopicDirectory[] = [];
+
+  for (const part of toc) {
+    for (const chapter of part.chapters) {
+      for (const sub of chapter.subchapters) {
+        const files = getTopicFiles(sub.slug);
+        result.push({
+          slug: sub.slug,
+          title: sub.title,
+          partNumber: part.number,
+          partTitle: part.title,
+          chapterTitle: chapter.title,
+          chapterSlug: chapter.slug,
+          partSlug: part.slug,
+          files,
+        });
+      }
+    }
+  }
+
+  return result;
 }

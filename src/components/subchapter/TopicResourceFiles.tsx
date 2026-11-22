@@ -9,7 +9,11 @@ interface TopicResourceFilesProps {
   files: TopicFile[];
 }
 
-function getFileMeta(ext: string) {
+function getFileMeta(name: string, ext: string) {
+  if (name.toLowerCase() === 'readme.md') {
+    return { icon: '📖', badge: 'Topic Guide', color: 'bg-indigo-50 text-indigo-700 border-indigo-200' };
+  }
+
   switch (ext) {
     case 'pdf':
       return { icon: '📕', badge: 'PDF Note', color: 'bg-red-50 text-red-700 border-red-200' };
@@ -44,38 +48,40 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
     setTimeout(() => setCopied(false), 2000);
   }
 
-  // Filter out README.md if there are other files, or keep it if it's the only one
-  const displayFiles = files.filter((f) => f.name !== 'README.md');
-
   return (
     <div className="my-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
         <div className="flex items-center gap-2.5">
           <span className="text-xl">📁</span>
           <div>
-            <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600">
-              Community Notes & Files
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-brand-600">
+                Uploaded Notes & Files
+              </span>
+              <span className="text-[10px] px-2 py-0.2 rounded-full font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+                {files.length} {files.length === 1 ? 'file' : 'files'}
+              </span>
+            </div>
             <h3 className="text-base font-bold text-slate-900">
-              Uploaded Materials for {topicTitle}
+              Files in /{dirPath}
             </h3>
           </div>
         </div>
 
         <button
           onClick={copyPath}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-xl border border-slate-200 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 text-slate-600 transition-colors self-start sm:self-auto"
-          title="Copy directory path"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-xl border border-slate-200 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 text-slate-600 transition-colors self-start sm:self-auto shadow-2xs"
+          title="Click to copy directory path"
         >
           <span>{dirPath}</span>
-          <span>{copied ? '✓' : '📋'}</span>
+          <span>{copied ? '✓ Copied' : '📋'}</span>
         </button>
       </div>
 
-      {displayFiles.length > 0 ? (
+      {files.length > 0 ? (
         <div className="space-y-2.5">
-          {displayFiles.map((file) => {
-            const meta = getFileMeta(file.extension);
+          {files.map((file) => {
+            const meta = getFileMeta(file.name, file.extension);
 
             return (
               <div
@@ -93,8 +99,8 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
                         {meta.badge}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">
-                      {file.size} · Updated {file.updatedAt}
+                    <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                      {file.size} · Modified {file.updatedAt}
                     </p>
                   </div>
                 </div>
@@ -107,7 +113,7 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
                     rel="noopener noreferrer"
                     className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-2xs"
                   >
-                    Download / Open
+                    Open / Download
                   </a>
                   <a
                     href={file.githubUrl}
@@ -126,10 +132,10 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
         <div className="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5 text-center">
           <p className="text-2xl mb-1.5">🗂️</p>
           <p className="text-xs font-semibold text-slate-700 mb-1">
-            No custom notes uploaded to this topic yet
+            No files found in <code className="font-mono">{dirPath}</code>
           </p>
           <p className="text-xs text-slate-500 max-w-md mx-auto leading-relaxed">
-            Drop your lecture notes, formula sheets, or <code className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[11px]">.ipynb</code> files into <code className="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 text-[11px] font-mono">{dirPath}</code> and they will automatically appear here for download.
+            Drop your PDFs, notes, or Jupyter notebooks into this directory and they will instantly appear here.
           </p>
         </div>
       )}

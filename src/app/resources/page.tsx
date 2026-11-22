@@ -1,8 +1,10 @@
 import Link from 'next/link';
+import { getAllTopicsWithFiles } from '@/lib/topicFiles';
+import { TopicFileBrowser } from './TopicFileBrowser';
 
 export const metadata = {
-  title: 'Learning Resources & Books — MLens',
-  description: 'Curated courses, reference textbooks, and GitHub materials for machine learning students.',
+  title: 'Learning Resources & File Directory — MLens',
+  description: 'Download study notes, code implementations, and view curated textbooks across all 130 machine learning topics.',
 };
 
 interface ResourceCard {
@@ -93,59 +95,82 @@ const BOOKS: ResourceCard[] = [
 ];
 
 export default function ResourcesPage() {
+  const topicsWithFiles = getAllTopicsWithFiles();
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
       {/* Header */}
-      <div className="mb-10">
+      <div className="mb-8">
         <nav className="text-xs text-slate-400 mb-3 flex items-center gap-1.5">
           <Link href="/" className="hover:text-brand-600 transition-colors">Home</Link>
           <span>/</span>
-          <span className="text-slate-700 font-medium">Resources & GitHub</span>
+          <span className="text-slate-700 font-medium">Resources & Notes Vault</span>
         </nav>
-        <h1 className="text-3xl font-bold text-slate-900 mb-2">Curated Resources & Materials</h1>
+        <h1 className="text-3xl font-bold text-slate-900 mb-2">Resource Vault & Study Notes</h1>
         <p className="text-slate-600 text-sm max-w-2xl leading-relaxed">
-          The essential books, video series, and GitHub repositories from the ML Learning Checklist to accompany your interactive studies.
+          Browse and download study notes, Jupyter notebooks, cheat sheets, and reference textbooks across all 130 topics in the curriculum.
         </p>
       </div>
 
-      {/* GitHub Repository Banner */}
-      <div className="bg-slate-900 text-white rounded-2xl p-6 sm:p-8 mb-12 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-          <div>
-            <span className="inline-block px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-300 bg-brand-950/80 rounded-lg border border-brand-800 mb-3">
-              Open Source GitHub Materials
-            </span>
-            <h2 className="text-xl sm:text-2xl font-bold mb-2">
-              Project GitHub Repository
+      {/* GitHub Repository Quick Banner */}
+      <div className="bg-slate-900 text-white rounded-2xl p-6 mb-10 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 mb-1">
+            <span className="text-base">📂</span>
+            <h2 className="text-base sm:text-lg font-bold">
+              Project GitHub Repository: <code className="text-brand-300 font-mono text-sm">/resources/[topic]/</code>
             </h2>
-            <p className="text-slate-300 text-xs sm:text-sm max-w-xl leading-relaxed">
-              Find Python/NumPy code implementations, interactive Jupyter notebooks, dataset cleaning scripts, and slide decks organized by chapter.
-            </p>
           </div>
-
-          <a
-            href="https://github.com/Inzamam-Ul-Haque/mlens"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-brand-600 hover:bg-brand-500 font-semibold text-xs sm:text-sm text-white transition-colors flex-shrink-0 text-center justify-center shadow-sm"
-          >
-            <span>Star on GitHub</span>
-            <span>↗</span>
-          </a>
+          <p className="text-slate-300 text-xs max-w-xl leading-relaxed">
+            Drop your notes or code files into any topic directory in the project repo. They appear automatically below with instant download links.
+          </p>
         </div>
+
+        <a
+          href="https://github.com/Inzamam-Ul-Haque/mlens/tree/main/resources"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 font-semibold text-xs text-white transition-colors flex-shrink-0 text-center justify-center shadow-sm"
+        >
+          <span>Open Repo on GitHub</span>
+          <span>↗</span>
+        </a>
       </div>
 
-      {/* Recommended Books */}
-      <div className="mb-12">
-        <h2 className="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
-          <span>📖</span>
-          <span>Core Reference Textbooks</span>
-        </h2>
-        <p className="text-xs text-slate-500 mb-5">
-          Standard academic textbooks from the curriculum checklist.
-        </p>
+      {/* Section 1: All 130 Topics File Directory */}
+      <div className="mb-14">
+        <div className="mb-4">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
+            Topic Files Explorer
+          </span>
+          <h2 className="text-xl font-bold text-slate-900 mt-0.5">
+            All 130 Topic Resource Directories
+          </h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Search any topic or file name. Click on any topic to reveal its files, download notes, or jump to the interactive lesson.
+          </p>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <TopicFileBrowser topics={topicsWithFiles} />
+      </div>
+
+      {/* Section 2: Core Textbooks & Courses */}
+      <div className="pt-10 border-t border-slate-200">
+        <div className="mb-6">
+          <span className="text-xs font-bold uppercase tracking-wider text-brand-600">
+            Checklist Section 9
+          </span>
+          <h2 className="text-xl font-bold text-slate-900 mt-0.5 flex items-center gap-2">
+            <span>📖</span>
+            <span>Core Textbooks & Courses Reference</span>
+          </h2>
+          <p className="text-xs text-slate-500 mt-1">
+            Recommended books and video series from the ML Learning Checklist.
+          </p>
+        </div>
+
+        {/* Textbooks */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
           {BOOKS.map((b, idx) => (
             <a
               key={idx}
@@ -172,18 +197,8 @@ export default function ResourcesPage() {
             </a>
           ))}
         </div>
-      </div>
 
-      {/* Courses & Lectures */}
-      <div>
-        <h2 className="text-xl font-bold text-slate-900 mb-1 flex items-center gap-2">
-          <span>🎥</span>
-          <span>Top Video Courses & Visual Series</span>
-        </h2>
-        <p className="text-xs text-slate-500 mb-5">
-          High-yield visual lectures to watch alongside interactive figures.
-        </p>
-
+        {/* Courses */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {COURSES.map((c, idx) => (
             <a
