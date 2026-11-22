@@ -32,6 +32,8 @@
 | Dedicated Resources & Books Directory (`/resources`) | ✅ Done |
 | All 130 topic resource directories (`resources/[topic]/`) | ✅ Done (all 130 created) |
 | Dynamic per-topic file detector & downloader (`TopicResourceFiles`) | ✅ Done |
+| Next.js API download handler (`/api/resources/[topic]/[filename]`) | ✅ Done (clean, no public symlink needed) |
+| Next.js upgraded to secure version 15.5.29 (fixes Vercel advisory) | ✅ Done |
 | Chapter-wise resources grouping on `/resources` (Part & Chapter tree) | ✅ Done |
 | Dedicated Chapter Resources section on `/learn/[part]/[chapter]` | ✅ Done |
 | Feynman active recall card (`TeachThisCard` & `ExplainInOwnWords`) | ✅ Done |
