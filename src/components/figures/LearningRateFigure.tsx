@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { FigureBox } from '@/components/figures/FigureBox';
 import { Slider, LiveValuesPanel, Presets } from '@/components/figures/FigureControls';
@@ -35,15 +35,17 @@ export function LearningRateFigure() {
   const alphaSmall = alphaGood / 10;
   const alphaLarge = alphaGood * 8;
 
-  const pathSlow = runGD(alphaSmall);
-  const pathGood = runGD(alphaGood);
-  const pathFast = runGD(Math.min(alphaLarge, 1.5));
+  const configs = useMemo(() => {
+    const pathSlow = runGD(alphaSmall);
+    const pathGood = runGD(alphaGood);
+    const pathFast = runGD(Math.min(alphaLarge, 1.5));
 
-  const configs = [
-    { label: `α = ${alphaSmall.toFixed(3)} (too slow)`, path: pathSlow, color: '#94a3b8' },
-    { label: `α = ${alphaGood.toFixed(2)} (good)`,      path: pathGood, color: '#22c55e' },
-    { label: `α = ${Math.min(alphaLarge, 1.5).toFixed(2)} (too fast)`, path: pathFast, color: '#ef4444' },
-  ];
+    return [
+      { label: `α = ${alphaSmall.toFixed(3)} (too slow)`, path: pathSlow, color: '#94a3b8' },
+      { label: `α = ${alphaGood.toFixed(2)} (good)`,      path: pathGood, color: '#22c55e' },
+      { label: `α = ${Math.min(alphaLarge, 1.5).toFixed(2)} (too fast)`, path: pathFast, color: '#ef4444' },
+    ];
+  }, [alphaSmall, alphaGood, alphaLarge]);
 
   useEffect(() => {
     const svg = d3.select(svgRef.current);

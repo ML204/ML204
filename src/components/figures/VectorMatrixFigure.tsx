@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import { FigureBox } from '@/components/figures/FigureBox';
 
@@ -14,7 +14,7 @@ export function VectorMatrixFigure() {
   const [u, setU] = useState<{ x: number; y: number }>({ x: 1, y: 3 });
 
   // Sum = v + u (green)
-  const sum = { x: v.x + u.x, y: v.y + u.y };
+  const sum = useMemo(() => ({ x: v.x + u.x, y: v.y + u.y }), [v.x, v.y, u.x, u.y]);
 
   const magV = Math.sqrt(v.x * v.x + v.y * v.y);
   const magU = Math.sqrt(u.x * u.x + u.y * u.y);

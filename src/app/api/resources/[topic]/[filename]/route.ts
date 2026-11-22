@@ -7,11 +7,24 @@ export async function GET(
   { params }: { params: Promise<{ topic: string; filename: string }> }
 ) {
   const { topic, filename } = await params;
+  const decodedTopic = decodeURIComponent(topic);
   const decodedFilename = decodeURIComponent(filename);
 
-  // Prevent directory traversal
+  // Strict sanitization: enforce alphanumeric topic and prevent traversal
+  const safeTopic = path.basename(decodedTopic);
   const safeFilename = path.basename(decodedFilename);
-  const filePath = path.join(process.cwd(), 'resources', topic, safeFilename);
+
+  if (!/^[a-z0-9_-]+$/i.test(safeTopic) || !safeFilename || safeFilename.startsWith('.')) {
+    return new NextResponse('Invalid request parameters', { status: 400 });
+  }
+
+  const resourcesDir = path.resolve(process.cwd(), 'resources');
+  const filePath = path.resolve(resourcesDir, safeTopic, safeFilename);
+
+  // Path boundary check: ensure target is strictly inside the resources directory
+  if (!filePath.startsWith(resourcesDir + path.sep)) {
+    return new NextResponse('Access denied', { status: 403 });
+  }
 
   if (!fs.existsSync(filePath)) {
     return new NextResponse('File not found', { status: 404 });
@@ -26,6 +39,7 @@ export async function GET(
     '.md': 'text/markdown; charset=utf-8',
     '.txt': 'text/plain; charset=utf-8',
     '.py': 'text/x-python; charset=utf-8',
+    '.tex': 'text/x-tex; charset=utf-8',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
@@ -39,6 +53,7 @@ export async function GET(
     headers: {
       'Content-Type': contentType,
       'Content-Disposition': `inline; filename="${safeFilename}"`,
+      'X-Content-Type-Options': 'nosniff',
     },
   });
 }
