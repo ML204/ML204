@@ -9,6 +9,9 @@ const withMDX = require('@next/mdx')({
 
 const nextConfig = {
   pageExtensions: ['ts', 'tsx', 'js', 'jsx', 'md', 'mdx'],
+  outputFileTracingIncludes: {
+    '/api/resources/**/*': ['./resources/**/*'],
+  },
   experimental: {
     mdxRs: false,
   },
