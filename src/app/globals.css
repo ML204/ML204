@@ -76,8 +76,40 @@
     white-space: pre;
   }
 
-  /* Touch optimization */
-  button, a {
+  /* Touch optimization and smooth button transitions */
+  button {
+    touch-action: manipulation;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  button:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  /* Interactive button-like links and action triggers */
+  a.px-6,
+  a.px-5,
+  a.px-4,
+  a.px-3,
+  a.px-2\.5 {
+    touch-action: manipulation;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  a.px-6:active,
+  a.px-5:active,
+  a.px-4:active,
+  a.px-3:active,
+  a.px-2\.5:active {
+    transform: scale(0.96);
+  }
+
+  a {
     touch-action: manipulation;
   }
 
@@ -147,7 +179,15 @@
   .quiz-option {
     @apply w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200
            bg-white hover:border-brand-400 hover:bg-brand-50
-           transition-all duration-150 cursor-pointer text-sm;
+           cursor-pointer text-sm;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .quiz-option:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  }
+  .quiz-option:active {
+    transform: scale(0.98);
   }
   .quiz-option.selected  { @apply border-brand-500 bg-brand-50; }
   .quiz-option.correct   { @apply border-green-500 bg-green-50 text-green-800; }
@@ -156,6 +196,14 @@
   /* Preset button */
   .preset-btn {
     @apply px-3 py-1.5 text-xs font-medium rounded-lg border border-slate-300
-           bg-white hover:bg-brand-50 hover:border-brand-400 transition-colors;
+           bg-white hover:bg-brand-50 hover:border-brand-400 cursor-pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .preset-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+  .preset-btn:active:not(:disabled) {
+    transform: scale(0.95);
   }
 }

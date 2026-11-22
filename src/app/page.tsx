@@ -22,20 +22,20 @@ export default function HomePage() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8 max-w-xs sm:max-w-none mx-auto">
           <Link
             href="/learn"
-            className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition-colors shadow-sm text-center"
+            className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md text-center"
           >
             Start Learning →
           </Link>
           <Link
             href="/resources"
-            className="px-6 py-3 bg-brand-50 text-brand-700 font-semibold rounded-xl border border-brand-200 hover:bg-brand-100 transition-colors shadow-xs text-center flex items-center justify-center gap-2"
+            className="px-6 py-3 bg-brand-50 text-brand-700 font-semibold rounded-xl border border-brand-200 hover:bg-brand-100 active:scale-95 transition-all duration-200 shadow-xs text-center flex items-center justify-center gap-2"
           >
             <span>📚</span>
             <span>Resources</span>
           </Link>
           <Link
             href="#contents"
-            className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 transition-colors text-center"
+            className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 active:scale-95 transition-all duration-200 hover:border-slate-400 text-center"
           >
             Browse Contents
           </Link>
