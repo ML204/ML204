@@ -57,7 +57,9 @@ export function Analogy({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative pl-5 my-5">
       <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-brand-300" />
-      <p className="text-slate-600 italic text-sm leading-relaxed">{children}</p>
+      <div className="text-slate-600 italic text-sm leading-relaxed [&>p]:mb-0 [&>p]:inline">
+        {children}
+      </div>
     </div>
   );
 }
