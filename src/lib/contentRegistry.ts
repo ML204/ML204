@@ -19,6 +19,8 @@ export const contentRegistry: Record<string, Loader> = {
     import('@/content/math-foundations/calculus/learning-rate.mdx'),
   'math-foundations/calculus/sgd-vs-batch': () =>
     import('@/content/math-foundations/calculus/sgd-vs-batch.mdx'),
+  'classical-ml/supervised-regression/linear-regression': () =>
+    import('@/content/classical-ml/supervised-regression/linear-regression.mdx'),
 };
 
 export async function getSubchapterContent(part: string, chapter: string, sub: string): Promise<ComponentType | null> {

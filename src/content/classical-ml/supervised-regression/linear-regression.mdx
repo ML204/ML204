@@ -1,0 +1,437 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { LinearRegressionFigure } from '@/components/figures/LinearRegressionFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Linear Regression',
+  description: 'Learn Linear Regression from scratch: formulation, residuals, RSS & MSE cost functions, and Gradient Descent optimization.',
+};
+
+<Section label="What is it?">
+
+**Linear Regression** is a fundamental supervised machine learning algorithm that models a linear relationship between one or more input variables, called **features** ($X$), and a continuous numerical output, called the **target** ($Y$).
+
+It is widely used to predict continuous real-world quantities such as exam scores, house prices, salaries, temperatures, and sales volumes.
+
+### A Motivating Example
+Suppose we want to predict a student's final exam score ($Y$) based on the number of hours they spent studying ($X$):
+
+| Study Hours ($X$) | Exam Score ($Y$) |
+| :---: | :---: |
+| 1 | 20 |
+| 2 | 35 |
+| 3 | 45 |
+| 4 | 60 |
+| 5 | 75 |
+| 6 | 85 |
+
+The input is study hours ($X$), and the target is exam score ($Y$). The goal of linear regression is not to pass through every single observed point, but rather to discover a line that best captures the overall trend of the data to make accurate predictions for new, unseen study hours.
+
+![Observed data and an illustrative fitted regression line](/images/linear-regression/linear_regression_fit.png)
+
+</Section>
+
+<Section label="Why we need it">
+
+Almost every quantitative system in science, engineering, and business seeks to understand how changes in an input produce changes in an output:
+- **Education Analytics**: How much does an extra hour of study boost exam performance?
+- **Healthcare**: How does medication dosage correlate with blood pressure reduction?
+- **Economics & Finance**: How do interest rates impact market returns?
+
+Linear regression is the universal benchmark of predictive modeling because:
+1. **Direct Interpretability**: Each learned parameter has clear physical meaning.
+2. **Transparent Mechanics**: You can trace exactly how predictions are calculated and why errors occur.
+3. **Foundation of Deep Learning**: A single neuron in an artificial neural network is essentially a linear regression unit followed by an activation function!
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Linear Regression Equation
+
+For simple linear regression with one feature, the prediction equation is:
+
+$$
+\hat{y} = \beta_0 + \beta_1 x
+$$
+
+This shares the exact same mathematical structure as the classic slope-intercept equation $y = mx + c$:
+- $x$ is the input feature (e.g., study hours).
+- $\hat{y}$ (pronounced *y-hat*) is the model's predicted output.
+- $\beta_0$ (beta-zero) is the **y-intercept**.
+- $\beta_1$ (beta-one) is the **slope** (or coefficient).
+
+#### Understanding the Intercept ($\beta_0$)
+The intercept is the model's predicted output when the input is zero:
+$$
+\hat{y}\big|_{x=0} = \beta_0
+$$
+For example, in $\hat{y} = 10 + 12x$, the intercept is $10$. When a student studies $0$ hours, the model predicts a score of $10$.
+
+#### Understanding the Slope ($\beta_1$)
+The slope describes the change in predicted output for a one-unit increase in the input:
+$$
+\Delta \hat{y} = \beta_1 \Delta x
+$$
+If $\beta_1 = 12$, increasing study time by one hour increases the predicted score by $12$ points. Note that this describes the model's learned association, not necessarily a direct causal guarantee.
+
+![Positive, negative, and zero slope examples](/images/linear-regression/slope_types.png)
+
+- **$\beta_1 > 0$ (Positive slope)**: As study hours increase, predicted score increases.
+- **$\beta_1 < 0$ (Negative slope)**: As input increases, predicted output decreases (e.g., car age vs. resale value).
+- **$\beta_1 = 0$ (Zero slope)**: The input has no linear predictive power over the target; the line is flat.
+
+<Callout kind="tip">
+  **Statistical Convention: Beta vs. Beta-Hat**
+  In statistics, $\beta_0$ and $\beta_1$ represent the true (unknown) underlying population parameters. The numbers estimated from sample training data are written with a hat: $\hat{\beta}_0$ and $\hat{\beta}_1$.
+</Callout>
+
+---
+
+### 2. Measuring Prediction Errors: Residuals
+
+Suppose we test an initial, imperfect model:
+$$
+\hat{y} = 10 + 10x
+$$
+
+Let's compare its predictions against our training data:
+
+| $X$ | Actual $Y$ | Predicted $\hat{Y}$ | Residual $e = Y - \hat{Y}$ |
+| :---: | :---: | :---: | :---: |
+| 1 | 25 | 20 | $+5$ |
+| 2 | 40 | 30 | $+10$ |
+| 3 | 50 | 40 | $+10$ |
+| 4 | 65 | 50 | $+15$ |
+| 5 | 75 | 60 | $+15$ |
+
+A **residual** $e_i$ is the vertical difference between the true observed value and the model's prediction:
+
+$$
+e_i = y_i - \hat{y}_i
+$$
+
+![Residuals are vertical distances between observations and predictions](/images/linear-regression/residuals.png)
+
+- **Positive residual ($e_i > 0$)**: The actual point lies *above* the line (the model underpredicted).
+- **Negative residual ($e_i < 0$)**: The actual point lies *below* the line (the model overpredicted).
+- **Zero residual ($e_i = 0$)**: The line passes directly through the point.
+
+#### Why Not Simply Sum the Residuals?
+If an error is $+10$ and another is $-10$, adding them yields:
+$$
++10 + (-10) = 0
+$$
+Positive and negative residuals cancel out! A total error sum of zero would trick the algorithm into thinking a dreadful model is completely flawless.
+
+---
+
+### 3. Cost Functions: RSS and MSE
+
+To prevent positive and negative errors from canceling, we square each residual.
+
+#### Residual Sum of Squares (RSS)
+$$
+\text{RSS} = \sum_{i=1}^{n} (y_i - \hat{y}_i)^2
+$$
+For residuals $[+5, +10, -5, -10]$:
+$$
+\text{RSS} = 5^2 + 10^2 + (-5)^2 + (-10)^2 = 25 + 100 + 25 + 100 = 250
+$$
+
+#### Mean Squared Error (MSE)
+Dividing RSS by the number of training examples $n$ gives the average squared penalty, known as the **Mean Squared Error (MSE)** cost function:
+
+$$
+J(\beta_0, \beta_1) = \frac{1}{n} \sum_{i=1}^{n} (y_i - (\beta_0 + \beta_1 x_i))^2
+$$
+
+The learning objective of linear regression is to find the parameters $\beta_0$ and $\beta_1$ that minimize this cost function:
+$$
+\min_{\beta_0, \beta_1} J(\beta_0, \beta_1)
+$$
+
+---
+
+### 4. How Does the Model Learn? Gradient Descent
+
+Imagine walking down a misty mountain in dense fog. You cannot see the lowest valley at the bottom. What do you do? At your current position, you feel the slope beneath your feet, take a step in the steepest downhill direction, and repeat until the ground flattens out.
+
+![Illustration of iterative steps moving toward a cost minimum](/images/linear-regression/gradient_descent_steps.png)
+
+In machine learning optimization:
+- The **height** of the mountain is your cost ($J$).
+- Your **coordinates** on the mountain are your parameters ($\beta_0, \beta_1$).
+- The **negative gradient** ($-\nabla J$) tells you which direction leads downhill.
+
+#### The Update Rule
+The general Gradient Descent update rule is:
+$$
+\theta_{\text{new}} = \theta_{\text{old}} - \alpha \frac{\partial J}{\partial \theta}
+$$
+where $\alpha$ is the **learning rate** (step size).
+
+![Illustrative parameter trajectories for different learning rates](/images/linear-regression/learning_rate_comparison.png)
+
+- **$\alpha$ too small**: Steps are minuscule; training takes thousands of iterations to converge.
+- **$\alpha$ well-chosen**: Steps progress smoothly and efficiently toward the minimum.
+- **$\alpha$ too large**: Steps overshoot the valley floor, oscillating wildly or even diverging to infinity.
+
+#### The Gradients for Simple Linear Regression
+Applying the calculus chain rule to the MSE cost function yields two partial derivatives:
+
+$$
+\frac{\partial J}{\partial \beta_0} = \frac{2}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i)
+$$
+
+$$
+\frac{\partial J}{\partial \beta_1} = \frac{2}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i) x_i
+$$
+
+At each iteration, we update both parameters simultaneously:
+$$
+\beta_0 \leftarrow \beta_0 - \alpha \frac{\partial J}{\partial \beta_0}
+$$
+$$
+\beta_1 \leftarrow \beta_1 - \alpha \frac{\partial J}{\partial \beta_1}
+$$
+
+---
+
+### 5. A Complete Worked Numerical Example
+
+Let's trace one complete update step by hand with a single training point:
+- Feature: $x = 2$
+- Target: $y = 6$
+- Initial guesses: $\beta_0 = 0$, $\beta_1 = 1$
+- Learning rate: $\alpha = 0.1$
+
+**Step 1: Compute Prediction**
+$$
+\hat{y} = \beta_0 + \beta_1 x = 0 + 1(2) = 2
+$$
+
+**Step 2: Calculate Gradients (for $n = 1$)**
+$$
+\frac{\partial J}{\partial \beta_0} = 2(\hat{y} - y) = 2(2 - 6) = -8
+$$
+$$
+\frac{\partial J}{\partial \beta_1} = 2(\hat{y} - y) x = 2(2 - 6)(2) = -16
+$$
+
+**Step 3: Update the Intercept ($\beta_0$)**
+$$
+\beta_0 = 0 - 0.1(-8) = 0 + 0.8 = \mathbf{0.8}
+$$
+
+**Step 4: Update the Slope ($\beta_1$)**
+$$
+\beta_1 = 1 - 0.1(-16) = 1 + 1.6 = \mathbf{2.6}
+$$
+
+**Resulting Updated Model:**
+$$
+\hat{y} = 0.8 + 2.6x
+$$
+Testing our new model on $x = 2$:
+$$
+\hat{y} = 0.8 + 2.6(2) = 6.0
+$$
+The squared error plummeted from $(6 - 2)^2 = 16$ down to $(6 - 6)^2 = 0$!
+
+</Section>
+
+<LinearRegressionFigure />
+
+<Section label="What to try">
+
+- **Move the Slope ($\beta_1$) slider**: Watch the line rotate. Notice how the vertical red dashed residuals ($e_i = y_i - \hat{y}_i$) stretch when $\beta_1$ tilts away from the data trend.
+- **Adjust the Intercept ($\beta_0$) slider**: Shift the baseline height of the line. Watch the live model equation $\hat{y} = \beta_0 + \beta_1 x$ update in the dark instrument panel.
+- **Click "🎯 Auto-Fit OLS"**: Instantly compute the exact global minimum of MSE using the closed-form Ordinary Least Squares formula ($\beta_1 \approx 13.1$, $\beta_0 \approx 7.6$).
+- **Click "Imperfect (10+10x)"**: See the exact imperfect baseline model from Section 2 of the notes ($\hat{y} = 10 + 10x$).
+- **Drag any data point**: Grab one of the dark circular points on the canvas and drag it up or down to see how an outlier changes the optimal line and inflates the MSE!
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="Prediction Equation (Simple Linear Regression)">
+  $\hat{y} = \beta_0 + \beta_1 x$
+</Formula>
+
+<Formula label="Residual Definition">
+  $e_i = y_i - \hat{y}_i$
+</Formula>
+
+<Formula label="Mean Squared Error (MSE Cost Function)">
+  $J(\beta_0, \beta_1) = \frac{1}{n} \sum_{i=1}^{n} \left( y_i - (\beta_0 + \beta_1 x_i) \right)^2$
+</Formula>
+
+<Formula label="Gradient Descent Parameter Updates">
+  $\beta_0 \leftarrow \beta_0 - \alpha \left[ \frac{2}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i) \right], \quad \beta_1 \leftarrow \beta_1 - \alpha \left[ \frac{2}{n} \sum_{i=1}^{n} (\hat{y}_i - y_i) x_i \right]$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'x',           meaning: 'Input feature (independent variable, e.g., study hours)' },
+    { symbol: 'y',           meaning: 'Actual ground-truth target observation (dependent variable)' },
+    { symbol: 'ŷ',          meaning: 'Predicted output value produced by the regression model' },
+    { symbol: 'β₀',          meaning: 'Intercept (the predicted value when x = 0)' },
+    { symbol: 'β₁',          meaning: 'Slope / coefficient (rate of change in ŷ per 1 unit of x)' },
+    { symbol: 'eᵢ',          meaning: 'Residual error for the i-th training observation (yᵢ - ŷᵢ)' },
+    { symbol: 'n',           meaning: 'Total number of training observations / data points' },
+    { symbol: 'J(β₀, β₁)',   meaning: 'Cost function (Mean Squared Error across all n samples)' },
+    { symbol: 'α',           meaning: 'Learning rate (hyperparameter controlling gradient step size)' },
+    { symbol: 'R²',          meaning: 'Coefficient of determination (proportion of variance explained)' },
+  ]}
+/>
+
+<Callout kind="tip">
+  **Simultaneous Updates**: When implementing Gradient Descent in code, always calculate both gradients $\frac{\partial J}{\partial \beta_0}$ and $\frac{\partial J}{\partial \beta_1}$ using the current parameter values before updating either parameter.
+</Callout>
+
+<Callout kind="warning">
+  **The Cancellation Trap**: Never minimize raw residuals $\sum e_i$. Because positive and negative errors cancel out, squaring $(y_i - \hat{y}_i)^2$ is strictly required to ensure every mistake is penalized.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'lr-q1',
+      kind: 'mcq',
+      text: 'In the simple linear regression model ŷ = 15 + 10x, what is the predicted exam score for a student who studies for 6 hours?',
+      options: [
+        '60',
+        '75',
+        '90',
+        '85',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Substitute x = 6 into the linear equation: ŷ = 15 + 10(6) = 15 + 60 = 75.',
+      figureHint: 'Notice the worked prediction in Section 1.4 of the lecture notes.',
+    },
+    {
+      id: 'lr-q2',
+      kind: 'mcq',
+      text: 'For an observation with actual score y = 25, if the model predicts ŷ = 20, what is the residual e, and what does it signify?',
+      options: [
+        'e = -5 (overprediction)',
+        'e = +5 (underprediction)',
+        'e = +5 (overprediction)',
+        'e = 0 (perfect fit)',
+      ],
+      correctIndex: 1,
+      explanation:
+        'The residual is e = y - ŷ = 25 - 20 = +5. A positive residual means the prediction lies below the true observation (the model underpredicted).',
+      figureHint: 'Refer to the residual definition eᵢ = yᵢ - ŷᵢ.',
+    },
+    {
+      id: 'lr-q3',
+      kind: 'mcq',
+      text: 'Why do we minimize Mean Squared Error (MSE) rather than simply summing the raw residuals ∑(yᵢ - ŷᵢ)?',
+      options: [
+        'Because raw residuals cannot be computed for decimal numbers',
+        'Because positive and negative residuals can cancel out to zero even when predictions are far off',
+        'Because squaring errors makes training run twice as fast',
+        'Because linear regression is only allowed to predict positive numbers',
+      ],
+      correctIndex: 1,
+      explanation:
+        'If one residual is +10 and another is -10, their sum is 0. Squaring eliminates sign cancellation and aggressively penalizes large errors.',
+      figureHint: 'Review Section 3.3 in the notes: 5 + 10 - 5 - 10 = 0.',
+    },
+    {
+      id: 'lr-q4',
+      kind: 'mcq',
+      text: 'In Gradient Descent, what occurs if the learning rate α is set excessively large?',
+      options: [
+        'The algorithm stops immediately on the first step',
+        'The model is mathematically guaranteed to find the global minimum',
+        'The steps can overshoot the minimum valley and oscillate or diverge to infinity',
+        'The slope β₁ is locked at zero',
+      ],
+      correctIndex: 2,
+      explanation:
+        'An excessively large learning rate takes huge steps that overshoot the minimum point of the cost parabola, causing the cost J to increase and diverge.',
+      figureHint: 'Examine the Learning Rate Comparison diagram in Section 4.4.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Linear Regression"
+  oneLiner="Linear Regression learns the line ŷ = β₀ + β₁x that minimizes the average squared vertical error (MSE) across all training points."
+  takeaways={[
+    'Intercept β₀ is the baseline output when x = 0; slope β₁ is the expected change in ŷ per 1 unit increase in x.',
+    'Residual eᵢ = yᵢ - ŷᵢ measures vertical distance between true reality and model prediction.',
+    'We square errors (MSE) to prevent positive and negative deviations from canceling out.',
+    'Gradient Descent iteratively updates parameters downhill in the direction of the negative gradient.',
+  ]}
+  commonTrap="Updating β₀ first and then using the new β₀ to compute the gradient for β₁! In standard Gradient Descent, all gradients must be computed simultaneously from the current parameter state before updating."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="linear-regression"
+  topicTitle="Linear Regression"
+  referenceChecklist={[
+    'Explained the physical meaning of intercept β₀ and slope β₁.',
+    'Defined a residual (e = y - ŷ) as vertical prediction error.',
+    'Explained why residuals must be squared (cancellation prevention).',
+    'Described the walking downhill in fog intuition for Gradient Descent.',
+    'Mentioned the role of learning rate α in step sizing.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="resources/linear-regression"
+  items={[
+    {
+      title: "Linear Regression from Scratch Lecture Notes (PDF)",
+      type: "pdf",
+      description: "Author's complete handwritten and compiled LaTeX reference notes covering formulas, step-by-step updates, and derivations.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/linear-regression/Linear_Regression.pdf"
+    },
+    {
+      title: "StatQuest: Linear Regression and Least Squares",
+      type: "video",
+      description: "Josh Starmer visually breaks down fitting lines, calculating residuals, and understanding R².",
+      url: "https://www.youtube.com/watch?v=PaFPbb66DxQ"
+    },
+    {
+      title: "Linear Regression Theory Summary (Markdown)",
+      type: "cheatsheet",
+      description: "Quick formula sheet covering hypothesis, MSE cost function, partial derivatives, and convergence rules.",
+      url: "https://github.com/hamimLohani/mlens/blob/main/resources/linear-regression/Linear_Regression_Summary.md"
+    }
+  ]}
+/>
+
+</Section>
