@@ -344,7 +344,7 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                                             href={file.githubUrl}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="hidden sm:inline-flex px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                                            className="inline-flex px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
                                           >
                                             GitHub ↗
                                           </a>

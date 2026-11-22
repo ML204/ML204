@@ -86,40 +86,40 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
             return (
               <div
                 key={file.name}
-                className="flex items-center justify-between p-3.5 rounded-xl border border-slate-200/80 hover:border-brand-300 hover:bg-brand-50/20 transition-all gap-3"
+                className="flex items-center justify-between p-3 sm:p-3.5 rounded-xl border border-slate-200/80 hover:border-brand-300 hover:bg-brand-50/20 transition-all gap-2 sm:gap-3"
               >
-                <div className="flex items-center gap-3 min-w-0">
+                <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
                   <span className="text-xl flex-shrink-0">{meta.icon}</span>
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <p className="text-sm font-semibold text-slate-800 truncate">
+                    <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+                      <p className="text-xs sm:text-sm font-semibold text-slate-800 truncate">
                         {file.name}
                       </p>
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium border ${meta.color}`}>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium border ${meta.color}`}>
                         {meta.badge}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5 font-mono">
+                    <p className="text-[11px] sm:text-xs text-slate-400 mt-0.5 font-mono">
                       {file.size} · Modified {file.updatedAt}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
                   <a
                     href={file.href}
                     download
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-2xs"
+                    className="px-2.5 sm:px-3 py-1.5 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-2xs"
                   >
-                    Open / Download
+                    Download
                   </a>
                   <a
                     href={file.githubUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="hidden sm:inline-flex px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
+                    className="inline-flex px-2 sm:px-2.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors"
                   >
                     GitHub ↗
                   </a>
