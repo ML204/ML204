@@ -84,6 +84,42 @@
     "notes": "Author's introductory regression notes bundled locally."
   },
   {
+    "id": "res-linear-summary",
+    "title": "Linear Regression Theory Summary (Markdown)",
+    "url": "/resources/linear-regression/Linear_Regression_Summary.md",
+    "author": "Hamim Lohani",
+    "license": "MIT",
+    "type": "copied",
+    "topic": "linear-regression",
+    "worksOffline": true,
+    "dateChecked": "2026-11-23",
+    "notes": "Comprehensive formula revision notes bundled locally."
+  },
+  {
+    "id": "res-vectors-summary",
+    "title": "Vector Arithmetic & NumPy Code Cheat Sheet (Markdown)",
+    "url": "/resources/vectors-and-matrices/Vectors_and_Matrices_Summary.md",
+    "author": "Hamim Lohani",
+    "license": "MIT",
+    "type": "copied",
+    "topic": "vectors-and-matrices",
+    "worksOffline": true,
+    "dateChecked": "2026-11-23",
+    "notes": "Python NumPy syntax reference for vector norms and dot products."
+  },
+  {
+    "id": "res-gradient-readme",
+    "title": "Gradient Descent Formulation & Study Guide (Markdown)",
+    "url": "/resources/gradient-descent/README.md",
+    "author": "Hamim Lohani",
+    "license": "MIT",
+    "type": "copied",
+    "topic": "gradient-descent",
+    "worksOffline": true,
+    "dateChecked": "2026-11-23",
+    "notes": "Mathematical formulation and convergence summary."
+  },
+  {
     "id": "res-3b1b-linear-algebra",
     "title": "Essence of Linear Algebra",
     "url": "https://www.youtube.com/playlist?list=PLZHQObOWTQDPD3MizzM2xVFitgF8hE_ab",

@@ -24,7 +24,9 @@ export interface TopicDirectory {
 
 export function getTopicFiles(topicSlug: string): TopicFile[] {
   try {
-    const dir = path.join(process.cwd(), 'resources', topicSlug);
+    const publicDir = path.join(process.cwd(), 'public', 'resources', topicSlug);
+    const legacyDir = path.join(process.cwd(), 'resources', topicSlug);
+    const dir = fs.existsSync(publicDir) ? publicDir : legacyDir;
     if (!fs.existsSync(dir)) return [];
     const filenames = fs.readdirSync(dir);
 
