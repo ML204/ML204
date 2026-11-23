@@ -34,9 +34,9 @@ module.exports = {
         },
       },
       fontFamily: {
-        sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-mono)', 'monospace'],
-        bengali: ['"Noto Sans Bengali"', 'sans-serif'],
+        sans: ['var(--font-inter)', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['var(--font-mono)', 'JetBrains Mono', 'Fira Code', 'Consolas', 'monospace'],
+        bengali: ['var(--font-bengali)', '"Noto Sans Bengali"', 'sans-serif'],
       },
       typography: (theme) => ({
         DEFAULT: {

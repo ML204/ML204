@@ -37,7 +37,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${notoSansBengali.variable}`}>
-      <body className="flex flex-col min-h-screen">
+      <body className="font-sans antialiased flex flex-col min-h-screen">
         <MobileNavProvider>
           <SiteHeader />
           <div className="flex flex-1 pt-[var(--header-height)]">
