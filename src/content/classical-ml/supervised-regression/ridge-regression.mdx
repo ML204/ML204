@@ -132,11 +132,17 @@ J(\boldsymbol{\beta}) = (\mathbf{y}^T - \boldsymbol{\beta}^T\mathbf{X}^T)(\mathb
 $$
 Distributing terms:
 $$
-J(\boldsymbol{\beta}) = \mathbf{y}^T\mathbf{y} - \mathbf{y}^T\mathbf{X}\boldsymbol{\beta} - \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+\begin{aligned}
+J(\boldsymbol{\beta}) &= \mathbf{y}^T\mathbf{y} - \mathbf{y}^T\mathbf{X}\boldsymbol{\beta} - \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y} \\
+&\quad + \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+\end{aligned}
 $$
 Because the scalar quantity $\mathbf{y}^T\mathbf{X}\boldsymbol{\beta}$ equals its transpose $\boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y}$:
 $$
-J(\boldsymbol{\beta}) = \mathbf{y}^T\mathbf{y} - 2\boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+\begin{aligned}
+J(\boldsymbol{\beta}) &= \mathbf{y}^T\mathbf{y} - 2\boldsymbol{\beta}^T\mathbf{X}^T\mathbf{y} + \boldsymbol{\beta}^T\mathbf{X}^T\mathbf{X}\boldsymbol{\beta} \\
+&\quad + \lambda \boldsymbol{\beta}^T\boldsymbol{\beta}
+\end{aligned}
 $$
 
 #### Step 3: Combine Quadratic Terms
