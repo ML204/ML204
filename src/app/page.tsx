@@ -1,5 +1,7 @@
 import Link from 'next/link';
 import { toc } from '@/lib/toc';
+import { HomeHeroActions } from '@/components/home/HomeHeroActions';
+import { HomeDownloadBanner } from '@/components/home/HomeDownloadBanner';
 
 export default function HomePage() {
   const parts = toc;
@@ -19,34 +21,7 @@ export default function HomePage() {
           Drag a point. Move a slider. Watch the idea come alive. A free interactive
           textbook for high school and undergraduate students — no coding required.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-8 max-w-xs sm:max-w-none mx-auto">
-          <Link
-            href="/learn"
-            className="px-6 py-3 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md text-center"
-          >
-            Start Learning →
-          </Link>
-          <a
-            href="https://github.com/hamimLohani/mlens/releases/download/v1.0.0/app.apk"
-            className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md text-center flex items-center justify-center gap-2"
-          >
-            <span>📱</span>
-            <span>Download APK</span>
-          </a>
-          <Link
-            href="/resources"
-            className="px-6 py-3 bg-brand-50 text-brand-700 font-semibold rounded-xl border border-brand-200 hover:bg-brand-100 active:scale-95 transition-all duration-200 shadow-xs text-center flex items-center justify-center gap-2"
-          >
-            <span>📚</span>
-            <span>Resources</span>
-          </Link>
-          <Link
-            href="/about"
-            className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 active:scale-95 transition-all duration-200 hover:border-slate-400 text-center"
-          >
-            About MLens
-          </Link>
-        </div>
+        <HomeHeroActions />
       </div>
 
       {/* Feature pills */}
@@ -67,39 +42,8 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* About & Mobile App Banner */}
-      <div className="mb-16 p-5 sm:p-6 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50/70 via-white to-teal-50/50 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <span className="text-3xl flex-shrink-0">📱</span>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-                MLens for Android — 100% Offline
-              </h3>
-              <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-                v1.0.0
-              </span>
-            </div>
-            <p className="text-xs text-slate-600 mt-0.5">
-              Install the standalone APK to read theory, interact with live figures, and take quizzes without internet.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
-          <a
-            href="https://github.com/hamimLohani/mlens/releases/download/v1.0.0/app.apk"
-            className="flex-1 sm:flex-initial px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-2xs text-center"
-          >
-            Download APK (10.7 MB)
-          </a>
-          <Link
-            href="/about"
-            className="px-3 py-2 bg-white text-slate-700 text-xs font-semibold rounded-xl border border-slate-200 hover:bg-slate-50 transition-colors text-center"
-          >
-            About →
-          </Link>
-        </div>
-      </div>
+      {/* About & Mobile App Banner (hidden inside native app) */}
+      <HomeDownloadBanner />
 
       {/* Table of contents */}
       <div id="contents">
