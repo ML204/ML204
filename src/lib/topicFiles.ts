@@ -29,7 +29,7 @@ export function getTopicFiles(topicSlug: string): TopicFile[] {
     const filenames = fs.readdirSync(dir);
 
     return filenames
-      .filter((f) => !f.startsWith('.'))
+      .filter((f) => !f.startsWith('.') && f.toLowerCase() !== 'readme.md')
       .map((filename) => {
         const fullPath = path.join(dir, filename);
         const stat = fs.statSync(fullPath);

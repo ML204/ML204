@@ -73,8 +73,8 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
     if (selectedPart !== 'all' && topic.partNumber !== selectedPart) continue;
 
     // Filter logic
-    const hasCustom = topic.files.some((f) => f.name.toLowerCase() !== 'readme.md');
-    if (filterCustomOnly && !hasCustom) continue;
+    const hasFiles = topic.files.length > 0;
+    if (filterCustomOnly && !hasFiles) continue;
 
     if (q) {
       const matchTopic = topic.title.toLowerCase().includes(q) || topic.slug.includes(q) || topic.chapterTitle.toLowerCase().includes(q) || topic.partTitle.toLowerCase().includes(q);
@@ -269,7 +269,7 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                   <div className="divide-y divide-slate-100">
                     {chapter.topics.map((topic) => {
                       const isExpanded = expandedTopics.has(topic.slug);
-                      const hasCustomNotes = topic.files.some((f) => f.name.toLowerCase() !== 'readme.md');
+                      const hasNotes = topic.files.length > 0;
 
                       return (
                         <div key={topic.slug} className="transition-colors">
@@ -280,14 +280,14 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                           >
                             <div className="flex items-center gap-3 min-w-0">
                               <span className="text-base flex-shrink-0">
-                                {hasCustomNotes ? '📂' : '📁'}
+                                {hasNotes ? '📂' : '📁'}
                               </span>
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <p className="text-sm font-semibold text-slate-800 truncate">
                                     {topic.title}
                                   </p>
-                                  {hasCustomNotes && (
+                                  {hasNotes && (
                                     <span className="text-[9px] px-1.5 py-0.2 rounded-full font-bold bg-green-50 text-green-700 border border-green-200">
                                       Notes ready
                                     </span>
