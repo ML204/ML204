@@ -130,7 +130,7 @@ export default function ResourcesPage() {
         </div>
 
         <a
-          href="https://github.com/ML204/ML204/tree/main/resources"
+          href="https://github.com/ML204/ML204/tree/main/public/resources"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 font-semibold text-xs text-white transition-colors flex-shrink-0 text-center justify-center shadow-sm"
