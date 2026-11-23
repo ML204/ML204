@@ -234,7 +234,7 @@ export function Sidebar() {
               </button>
             ) : (
               <a
-                href="https://github.com/hamimLohani/mlens/releases/download/v1.0.0/app.apk"
+                href="https://github.com/ML204/ML204/releases/download/v1.0.0/app.apk"
                 className="flex items-center justify-center gap-1.5 w-full py-1.5 px-2 mb-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors shadow-2xs"
               >
                 <span>📱</span>

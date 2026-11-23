@@ -7,7 +7,7 @@ export async function shareMLens() {
   const shareData = {
     title: 'MLens — Interactive Machine Learning Book',
     text: 'Learn machine learning visually with interactive figures and quizzes — free & 100% offline!',
-    url: 'https://github.com/hamimLohani/mlens/releases/tag/v1.0.0',
+    url: 'https://github.com/ML204/ML204/releases/tag/v1.0.0',
     dialogTitle: 'Share MLens with Friends',
   };
 

@@ -17,7 +17,7 @@ export function HomeHeroActions() {
 
       {!isNative && (
         <a
-          href="https://github.com/hamimLohani/mlens/releases/download/v1.0.0/app.apk"
+          href="https://github.com/ML204/ML204/releases/download/v1.0.0/app.apk"
           className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-xl hover:bg-emerald-700 active:scale-95 transition-all duration-200 shadow-sm hover:shadow-md text-center flex items-center justify-center gap-2"
         >
           <span>📱</span>

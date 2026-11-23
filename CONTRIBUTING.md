@@ -18,7 +18,7 @@ Because each topic has its own distinct `.mdx` file, 20 people can work in paral
 
 ### Step 1: Claim a Topic on GitHub
 Before writing any code, claim your topic so other contributors know it is taken:
-1. Open the [GitHub Issues](https://github.com/hamimLohani/mlens/issues) or **Project Board**.
+1. Open the [GitHub Issues](https://github.com/ML204/ML204/issues) or **Project Board**.
 2. Find the issue for your desired topic (e.g., `[Topic] Logistic Regression`).
 3. Comment *"I would like to work on this"* and assign it to yourself.
 4. Move the issue to **In Progress**.
