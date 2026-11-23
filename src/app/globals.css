@@ -35,7 +35,7 @@
   .katex-display {
     overflow-x: auto !important;
     overflow-y: hidden !important;
-    padding: 0.5rem 0 !important;
+    padding: 0.6rem 0.25rem !important;
     margin: 1rem 0 !important;
     max-width: 100% !important;
     -webkit-overflow-scrolling: touch;
@@ -52,6 +52,18 @@
 
   .katex {
     max-width: 100%;
+  }
+
+  @media (max-width: 640px) {
+    .katex-display {
+      font-size: 0.86em !important;
+      margin: 0.75rem 0 !important;
+      padding: 0.4rem 0.15rem !important;
+    }
+    .katex-display > .katex {
+      max-width: 100% !important;
+      text-align: left !important;
+    }
   }
 
   /* Responsive image containment */
