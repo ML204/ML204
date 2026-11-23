@@ -45,12 +45,6 @@ export function SiteHeader() {
 
       {/* Right side */}
       <div className="ml-auto flex items-center gap-2.5">
-        <Link
-          href="/learn"
-          className="md:hidden text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#f0e9d4] hover:bg-[#e6dec5] border border-[#dbd1b5] text-stone-800 transition-colors"
-        >
-          Curriculum
-        </Link>
         {/* Language toggle placeholder */}
         <button
           className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium
