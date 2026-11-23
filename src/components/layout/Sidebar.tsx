@@ -219,52 +219,6 @@ export function Sidebar() {
                 v1.0.0
               </span>
             </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed mb-2.5">
-              An open-source interactive textbook with visual geometry, live sliders, and intuitive quiz notes for high school & university students.
-            </p>
-
-            {/* Android APK Download (Web) or Native Share (App) */}
-            {isNative ? (
-              <button
-                onClick={shareMLens}
-                className="flex items-center justify-center gap-1.5 w-full py-1.5 px-2 mb-2 bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200/80 rounded-lg text-xs font-semibold transition-colors shadow-2xs"
-              >
-                <span>🔗</span>
-                <span>Share MLens</span>
-              </button>
-            ) : (
-              <a
-                href="https://github.com/ML204/ML204/releases/download/v1.0.0/app.apk"
-                className="flex items-center justify-center gap-1.5 w-full py-1.5 px-2 mb-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors shadow-2xs"
-              >
-                <span>📱</span>
-                <span>Download App (v1.0.0 APK)</span>
-              </a>
-            )}
-
-            <div className="flex items-center justify-between text-[11px] font-medium text-slate-600 pt-2 border-t border-slate-100">
-              <Link
-                href="/about"
-                onClick={close}
-                className="hover:text-brand-600 transition-colors flex items-center gap-1"
-              >
-                <span>ℹ️</span> About
-              </Link>
-              <Link
-                href="/resources"
-                onClick={close}
-                className="hover:text-brand-600 transition-colors flex items-center gap-1"
-              >
-                <span>📚</span> Resources
-              </Link>
-              <Link
-                href="/credits"
-                onClick={close}
-                className="hover:text-brand-600 transition-colors flex items-center gap-1"
-              >
-                <span>⚖️</span> Credits
-              </Link>
-            </div>
           </div>
         </div>
       </aside>
