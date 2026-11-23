@@ -9,7 +9,7 @@
     "topic": "polynomial-regression",
     "worksOffline": true,
     "dateChecked": "2026-11-23",
-    "notes": "Author's complete 17-page mathematical derivation and numerical worked example notes, downloadable on demand online to keep app install ultra-compact."
+    "notes": "Author's complete 17-page mathematical derivation and numerical worked example notes."
   },
   {
     "id": "res-poly-tex",
@@ -33,7 +33,7 @@
     "topic": "ordinary-least-squares",
     "worksOffline": true,
     "dateChecked": "2026-11-23",
-    "notes": "Author's original mathematical notes and derivation proofs, downloadable on demand online to keep app install ultra-compact."
+    "notes": "Author's original mathematical notes and derivation proofs."
   },
   {
     "id": "res-ols-tex",

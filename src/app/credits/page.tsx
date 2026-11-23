@@ -39,13 +39,12 @@ export default function CreditsPage() {
       <section className="mb-12">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📥</span>
-          <h2 className="text-lg font-bold text-slate-900">
-            Study Materials & Note Vault (On-Demand Download)
+          <h2 className="text-lg font-bold text-stone-900">
+            Study Materials & Note Vault
           </h2>
         </div>
-        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
-          The full textbook, interactive visual widgets, equations, and quizzes are <strong>100% offline ready</strong>.
-          To ensure the native mobile app remains ultra-lightweight (&lt;15 MB across 132 topics), external PDF theory notes and LaTeX sources are fetched on demand when connected to the internet.
+        <p className="text-xs text-stone-600 mb-4 leading-relaxed">
+          Curated author-prepared PDF study notes, derivation proofs, and LaTeX source files for all topics.
         </p>
         <div className="space-y-3">
           {copied.map((item) => (
@@ -56,9 +55,6 @@ export default function CreditsPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1.5">
                 <h3 className="font-semibold text-stone-900 text-sm">{item.title}</h3>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    ⚡ On-Demand Online
-                  </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#eae2cc] text-stone-800">
                     {item.license}
                   </span>

@@ -44,20 +44,15 @@ export function OfflineModal({ isOpen, onClose, fileName }: OfflineModalProps) {
           You are offline
         </h3>
 
-        <p className="text-sm font-medium text-slate-700 mb-3">
+        <p className="text-sm font-medium text-slate-700 mb-4">
           Connect to the internet to download this study resource.
         </p>
 
         {fileName && (
-          <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 mb-4 text-xs font-mono text-slate-600 truncate max-w-full">
+          <div className="bg-slate-50 border border-slate-200/80 rounded-xl px-3 py-2 mb-6 text-xs font-mono text-slate-600 truncate max-w-full">
             📄 {fileName}
           </div>
         )}
-
-        <p className="text-xs text-slate-500 leading-relaxed mb-6">
-          The interactive textbook lessons, formulas, and quizzes work <strong>100% offline</strong>.
-          To keep the app compact, large PDF notes and LaTeX sources download on demand over Wi-Fi or mobile data.
-        </p>
 
         <button
           onClick={onClose}

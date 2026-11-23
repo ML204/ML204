@@ -99,14 +99,6 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
           </button>
         </div>
 
-        {/* Storage optimization info banner */}
-        <div className="mb-4 flex items-center gap-2 rounded-xl border border-blue-100 bg-blue-50/60 px-3.5 py-2 text-xs text-blue-800">
-          <span className="text-sm">🌐</span>
-          <p className="leading-snug">
-            <strong>On-demand downloads:</strong> PDFs and LaTeX sources are fetched online to keep the offline app under 15 MB.
-          </p>
-        </div>
-
         {files.length > 0 ? (
           <div className="space-y-2.5">
             {files.map((file) => {
