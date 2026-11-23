@@ -214,7 +214,10 @@ $$
 $$
 Computing $\mathbf{X}^T\mathbf{X}$:
 $$
-\mathbf{X}^T\mathbf{X} = \begin{bmatrix} 14 & 14 \\ 14 & 14 \end{bmatrix}, \qquad \det(\mathbf{X}^T\mathbf{X}) = 14(14) - 14(14) = 0
+\begin{aligned}
+\mathbf{X}^T\mathbf{X} &= \begin{bmatrix} 14 & 14 \\ 14 & 14 \end{bmatrix}, \\
+\det(\mathbf{X}^T\mathbf{X}) &= 14(14) - 14(14) = 0
+\end{aligned}
 $$
 OLS is completely paralyzed; it cannot invert $\mathbf{X}^T\mathbf{X}$.
 
@@ -269,7 +272,10 @@ In 2D parameter space $(\beta_1, \beta_2)$:
 Why would we deliberately add bias to our estimates? The answer lies in the **Mean Squared Error (MSE)** decomposition of an estimator:
 
 $$
-\text{MSE}(\hat{\boldsymbol{\beta}}) = \mathbb{E}\left[\|\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}\|^2\right] = \text{Bias}^2(\hat{\boldsymbol{\beta}}) + \text{Variance}(\hat{\boldsymbol{\beta}})
+\begin{aligned}
+\text{MSE}(\hat{\boldsymbol{\beta}}) &= \mathbb{E}\left[\|\hat{\boldsymbol{\beta}} - \boldsymbol{\beta}\|^2\right] \\
+&= \text{Bias}^2(\hat{\boldsymbol{\beta}}) + \text{Variance}(\hat{\boldsymbol{\beta}})
+\end{aligned}
 $$
 
 ![The Bias-Variance Trade-off: total error curve reaches a minimum at optimal lambda](/images/ridge-regression/05_bias_variance.png)
