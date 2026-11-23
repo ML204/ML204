@@ -9,11 +9,11 @@ export function SiteHeader() {
   return (
     <header className="fixed top-0 left-0 right-0 z-30 h-[var(--header-height)]
                         flex items-center px-4 md:px-6
-                        bg-[#f4eed9]/95 backdrop-blur border-b border-[#ded5bd]">
+                        bg-[#fcfaf3]/95 backdrop-blur border-b border-[#dbd1b5] shadow-[0_1px_3px_0_rgba(70,60,40,0.05)]">
       {/* Mobile Menu Button */}
       <button
         onClick={toggle}
-        className="md:hidden mr-3 p-2 -ml-1.5 rounded-lg text-stone-700 hover:text-stone-900 hover:bg-[#eae2cc] transition-colors"
+        className="md:hidden mr-3 p-2 -ml-1.5 rounded-lg text-stone-700 hover:text-stone-900 hover:bg-[#f2ecda] transition-colors"
         aria-label={isOpen ? 'Close menu' : 'Open menu'}
       >
         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -47,14 +47,14 @@ export function SiteHeader() {
       <div className="ml-auto flex items-center gap-2.5">
         <Link
           href="/learn"
-          className="md:hidden text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#eae2cc] text-stone-800 hover:bg-[#ded5bd] transition-colors"
+          className="md:hidden text-xs font-semibold px-2.5 py-1.5 rounded-lg bg-[#f0e9d4] hover:bg-[#e6dec5] border border-[#dbd1b5] text-stone-800 transition-colors"
         >
           Curriculum
         </Link>
         {/* Language toggle placeholder */}
         <button
           className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium
-                     text-stone-700 rounded-lg border border-[#ded5bd] hover:bg-[#eae2cc] transition-colors"
+                     text-stone-700 rounded-lg border border-[#dbd1b5] bg-[#faf6eb] hover:bg-[#efe7d2] transition-colors"
           title="Bangla coming soon"
           disabled
         >

@@ -38,13 +38,13 @@ export function Sidebar() {
         className={`fixed left-0 top-0 md:top-[var(--header-height)] bottom-0
           h-full md:h-[calc(100vh-var(--header-height))]
           w-[300px] max-w-[85vw] md:w-[var(--sidebar-width)]
-          bg-[#f4eed9] border-r border-[#ded5bd] overflow-hidden z-50
-          shadow-2xl md:shadow-none
+          bg-[#ede5cb] border-r border-[#d4c6a0] overflow-hidden z-50
+          shadow-2xl md:shadow-[1px_0_3px_0_rgba(0,0,0,0.03)]
           transition-transform duration-300 ease-out flex flex-col
           ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}
       >
         {/* Mobile Drawer Header (Hidden on Desktop) */}
-        <div className="flex items-center justify-between px-5 h-[var(--header-height)] border-b border-[#ded5bd] md:hidden flex-shrink-0 bg-[#f4eed9]">
+        <div className="flex items-center justify-between px-5 h-[var(--header-height)] border-b border-[#d4c6a0] md:hidden flex-shrink-0 bg-[#eae1c5]">
           <Link href="/" onClick={close} className="flex items-center gap-2 font-bold text-stone-900">
             <span className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-white text-sm font-black shadow-sm">
               M
@@ -56,7 +56,7 @@ export function Sidebar() {
 
           <button
             onClick={close}
-            className="p-2 -mr-2 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-[#eae2cc] transition-colors"
+            className="p-2 -mr-2 rounded-lg text-stone-600 hover:text-stone-900 hover:bg-[#ded1af] transition-colors"
             aria-label="Close menu"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@ export function Sidebar() {
         </div>
 
         {/* Search & Quick Progress Header */}
-        <div className="p-3.5 border-b border-[#ded5bd] bg-[#f4eed9]/80 flex-shrink-0 space-y-2.5">
+        <div className="p-3.5 border-b border-[#d4c6a0] bg-[#e5dcbf]/85 flex-shrink-0 space-y-2.5">
           {/* Search Box */}
           <div className="relative">
             <input
@@ -74,14 +74,14 @@ export function Sidebar() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Filter topics (e.g. matrix, loss)..."
-              className="w-full text-xs pl-7 pr-3 py-1.5 rounded-lg border border-[#ded5bd] bg-[#fcfaf2]/90 text-stone-800
-                         focus:outline-none focus:ring-1 focus:ring-brand-500 focus:bg-[#fffdf8] placeholder:text-stone-400"
+              className="w-full text-xs pl-7 pr-3 py-1.5 rounded-lg border border-[#cbbe99] bg-[#faf6eb] text-stone-900
+                         focus:outline-none focus:ring-1 focus:ring-brand-500 focus:bg-white placeholder:text-stone-500"
             />
             <span className="absolute left-2.5 top-1.5 text-stone-400 text-xs">🔍</span>
             {search && (
               <button
                 onClick={() => setSearch('')}
-                className="absolute right-2 top-1.5 text-stone-400 hover:text-stone-600 text-xs"
+                className="absolute right-2 top-1.5 text-stone-500 hover:text-stone-800 text-xs"
               >
                 ✕
               </button>
@@ -90,11 +90,11 @@ export function Sidebar() {
 
           {/* Mastery Progress Bar */}
           <div>
-            <div className="flex justify-between items-center text-[11px] text-stone-600 mb-1">
-              <span className="font-semibold text-stone-800">Checklist Mastery</span>
-              <span className="font-mono text-brand-700 font-bold">{doneCount} / {totalTopics} ({progressPct}%)</span>
+            <div className="flex justify-between items-center text-[11px] text-stone-700 mb-1">
+              <span className="font-semibold text-stone-900">Checklist Mastery</span>
+              <span className="font-mono text-brand-800 font-bold">{doneCount} / {totalTopics} ({progressPct}%)</span>
             </div>
-            <div className="h-1.5 w-full bg-[#ded5bd] rounded-full overflow-hidden">
+            <div className="h-1.5 w-full bg-[#d2c49c] rounded-full overflow-hidden">
               <div
                 className="h-full bg-brand-600 transition-all duration-300"
                 style={{ width: `${progressPct}%` }}
@@ -106,11 +106,11 @@ export function Sidebar() {
         {/* Scrollable Navigation */}
         <nav className="p-3 flex-1 overflow-y-auto">
           {/* Quick links to curriculum and resources */}
-          <div className="pb-2.5 mb-2 border-b border-[#ded5bd] space-y-1.5">
+          <div className="pb-2.5 mb-2 border-b border-[#d4c6a0] space-y-1.5">
             <Link
               href="/learn"
               onClick={close}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-800 bg-[#fcfaf2]/90 hover:bg-[#eae2cc] hover:text-brand-700 rounded-lg border border-[#ded5bd] transition-colors group shadow-2xs"
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-900 bg-[#f5eed7] hover:bg-[#ded1af] hover:text-brand-700 rounded-lg border border-[#d2c49c] transition-colors group shadow-2xs"
             >
               <span>🧭</span>
               <span>All Curriculum Directory</span>
@@ -119,7 +119,7 @@ export function Sidebar() {
             <Link
               href="/resources"
               onClick={close}
-              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-800 bg-[#fcfaf2]/90 hover:bg-[#eae2cc] hover:text-brand-700 rounded-lg border border-[#ded5bd] transition-colors group shadow-2xs"
+              className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold text-stone-900 bg-[#f5eed7] hover:bg-[#ded1af] hover:text-brand-700 rounded-lg border border-[#d2c49c] transition-colors group shadow-2xs"
             >
               <span>📚</span>
               <span>Resources & GitHub Code</span>
@@ -144,7 +144,7 @@ export function Sidebar() {
                 <Link
                   href={`/learn/${part.slug}`}
                   onClick={close}
-                  className="flex items-center gap-2 px-2.5 py-1.5 text-stone-700 hover:text-brand-700 hover:bg-[#eae2cc] rounded-lg transition-colors group"
+                  className="flex items-center gap-2 px-2.5 py-1.5 text-stone-800 hover:text-brand-700 hover:bg-[#ded1af] rounded-lg transition-colors group"
                 >
                   <span className="text-sm">{part.icon}</span>
                   <span className="text-[11px] font-bold uppercase tracking-wider group-hover:text-brand-700">
@@ -158,7 +158,7 @@ export function Sidebar() {
                     <Link
                       href={`/learn/${part.slug}/${chapter.slug}`}
                       onClick={close}
-                      className="block px-5 py-0.5 text-[11px] font-semibold text-stone-500 hover:text-brand-700 transition-colors uppercase tracking-wide"
+                      className="block px-5 py-0.5 text-[11px] font-semibold text-stone-600 hover:text-brand-700 transition-colors uppercase tracking-wide"
                     >
                       {chapter.title}
                     </Link>
@@ -174,8 +174,8 @@ export function Sidebar() {
                             onClick={close}
                             className={`flex items-center gap-2 px-6 py-1.5 text-xs rounded-lg transition-colors group ${
                               isDone
-                                ? 'text-stone-900 font-medium hover:bg-emerald-50/70'
-                                : 'text-stone-700 hover:text-brand-700 hover:bg-[#eae2cc]'
+                                ? 'text-stone-900 font-medium hover:bg-emerald-100/70'
+                                : 'text-stone-700 hover:text-brand-700 hover:bg-[#ded1af]'
                             }`}
                           >
                             {isDone ? (
@@ -183,7 +183,7 @@ export function Sidebar() {
                                 ✓
                               </span>
                             ) : (
-                              <span className="w-1.5 h-1.5 rounded-full bg-stone-300 group-hover:bg-brand-500 flex-shrink-0 ml-1.5" />
+                              <span className="w-1.5 h-1.5 rounded-full bg-stone-400 group-hover:bg-brand-500 flex-shrink-0 ml-1.5" />
                             )}
                             <span className="truncate">{sub.title}</span>
                           </Link>
@@ -198,12 +198,12 @@ export function Sidebar() {
         </nav>
 
         {/* About Section at the bottom */}
-        <div className="p-3 border-t border-[#ded5bd] bg-[#f4eed9]/80 flex-shrink-0">
-          <div className="flex items-center justify-between px-3 py-2 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/90 shadow-2xs">
+        <div className="p-3 border-t border-[#d4c6a0] bg-[#e5dcbf]/85 flex-shrink-0">
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl border border-[#d2c49c] bg-[#f5eed7] shadow-2xs">
             <Link
               href="/about"
               onClick={close}
-              className="text-xs font-bold text-stone-800 hover:text-brand-700 transition-colors flex items-center gap-2 group"
+              className="text-xs font-bold text-stone-900 hover:text-brand-700 transition-colors flex items-center gap-2 group"
             >
               <span className="w-5 h-5 rounded-md bg-brand-600 text-white flex items-center justify-center text-[10px] font-black">
                 M
@@ -211,7 +211,7 @@ export function Sidebar() {
               <span>About ML<span className="text-brand-600">204</span></span>
               <span className="text-stone-400 group-hover:text-brand-700">→</span>
             </Link>
-            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#eae2cc] text-stone-800 border border-[#ded5bd] font-mono">
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#ded1af] text-stone-900 border border-[#cbbe99] font-mono">
               v1.0.0
             </span>
           </div>
