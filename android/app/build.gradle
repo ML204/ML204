@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "com.mlens.app"
+    namespace = "com.ml204.app"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "com.mlens.app"
+        applicationId "com.ml204.app"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -18,10 +18,10 @@ android {
     }
     signingConfigs {
         release {
-            storeFile file("${rootDir}/release.keystore")
-            storePassword 'mlens2026'
-            keyAlias 'mlens'
-            keyPassword 'mlens2026'
+            storeFile file("${rootDir}/ml204-release.keystore")
+            storePassword 'ml204pass'
+            keyAlias 'ml204'
+            keyPassword 'ml204pass'
         }
     }
     buildTypes {

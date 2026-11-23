@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Pre-release validation script for MLens resources.
+ * Pre-release validation script for ML204 resources.
  * - Confirms that all offline bundled assets exist in public/resources/
  * - Performs lightweight HTTP checks on external URLs
  */

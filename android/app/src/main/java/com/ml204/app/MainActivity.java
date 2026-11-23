@@ -1,4 +1,4 @@
-package com.mlens.app;
+package com.ml204.app;
 
 import com.getcapacitor.BridgeActivity;
 

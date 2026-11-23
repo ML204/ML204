@@ -33,6 +33,3 @@ export async function shareML204() {
   return false;
 }
 
-// Backward-compatible alias
-export const shareMLens = shareML204;
-

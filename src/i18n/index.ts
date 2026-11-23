@@ -13,14 +13,14 @@ let currentLanguage: Language = 'en';
 export function setLanguage(lang: Language) {
   currentLanguage = lang;
   if (typeof window !== 'undefined') {
-    localStorage.setItem('mlens:language', lang);
-    window.dispatchEvent(new Event('mlens:language-change'));
+    localStorage.setItem('ml204:language', lang);
+    window.dispatchEvent(new Event('ml204:language-change'));
   }
 }
 
 export function getLanguage(): Language {
   if (typeof window !== 'undefined') {
-    const saved = localStorage.getItem('mlens:language') as Language;
+    const saved = (localStorage.getItem('ml204:language') || localStorage.getItem('mlens:language')) as Language;
     if (saved === 'en' || saved === 'bn') return saved;
   }
   return currentLanguage;

@@ -1,7 +1,7 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'com.mlens.app',
+  appId: 'com.ml204.app',
   appName: 'ML204',
   webDir: 'out',
   server: {

@@ -11,7 +11,7 @@ export interface QueuedFeedback {
   timestamp: number;
 }
 
-const QUEUE_KEY = 'mlens:offline_feedback_queue';
+const QUEUE_KEY = 'ml204:offline_feedback_queue';
 
 class OfflineQueueManager {
   private isOnline = true;

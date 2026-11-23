@@ -26,8 +26,8 @@ export interface StoredTopicPack {
   downloadedAt: number;
 }
 
-const INSTALLED_PACKS_KEY = 'mlens:installed_packs';
-const MANIFEST_CACHE_KEY = 'mlens:content_manifest_cache';
+const INSTALLED_PACKS_KEY = 'ml204:installed_packs';
+const MANIFEST_CACHE_KEY = 'ml204:content_manifest_cache';
 
 export const contentPackService = {
   /**
@@ -73,7 +73,7 @@ export const contentPackService = {
       };
 
       // Save topic data
-      await storage.set(`mlens:pack:${pack.topicSlug}`, JSON.stringify(stored));
+      await storage.set(`ml204:pack:${pack.topicSlug}`, JSON.stringify(stored));
 
       // Record installed pack list
       const installed = await storage.getJSON<string[]>(INSTALLED_PACKS_KEY, []);
@@ -93,6 +93,8 @@ export const contentPackService = {
    * Retrieve a locally downloaded topic pack.
    */
   async getInstalledPack(topicSlug: string): Promise<StoredTopicPack | null> {
+    const pack = await storage.getJSON<StoredTopicPack | null>(`ml204:pack:${topicSlug}`, null);
+    if (pack) return pack;
     return storage.getJSON<StoredTopicPack | null>(`mlens:pack:${topicSlug}`, null);
   },
 
