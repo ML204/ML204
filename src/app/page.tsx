@@ -34,7 +34,7 @@ export default function HomePage() {
         ].map(({ icon, label }) => (
           <div
             key={label}
-            className="flex items-center gap-2 px-4 py-3 bg-white rounded-xl border border-slate-200 text-sm font-medium text-slate-700 shadow-sm"
+            className="flex items-center gap-2 px-4 py-3 bg-[#fcfaf2]/90 rounded-xl border border-[#ded5bd] text-sm font-medium text-stone-800 shadow-2xs"
           >
             <span className="text-xl">{icon}</span>
             {label}
@@ -47,22 +47,22 @@ export default function HomePage() {
 
       {/* Table of contents */}
       <div id="contents">
-        <h2 className="text-2xl font-bold text-slate-900 mb-8">Contents</h2>
+        <h2 className="text-2xl font-bold text-stone-900 mb-8">Contents</h2>
         <div className="space-y-6">
           {parts.map((part) => (
-            <div key={part.slug} className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <div className="flex items-center gap-3 px-6 py-4 bg-slate-50 border-b border-slate-200">
+            <div key={part.slug} className="bg-[#fcfaf2]/95 rounded-2xl border border-[#ded5bd] shadow-2xs overflow-hidden">
+              <div className="flex items-center gap-3 px-6 py-4 bg-[#f8f4e6] border-b border-[#ded5bd]">
                 <span className="text-2xl">{part.icon}</span>
                 <div>
                   <Link href={`/learn/${part.slug}`} className="group">
-                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider group-hover:text-brand-600 transition-colors">
+                    <p className="text-xs font-semibold text-stone-500 uppercase tracking-wider group-hover:text-brand-700 transition-colors">
                       Part {part.number}
                     </p>
-                    <h3 className="font-bold text-slate-900 group-hover:text-brand-600 transition-colors">{part.title}</h3>
+                    <h3 className="font-bold text-stone-900 group-hover:text-brand-700 transition-colors">{part.title}</h3>
                   </Link>
                 </div>
               </div>
-              <div className="divide-y divide-slate-100">
+              <div className="divide-y divide-[#eae2cc]">
                 {part.chapters.map((chapter) => (
                   <div key={chapter.slug} className="px-6 py-3">
                     <Link

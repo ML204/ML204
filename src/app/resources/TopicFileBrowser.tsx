@@ -136,7 +136,7 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
   return (
     <div>
       {/* Controls Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6 shadow-sm space-y-4">
+      <div className="bg-[#fcfaf2]/95 rounded-2xl border border-[#ded5bd] p-5 mb-6 shadow-2xs space-y-4">
         {/* Search Input */}
         <div className="relative">
           <input
@@ -144,9 +144,9 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search across all chapters, topics, or file names..."
-            className="w-full text-sm pl-9 pr-8 py-2.5 rounded-xl border border-slate-200 bg-slate-50/50
-                       focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-400 focus:border-brand-400
-                       placeholder:text-slate-400 transition-all"
+            className="w-full text-sm pl-9 pr-8 py-2.5 rounded-xl border border-[#ded5bd] bg-[#f4eed9]/40 text-stone-800
+                       focus:bg-white focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500
+                       placeholder:text-stone-400 transition-all"
           />
           <span className="absolute left-3 top-2.5 text-slate-400">🔍</span>
           {search && (

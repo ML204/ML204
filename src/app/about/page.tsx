@@ -36,28 +36,28 @@ export default function AboutPage() {
 
       {/* Core Principles */}
       <section className="mb-14">
-        <h2 className="text-xl font-bold text-slate-900 mb-6">Our Educational Approach</h2>
+        <h2 className="text-xl font-bold text-stone-900 mb-6">Our Educational Approach</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs">
+          <div className="p-5 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 shadow-2xs">
             <span className="text-2xl mb-3 block">👁️</span>
-            <h3 className="font-bold text-slate-900 text-sm mb-2">Visual & Intuitive</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="font-bold text-stone-900 text-sm mb-2">Visual & Intuitive</h3>
+            <p className="text-xs text-stone-700 leading-relaxed">
               Every theoretical machine learning concept is grounded in interactive geometry,
               drag-and-drop points, and live parameter sliders.
             </p>
           </div>
-          <div className="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs">
+          <div className="p-5 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 shadow-2xs">
             <span className="text-2xl mb-3 block">📐</span>
-            <h3 className="font-bold text-slate-900 text-sm mb-2">Rigorous Derivations</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="font-bold text-stone-900 text-sm mb-2">Rigorous Derivations</h3>
+            <p className="text-xs text-stone-700 leading-relaxed">
               Step-by-step matrix calculus and algebraic proofs rendered with responsive LaTeX
               so undergraduate students gain deep mathematical confidence.
             </p>
           </div>
-          <div className="p-5 rounded-xl border border-slate-200 bg-white shadow-2xs">
+          <div className="p-5 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 shadow-2xs">
             <span className="text-2xl mb-3 block">🧩</span>
-            <h3 className="font-bold text-slate-900 text-sm mb-2">Test Banks & Pacing</h3>
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <h3 className="font-bold text-stone-900 text-sm mb-2">Test Banks & Pacing</h3>
+            <p className="text-xs text-stone-700 leading-relaxed">
               Up to 25 curated MCQs per topic with detailed explanations and study timers
               to solidify core intuitions and clear common traps.
             </p>
@@ -66,7 +66,7 @@ export default function AboutPage() {
       </section>
 
       {/* Open Source & Community */}
-      <section className="p-6 rounded-2xl border border-slate-200 bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <section className="p-6 rounded-2xl border border-[#ded5bd] bg-[#fcfaf2]/95 flex flex-col sm:flex-row items-center justify-between gap-4 shadow-2xs">
         <div>
           <h2 className="font-bold text-slate-900 text-base mb-1">
             Free & Open Source Software

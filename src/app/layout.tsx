@@ -36,13 +36,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${notoSansBengali.variable}`}>
-      <body className="font-sans antialiased flex flex-col min-h-screen">
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${jetbrainsMono.variable} ${notoSansBengali.variable} bg-[#f4eed9]`}>
+      <body className="font-sans antialiased flex flex-col min-h-screen bg-[#f4eed9] text-[#26231f]">
         <MobileNavProvider>
           <SiteHeader />
-          <div className="flex flex-1 pt-[var(--header-height)]">
+          <div className="flex flex-1 pt-[var(--header-height)] bg-[#f4eed9]">
             <Sidebar />
-            <main className="flex-1 min-w-0 ml-0 md:ml-[var(--sidebar-width)] overflow-x-hidden">
+            <main className="flex-1 min-w-0 ml-0 md:ml-[var(--sidebar-width)] overflow-x-hidden bg-[#f4eed9]">
               {children}
             </main>
           </div>

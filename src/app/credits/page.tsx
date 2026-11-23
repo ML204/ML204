@@ -51,23 +51,23 @@ export default function CreditsPage() {
           {copied.map((item) => (
             <div
               key={item.id}
-              className="p-4 rounded-xl border border-slate-200 bg-white shadow-2xs hover:border-brand-300 transition-all"
+              className="p-4 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 shadow-2xs hover:border-brand-400 transition-all"
             >
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1.5">
-                <h3 className="font-semibold text-slate-900 text-sm">{item.title}</h3>
+                <h3 className="font-semibold text-stone-900 text-sm">{item.title}</h3>
                 <div className="flex items-center gap-2">
                   <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                     ⚡ On-Demand Online
                   </span>
-                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-100 text-slate-700">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[#eae2cc] text-stone-800">
                     {item.license}
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-slate-600 mb-2">
-                <span className="font-medium text-slate-700">Author:</span> {item.author} · <span className="font-medium text-slate-700">Topic:</span> {item.topic}
+              <p className="text-xs text-stone-700 mb-2">
+                <span className="font-medium text-stone-900">Author:</span> {item.author} · <span className="font-medium text-stone-900">Topic:</span> {item.topic}
               </p>
-              <p className="text-xs text-slate-500 italic">{item.notes}</p>
+              <p className="text-xs text-stone-500 italic">{item.notes}</p>
             </div>
           ))}
         </div>

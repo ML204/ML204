@@ -53,6 +53,8 @@
   }
 
   html {
+    background-color: #f4eed9;
+    color: #26231f;
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
@@ -62,7 +64,8 @@
   }
 
   body {
-    @apply bg-slate-50 text-slate-800 font-sans;
+    background-color: #f4eed9;
+    color: #26231f;
     font-family: var(--font-inter), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     overflow-x: hidden;
     max-width: 100vw;
