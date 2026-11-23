@@ -539,6 +539,150 @@ The squared error plummeted from $(6 - 2)^2 = 16$ down to $(6 - 6)^2 = 0$!
         'Standard statistical notation reserves unadorned Greek letters (β) for true fixed population quantities, and puts a hat (β̂) over sample estimates.',
       figureHint: 'Check the Callout: Statistical Convention: Beta vs. Beta-Hat.',
     },
+    {
+      id: 'lr-q16',
+      kind: 'mcq',
+      text: 'In simple linear regression with an intercept β₀, which point in the Cartesian plane is the fitted regression line mathematically guaranteed to pass through?',
+      options: [
+        'The origin (0, 0)',
+        'The centroid point of the sample means (x̄, ȳ)',
+        'The median of x and the median of y',
+        'The point with the maximum x and maximum y values',
+      ],
+      correctIndex: 1,
+      explanation:
+        'Setting the partial derivative ∂J/∂β₀ = (2/n) ∑ (yᵢ - (β₀ + β₁xᵢ)) = 0 yields ȳ - β₀ - β₁x̄ = 0, which rearranges to ȳ = β₀ + β₁x̄. Thus, the fitted line always passes through the point of sample means (x̄, ȳ).',
+      figureHint: 'Review Section 1: Core Definitions and Properties.',
+    },
+    {
+      id: 'lr-q17',
+      kind: 'mcq',
+      text: 'When an intercept term β₀ is included in the model, what is the exact sum of all OLS residuals ∑ eᵢ = ∑ (yᵢ - ŷᵢ)?',
+      options: [
+        'Always exactly zero (0)',
+        'Always equal to the sample variance of y',
+        'Equal to the slope β₁',
+        'Equal to the sample size n',
+      ],
+      correctIndex: 0,
+      explanation:
+        'The first normal equation ∂J/∂β₀ = 0 directly states that -2 ∑ (yᵢ - ŷᵢ) = 0, which means ∑ eᵢ = 0. The positive errors and negative errors perfectly balance out to zero.',
+      figureHint: 'Review Section 3: Why Not Simply Sum the Residuals?',
+    },
+    {
+      id: 'lr-q18',
+      kind: 'mcq',
+      text: 'What does the Coefficient of Determination (R²) measure in linear regression?',
+      options: [
+        'The proportion of the total variance in the target y that is explained by the linear model: R² = 1 - (RSS / TSS).',
+        'The slope of the regression line multiplied by 100.',
+        'The probability that the true slope is zero.',
+        'The maximum error produced across all training samples.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'R² = 1 - (RSS / TSS) where TSS = ∑(yᵢ - ȳ)² is the total sum of squares. An R² of 0.85 indicates that 85% of the variation in the dependent variable is accounted for by the predictor feature.',
+    },
+    {
+      id: 'lr-q19',
+      kind: 'mcq',
+      text: 'In simple univariate linear regression (one predictor x and target y), what is the exact relationship between R² and the Pearson correlation coefficient r?',
+      options: [
+        'R² = r²',
+        'R² = 2r',
+        'R² = √r',
+        'R² = r / n',
+      ],
+      correctIndex: 0,
+      explanation:
+        'In the single-predictor case, the coefficient of determination R² is algebraically identical to the square of Pearson\'s correlation coefficient r: R² = (r_xy)². Thus, if r = -0.8, then R² = (-0.8)² = 0.64.',
+    },
+    {
+      id: 'lr-q20',
+      kind: 'mcq',
+      text: 'What does the classical assumption of "Homoscedasticity" state regarding model errors?',
+      options: [
+        'The variance of the residuals remains constant across all levels of the predictor feature x.',
+        'The slope must be positive everywhere.',
+        'All training features must have a mean of zero.',
+        'The target variable must only take integer values.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Homoscedasticity (equal variance) requires Var(eᵢ | xᵢ) = σ² for all i. If residual scatter expands into a cone or fan shape as x grows, the data exhibits heteroscedasticity, violating standard OLS assumptions.',
+    },
+    {
+      id: 'lr-q21',
+      kind: 'mcq',
+      text: 'What makes an "influential point" with high leverage dangerous in fitting a linear regression line?',
+      options: [
+        'Because its x-value is far from the mean x̄, it acts as a long lever arm that can drastically tilt the regression slope toward itself.',
+        'It causes the matrix determinant to become negative.',
+        'It forces the learning rate to drop to zero.',
+        'It changes the signs of all other training features.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Points with extreme predictor values (high leverage) exert disproportionate influence on the orientation of the line. A single high-leverage outlier can pivot the fitted line away from the general pattern of the remaining data.',
+      figureHint: 'Drag an outlier point far to the right in the interactive figure to see how it tilts the slope.',
+    },
+    {
+      id: 'lr-q22',
+      kind: 'mcq',
+      text: 'Why is "extrapolation" (predicting y for an x value far beyond the minimum or maximum observed in the training set) considered high risk?',
+      options: [
+        'The linear relationship is only supported by evidence within the observed range [x_min, x_max]; the true underlying phenomenon may curve or change behavior outside that window.',
+        'Computers produce numerical underflow when x is outside the dataset.',
+        'Extrapolated values always have a residual of zero.',
+        'The intercept β₀ disappears when extrapolating.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'While a model may fit well locally, assuming the linear trend continues indefinitely beyond the training domain often leads to absurd or disastrous predictions (e.g. predicting human height at age 50 from ages 1 to 10).',
+    },
+    {
+      id: 'lr-q23',
+      kind: 'mcq',
+      text: 'If a linear model finds a strong slope β₁ = 5.2 and R² = 0.94 between ice cream sales and drowning incidents, why cannot we conclude that ice cream causes drownings?',
+      options: [
+        'Correlation does not imply causation; a confounding variable (e.g. hot summer temperature) drives increases in both variables simultaneously.',
+        'R² must be exactly 1.0 to prove causation.',
+        'Linear regression can only prove causation if the slope is negative.',
+        'The sample size must equal the population size.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'Observational linear regression identifies statistical associations, not causal mechanisms. Confounding variables or reverse causality can create strong linear trends without any direct causal link.',
+    },
+    {
+      id: 'lr-q24',
+      kind: 'mcq',
+      text: 'In Multiple Linear Regression with p features (ŷ = β₀ + β₁x₁ + ... + βₚxₚ), how is the slope coefficient βⱼ interpreted?',
+      options: [
+        'The expected change in ŷ for a 1-unit increase in xⱼ, holding all other predictor variables constant (ceteris paribus).',
+        'The total correlation between xⱼ and all other features.',
+        'The percentage of the total dataset accounted for by feature j.',
+        'The derivative of the loss function with respect to time.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'In multiple regression, each partial slope isolates the unique relationship between predictor xⱼ and target y, controlling for (holding fixed) all other features in the model.',
+    },
+    {
+      id: 'lr-q25',
+      kind: 'mcq',
+      text: 'What visual pattern on a Residual vs. Fitted Values plot (e vs. ŷ) indicates that a linear model was inappropriate and that a polynomial/nonlinear model should be used instead?',
+      options: [
+        'A distinct U-shaped or inverted U-shaped curve in the residual points.',
+        'A completely random, uniform cloud of points centered around zero.',
+        'Residuals strictly confined to a narrow horizontal strip.',
+        'All residuals being equal to +1.',
+      ],
+      correctIndex: 0,
+      explanation:
+        'If the true relationship is quadratic or curved, a straight line systematically underpredicts in the middle and overpredicts at the ends, leaving a visible parabolic or curved pattern in the residual plot.',
+      figureHint: 'Review Section 2: Visualizing Residuals.',
+    },
   ]}
 />
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface QuizQuestion {
@@ -28,9 +28,18 @@ type AnswerState = {
 export function Quiz({ questions }: QuizProps) {
   const [phase, setPhase] = useState<'idle' | 'answering' | 'results'>('idle');
   const [current, setCurrent] = useState(0);
+  const [countdown, setCountdown] = useState<number>(0);
   const [answers, setAnswers] = useState<AnswerState[]>(
     questions.map(() => ({ selected: null, submitted: false, correct: false }))
   );
+
+  useEffect(() => {
+    if (countdown <= 0) return;
+    const timer = setTimeout(() => {
+      setCountdown((prev) => prev - 1);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [countdown]);
 
   const q = questions[current];
   const ans = answers[current];
@@ -52,12 +61,18 @@ export function Quiz({ questions }: QuizProps) {
       const diff = Math.abs(Number(ans.selected) - (q.correctValue ?? 0));
       correct = diff <= (q.tolerance ?? 0.01);
     }
+    if (!correct) {
+      setCountdown(3);
+    } else {
+      setCountdown(0);
+    }
     setAnswers((prev) =>
       prev.map((a, i) => (i === current ? { ...a, submitted: true, correct } : a))
     );
   }
 
   function next() {
+    setCountdown(0);
     if (current < questions.length - 1) {
       setCurrent((c) => c + 1);
     } else {
@@ -67,6 +82,7 @@ export function Quiz({ questions }: QuizProps) {
 
   function retake() {
     setCurrent(0);
+    setCountdown(0);
     setAnswers(questions.map(() => ({ selected: null, submitted: false, correct: false })));
     setPhase('answering');
   }
@@ -210,13 +226,25 @@ export function Quiz({ questions }: QuizProps) {
         {/* Explanation (shown after submitting) */}
         {ans.submitted && (
           <div className={cn(
-            'rounded-xl px-4 py-3 mb-4 text-sm',
-            ans.correct ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'
+            'rounded-xl px-4 py-3 mb-4 text-sm transition-all',
+            ans.correct
+              ? 'bg-green-50 text-green-900 border border-green-200'
+              : 'bg-amber-50 text-amber-950 border border-amber-200'
           )}>
-            <p className="font-semibold mb-1">{ans.correct ? '✅ Correct!' : '❌ Not quite.'}</p>
-            <p>{q.explanation}</p>
+            <div className="flex items-center justify-between mb-1.5 flex-wrap gap-2">
+              <p className="font-bold text-sm">
+                {ans.correct ? '✅ Correct!' : '❌ Not quite.'}
+              </p>
+              {!ans.correct && countdown > 0 && (
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
+                  <span>⏳ Read the notes</span>
+                  <span className="font-mono font-bold text-amber-900">{countdown}s</span>
+                </span>
+              )}
+            </div>
+            <p className="leading-relaxed text-slate-700">{q.explanation}</p>
             {q.figureHint && (
-              <p className="mt-1.5 text-xs font-medium opacity-80">🔭 {q.figureHint}</p>
+              <p className="mt-2 text-xs font-medium text-brand-700">🔭 {q.figureHint}</p>
             )}
           </div>
         )}
@@ -234,9 +262,28 @@ export function Quiz({ questions }: QuizProps) {
           ) : (
             <button
               onClick={next}
-              className="px-5 py-2 bg-brand-600 text-white font-semibold rounded-xl hover:bg-brand-700 transition-colors"
+              disabled={countdown > 0}
+              className={cn(
+                'px-5 py-2 font-semibold rounded-xl transition-all inline-flex items-center gap-2',
+                countdown > 0
+                  ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed shadow-none'
+                  : 'bg-brand-600 text-white hover:bg-brand-700 shadow-sm active:scale-[0.98]'
+              )}
             >
-              {current < questions.length - 1 ? 'Next question →' : 'See results →'}
+              {countdown > 0 ? (
+                <>
+                  <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-200 text-slate-600 text-xs font-bold font-mono">
+                    {countdown}
+                  </span>
+                  <span>
+                    {current < questions.length - 1
+                      ? `Next question (${countdown}s)`
+                      : `See results (${countdown}s)`}
+                  </span>
+                </>
+              ) : (
+                <span>{current < questions.length - 1 ? 'Next question →' : 'See results →'}</span>
+              )}
             </button>
           )}
         </div>

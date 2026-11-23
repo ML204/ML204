@@ -116,7 +116,8 @@ Substituting this back into RSS and distributing terms:
 $$
 \begin{aligned}
 \text{RSS} &= (\mathbf{y}^T - \hat{\boldsymbol{\beta}}^T\mathbf{X}^T)(\mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}) \\
-&= \mathbf{y}^T\mathbf{y} - \mathbf{y}^T\mathbf{X}\hat{\boldsymbol{\beta}} - \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y} + \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}
+&= \mathbf{y}^T\mathbf{y} - \mathbf{y}^T\mathbf{X}\hat{\boldsymbol{\beta}} - \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{y} \\
+&\quad + \hat{\boldsymbol{\beta}}^T\mathbf{X}^T\mathbf{X}\hat{\boldsymbol{\beta}}
 \end{aligned}
 $$
 
@@ -565,6 +566,76 @@ $$
       explanation:
         "Xᵀ has dimension k×n and X has dimension n×k. Multiplying (k×n) × (n×k) produces a square k×k matrix.",
       figureHint: "See Section 1: Dimensions Check.",
+    },
+    {
+      id: 'ols-q16',
+      kind: 'mcq',
+      text: "What are the two defining algebraic properties of the OLS Hat matrix (projection matrix) H = X(XᵀX)⁻¹Xᵀ?",
+      options: [
+        "It is symmetric (Hᵀ = H) and idempotent (H² = H).",
+        "It is skew-symmetric and non-invertible.",
+        "Its determinant is always negative.",
+        "It is an orthogonal matrix with HᵀH = I.",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Because Hᵀ = (X(XᵀX)⁻¹Xᵀ)ᵀ = X(XᵀX)⁻¹Xᵀ = H, it is symmetric. Furthermore, H · H = X(XᵀX)⁻¹(XᵀX)(XᵀX)⁻¹Xᵀ = X(XᵀX)⁻¹Xᵀ = H, proving it is an idempotent orthogonal projector.",
+    },
+    {
+      id: 'ols-q17',
+      kind: 'mcq',
+      text: "What is the trace of the Hat matrix tr(H) when X has full column rank k?",
+      options: [
+        "tr(H) = k (the number of estimated parameters)",
+        "tr(H) = n (the number of observations)",
+        "tr(H) = 0",
+        "tr(H) = 1.0",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Using the cyclic property of the trace: tr(H) = tr(X(XᵀX)⁻¹Xᵀ) = tr((XᵀX)⁻¹(XᵀX)) = tr(I_k) = k. The trace of an orthogonal projection matrix equals the dimension of the subspace it projects onto.",
+    },
+    {
+      id: 'ols-q18',
+      kind: 'mcq',
+      text: "What matrix operator projects the target vector y directly onto the orthogonal residual space to produce e = M y?",
+      options: [
+        "The residual maker matrix M = I - H",
+        "The inverse design matrix X⁻¹",
+        "The correlation matrix R",
+        "The Hessian matrix ∇²J",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Since e = y - ŷ = y - Hy = (I - H)y = My, the matrix M = I - H is called the residual generator or annihilator matrix. Like H, M is symmetric and idempotent.",
+    },
+    {
+      id: 'ols-q19',
+      kind: 'mcq',
+      text: "Under the Gauss-Markov assumption of strict exogeneity (E[ε | X] = 0), what is the expected value of the OLS estimator E[β̂]?",
+      options: [
+        "E[β̂] = β (the OLS estimator is strictly unbiased)",
+        "E[β̂] = 0",
+        "E[β̂] = β + σ²",
+        "E[β̂] = (XᵀX)⁻¹",
+      ],
+      correctIndex: 0,
+      explanation:
+        "β̂ = (XᵀX)⁻¹Xᵀ(Xβ + ε) = β + (XᵀX)⁻¹Xᵀε. Taking the expectation conditional on X gives E[β̂ | X] = β + (XᵀX)⁻¹Xᵀ E[ε | X] = β + 0 = β, proving unbiasedness.",
+    },
+    {
+      id: 'ols-q20',
+      kind: 'mcq',
+      text: "Under spherical errors (Var(ε | X) = σ²I), what is the variance-covariance matrix of the OLS coefficient vector Var(β̂)?",
+      options: [
+        "Var(β̂) = σ²(XᵀX)⁻¹",
+        "Var(β̂) = σ²(XᵀX)",
+        "Var(β̂) = (1/n) I",
+        "Var(β̂) = σ² / n",
+      ],
+      correctIndex: 0,
+      explanation:
+        "Var(β̂ | X) = Var((XᵀX)⁻¹Xᵀy) = (XᵀX)⁻¹Xᵀ Var(y) X(XᵀX)⁻¹ = (XᵀX)⁻¹Xᵀ (σ²I) X(XᵀX)⁻¹ = σ²(XᵀX)⁻¹(XᵀX)(XᵀX)⁻¹ = σ²(XᵀX)⁻¹.",
     },
   ]}
 />
