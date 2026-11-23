@@ -47,7 +47,7 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
   const [copied, setCopied] = useState(false);
   const [offlineModalOpen, setOfflineModalOpen] = useState(false);
   const [activeFileName, setActiveFileName] = useState<string>('');
-  const dirPath = `resources/${topicSlug}/`;
+  const dirPath = `public/resources/${topicSlug}/`;
 
   function copyPath() {
     navigator.clipboard.writeText(dirPath);

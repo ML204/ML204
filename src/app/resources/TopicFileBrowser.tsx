@@ -293,7 +293,7 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                                   )}
                                 </div>
                                 <p className="text-[11px] text-slate-400 font-mono mt-0.5">
-                                  resources/{topic.slug}/
+                                  public/resources/{topic.slug}/
                                 </p>
                               </div>
                             </div>

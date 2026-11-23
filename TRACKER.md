@@ -30,7 +30,7 @@
 | Clickable breadcrumb hierarchy throughout all pages | ✅ Done |
 | Supplementary Resources & GitHub component (`ResourcesSection`) | ✅ Done |
 | Dedicated Resources & Books Directory (`/resources`) | ✅ Done |
-| All 130 topic resource directories (`resources/[topic]/`) | ✅ Done (all 130 created) |
+| All 130 topic resource directories (`public/resources/[topic]/`) | ✅ Done (consolidated under public/) |
 | Dynamic per-topic file detector & downloader (`TopicResourceFiles`) | ✅ Done |
 | Next.js API download handler (`/api/resources/[topic]/[filename]`) | ✅ Done (clean, no public symlink needed) |
 | Next.js upgraded to secure version 15.5.29 (fixes Vercel advisory) | ✅ Done |

@@ -91,3 +91,4 @@ ios/App/Podfile.lock
 ios/App/App/public/
 *.ipa
 dist-apk/
+.env*.local

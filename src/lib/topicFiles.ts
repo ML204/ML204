@@ -24,9 +24,7 @@ export interface TopicDirectory {
 
 export function getTopicFiles(topicSlug: string): TopicFile[] {
   try {
-    const publicDir = path.join(process.cwd(), 'public', 'resources', topicSlug);
-    const legacyDir = path.join(process.cwd(), 'resources', topicSlug);
-    const dir = fs.existsSync(publicDir) ? publicDir : legacyDir;
+    const dir = path.join(process.cwd(), 'public', 'resources', topicSlug);
     if (!fs.existsSync(dir)) return [];
     const filenames = fs.readdirSync(dir);
 
@@ -48,7 +46,7 @@ export function getTopicFiles(topicSlug: string): TopicFile[] {
           size,
           extension: ext || 'file',
           href: `/resources/${topicSlug}/${encodeURIComponent(filename)}`,
-          githubUrl: `https://github.com/ML204/ML204/blob/main/resources/${topicSlug}/${encodeURIComponent(filename)}`,
+          githubUrl: `https://github.com/ML204/ML204/blob/main/public/resources/${topicSlug}/${encodeURIComponent(filename)}`,
           updatedAt: stat.mtime.toLocaleDateString(),
         };
       });
