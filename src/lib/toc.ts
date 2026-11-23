@@ -154,7 +154,7 @@ export const toc: Part[] = [
         subchapters: [
           { slug: 'linear-regression',             title: 'Linear Regression',                 estimatedMinutes: 8 },
           { slug: 'ordinary-least-squares',        title: 'Ordinary Least Squares (OLS)',       estimatedMinutes: 8 },
-          { slug: 'polynomial-regression',         title: 'Polynomial Regression',             estimatedMinutes: 7 },
+          { slug: 'polynomial-regression',         title: 'Polynomial Regression',             estimatedMinutes: 7,  done: true },
           { slug: 'ridge-regression',              title: 'Ridge Regression',                  estimatedMinutes: 7 },
           { slug: 'lasso-regression',              title: 'Lasso Regression',                  estimatedMinutes: 7 },
         ],
