@@ -5,13 +5,10 @@ import Link from 'next/link';
 import { toc } from '@/lib/toc';
 import { useMobileNav } from '@/components/layout/MobileNavContext';
 import { useCompletedSlugs } from '@/lib/progress';
-import { useIsNative } from '@/lib/useNative';
-import { shareML204 } from '@/lib/share';
 
 export function Sidebar() {
   const { isOpen, close } = useMobileNav();
   const completed = useCompletedSlugs();
-  const isNative = useIsNative();
   const [search, setSearch] = useState('');
 
   // Total topics in TOC
@@ -202,69 +199,21 @@ export function Sidebar() {
 
         {/* About Section at the bottom */}
         <div className="p-3 border-t border-slate-200 bg-slate-50/80 flex-shrink-0">
-          <div className="rounded-xl border border-slate-200/90 bg-white p-3 shadow-2xs">
-            <div className="flex items-center gap-2 mb-1.5">
+          <div className="flex items-center justify-between px-3 py-2 rounded-xl border border-slate-200/90 bg-white shadow-2xs">
+            <Link
+              href="/about"
+              onClick={close}
+              className="text-xs font-bold text-slate-800 hover:text-brand-600 transition-colors flex items-center gap-2 group"
+            >
               <span className="w-5 h-5 rounded-md bg-brand-600 text-white flex items-center justify-center text-[10px] font-black">
                 M
               </span>
-              <Link
-                href="/about"
-                onClick={close}
-                className="text-xs font-bold text-slate-800 hover:text-brand-600 transition-colors flex items-center gap-1 group"
-              >
-                <span>About ML<span className="text-brand-600">204</span></span>
-                <span className="text-slate-400 group-hover:text-brand-600">→</span>
-              </Link>
-              <span className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 rounded bg-brand-50 text-brand-600 border border-brand-200/60">
-                v1.0.0
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed mb-2.5">
-              An open-source interactive textbook with visual geometry, live sliders, and intuitive quiz notes for high school & university students.
-            </p>
-
-            {/* Android APK Download (Web) or Native Share (App) */}
-            {isNative ? (
-              <button
-                onClick={shareML204}
-                className="flex items-center justify-center gap-1.5 w-full py-1.5 px-2 mb-2 bg-brand-50 text-brand-700 hover:bg-brand-100 border border-brand-200/80 rounded-lg text-xs font-semibold transition-colors shadow-2xs"
-              >
-                <span>🔗</span>
-                <span>Share ML204</span>
-              </button>
-            ) : (
-              <a
-                href="https://github.com/ML204/ML204/releases/download/v1.0.0/app.apk"
-                className="flex items-center justify-center gap-1.5 w-full py-1.5 px-2 mb-2 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-semibold transition-colors shadow-2xs"
-              >
-                <span>📱</span>
-                <span>Download App (v1.0.0 APK)</span>
-              </a>
-            )}
-
-            <div className="flex items-center justify-between text-[11px] font-medium text-slate-600 pt-2 border-t border-slate-100">
-              <Link
-                href="/about"
-                onClick={close}
-                className="hover:text-brand-600 transition-colors flex items-center gap-1"
-              >
-                <span>ℹ️</span> About
-              </Link>
-              <Link
-                href="/resources"
-                onClick={close}
-                className="hover:text-brand-600 transition-colors flex items-center gap-1"
-              >
-                <span>📚</span> Resources
-              </Link>
-              <Link
-                href="/credits"
-                onClick={close}
-                className="hover:text-brand-600 transition-colors flex items-center gap-1"
-              >
-                <span>⚖️</span> Credits
-              </Link>
-            </div>
+              <span>About ML<span className="text-brand-600">204</span></span>
+              <span className="text-slate-400 group-hover:text-brand-600">→</span>
+            </Link>
+            <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-brand-50 text-brand-600 border border-brand-200/60 font-mono">
+              v1.0.0
+            </span>
           </div>
         </div>
       </aside>
