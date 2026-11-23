@@ -6,6 +6,7 @@ import type { TopicDirectory, TopicFile } from '@/lib/topicFiles';
 import { downloadStudyResource } from '@/lib/resourceDownload';
 import { openExternalUrl } from '@/lib/externalLinks';
 import { OfflineModal } from '@/components/common/OfflineModal';
+import { Capacitor } from '@capacitor/core';
 
 interface TopicFileBrowserProps {
   topics: TopicDirectory[];
@@ -351,19 +352,36 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                                         </div>
 
                                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 sm:gap-2 flex-shrink-0">
-                                          <button
-                                            onClick={() => handleDownload(file, topic.slug)}
+                                          <a
+                                            href={file.href}
+                                            download={file.name}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => {
+                                              if (Capacitor.isNativePlatform()) {
+                                                e.preventDefault();
+                                                handleDownload(file, topic.slug);
+                                              }
+                                            }}
                                             className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 active:scale-95 transition-all shadow-2xs text-center cursor-pointer flex items-center justify-center gap-1"
                                           >
                                             <span>⬇</span>
                                             <span>Download</span>
-                                          </button>
-                                          <button
-                                            onClick={() => openExternalUrl(file.githubUrl)}
+                                          </a>
+                                          <a
+                                            href={file.githubUrl}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onClick={(e) => {
+                                              if (Capacitor.isNativePlatform()) {
+                                                e.preventDefault();
+                                                openExternalUrl(file.githubUrl);
+                                              }
+                                            }}
                                             className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95 transition-all text-center cursor-pointer"
                                           >
                                             GitHub ↗
-                                          </button>
+                                          </a>
                                         </div>
                                       </div>
                                     );

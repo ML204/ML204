@@ -49,17 +49,17 @@ export async function downloadStudyResource(
   topicSlug: string,
   onOffline: () => void
 ): Promise<boolean> {
-  const online = await isDeviceOnline();
-
-  if (!online) {
-    onOffline();
-    return false;
-  }
-
   const isNative = Capacitor.isNativePlatform();
   const remoteDownloadUrl = getOnlineDownloadUrl(topicSlug, file.name);
 
+  // In native Android/iOS app: check connectivity before streaming from GitHub
   if (isNative) {
+    const online = await isDeviceOnline();
+    if (!online) {
+      onOffline();
+      return false;
+    }
+
     try {
       await Browser.open({
         url: remoteDownloadUrl,
@@ -75,12 +75,9 @@ export async function downloadStudyResource(
     }
   }
 
-  // Web platform: trigger download
+  // Web platform: trigger direct same-origin download from /resources/...
   if (typeof window !== 'undefined') {
-    // If running on a hosted domain with public resources available or direct raw fallback
-    const targetUrl = file.href.startsWith('http') ? file.href : remoteDownloadUrl;
-    
-    // Create temporary link and click
+    const targetUrl = file.href || remoteDownloadUrl;
     const anchor = document.createElement('a');
     anchor.href = targetUrl;
     anchor.download = file.name;
