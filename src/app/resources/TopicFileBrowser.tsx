@@ -2,7 +2,10 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import type { TopicDirectory } from '@/lib/topicFiles';
+import type { TopicDirectory, TopicFile } from '@/lib/topicFiles';
+import { downloadStudyResource } from '@/lib/resourceDownload';
+import { openExternalUrl } from '@/lib/externalLinks';
+import { OfflineModal } from '@/components/common/OfflineModal';
 
 interface TopicFileBrowserProps {
   topics: TopicDirectory[];
@@ -19,6 +22,8 @@ function getFileBadge(name: string, ext: string) {
       return { icon: '🪐', badge: 'Jupyter', color: 'bg-orange-50 text-orange-700 border-orange-200' };
     case 'py':
       return { icon: '🐍', badge: 'Python', color: 'bg-blue-50 text-blue-700 border-blue-200' };
+    case 'tex':
+      return { icon: '📐', badge: 'LaTeX', color: 'bg-cyan-50 text-cyan-700 border-cyan-200' };
     case 'md':
       return { icon: '📝', badge: 'Markdown', color: 'bg-emerald-50 text-emerald-700 border-emerald-200' };
     default:
@@ -33,6 +38,21 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
   const [expandedTopics, setExpandedTopics] = useState<Set<string>>(
     new Set(['vectors-and-matrices', 'gradient-descent'])
   );
+  const [offlineModalOpen, setOfflineModalOpen] = useState(false);
+  const [activeFileName, setActiveFileName] = useState('');
+
+  async function handleDownload(file: TopicFile, topicSlug: string) {
+    setActiveFileName(file.name);
+    await downloadStudyResource(
+      {
+        name: file.name,
+        href: file.href,
+        githubUrl: file.githubUrl,
+      },
+      topicSlug,
+      () => setOfflineModalOpen(true)
+    );
+  }
 
   const q = search.trim().toLowerCase();
 
@@ -331,23 +351,19 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
                                         </div>
 
                                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-1 sm:gap-2 flex-shrink-0">
-                                          <a
-                                            href={file.href}
-                                            download
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 transition-colors shadow-2xs text-center"
+                                          <button
+                                            onClick={() => handleDownload(file, topic.slug)}
+                                            className="px-2.5 py-1 text-[11px] font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 active:scale-95 transition-all shadow-2xs text-center cursor-pointer flex items-center justify-center gap-1"
                                           >
-                                            Download
-                                          </a>
-                                          <a
-                                            href={file.githubUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 transition-colors text-center"
+                                            <span>⬇</span>
+                                            <span>Download</span>
+                                          </button>
+                                          <button
+                                            onClick={() => openExternalUrl(file.githubUrl)}
+                                            className="inline-flex items-center justify-center px-2 py-1 text-[11px] font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 active:scale-95 transition-all text-center cursor-pointer"
                                           >
                                             GitHub ↗
-                                          </a>
+                                          </button>
                                         </div>
                                       </div>
                                     );
@@ -370,6 +386,12 @@ export function TopicFileBrowser({ topics }: TopicFileBrowserProps) {
           </div>
         ))}
       </div>
+
+      <OfflineModal
+        isOpen={offlineModalOpen}
+        onClose={() => setOfflineModalOpen(false)}
+        fileName={activeFileName}
+      />
     </div>
   );
 }

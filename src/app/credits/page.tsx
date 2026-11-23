@@ -35,16 +35,17 @@ export default function CreditsPage() {
         </p>
       </div>
 
-      {/* Bundled Study Materials */}
+      {/* Study Materials & Note Vault */}
       <section className="mb-12">
         <div className="flex items-center gap-2 mb-4">
           <span className="text-xl">📥</span>
           <h2 className="text-lg font-bold text-slate-900">
-            Bundled Study Materials (Offline Ready)
+            Study Materials & Note Vault (On-Demand Download)
           </h2>
         </div>
-        <p className="text-xs text-slate-500 mb-4">
-          These documents are embedded directly inside the application APK/bundle and are accessible without an internet connection.
+        <p className="text-xs text-slate-500 mb-4 leading-relaxed">
+          The full textbook, interactive visual widgets, equations, and quizzes are <strong>100% offline ready</strong>.
+          To ensure the native mobile app remains ultra-lightweight (&lt;15 MB across 132 topics), external PDF theory notes and LaTeX sources are fetched on demand when connected to the internet.
         </p>
         <div className="space-y-3">
           {copied.map((item) => (
@@ -55,8 +56,8 @@ export default function CreditsPage() {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-1.5">
                 <h3 className="font-semibold text-slate-900 text-sm">{item.title}</h3>
                 <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    ✓ Offline Bundled
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                    ⚡ On-Demand Online
                   </span>
                   <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-slate-100 text-slate-700">
                     {item.license}
