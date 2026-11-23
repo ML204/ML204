@@ -1,0 +1,16 @@
+# Dependencies & build outputs
+node_modules
+.next
+out
+dist-apk
+
+# Native mobile app directories
+android
+ios
+
+# Git & editor
+.git
+.github
+.idea
+.vscode
+*.log
