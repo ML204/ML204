@@ -23,6 +23,8 @@ export const contentRegistry: Record<string, Loader> = {
     import('@/content/classical-ml/supervised-regression/linear-regression.mdx'),
   'classical-ml/supervised-regression/ordinary-least-squares': () =>
     import('@/content/classical-ml/supervised-regression/ordinary-least-squares.mdx'),
+  'classical-ml/supervised-regression/polynomial-regression': () =>
+    import('@/content/classical-ml/supervised-regression/polynomial-regression.mdx'),
   'classical-ml/supervised-regression/ridge-regression': () =>
     import('@/content/classical-ml/supervised-regression/ridge-regression.mdx'),
   'classical-ml/supervised-regression/lasso-regression': () =>
