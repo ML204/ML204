@@ -3,7 +3,7 @@ import { getAllTopicsWithFiles } from '@/lib/topicFiles';
 import { TopicFileBrowser } from './TopicFileBrowser';
 
 export const metadata = {
-  title: 'Learning Resources & File Directory — MLens',
+  title: 'Learning Resources & File Directory — ML204',
   description: 'Download study notes, code implementations, and view curated textbooks across all machine learning topics.',
 };
 

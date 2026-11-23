@@ -1,7 +1,7 @@
 'use client';
 
 import { useIsNative } from '@/lib/useNative';
-import { shareMLens } from '@/lib/share';
+import { shareML204 } from '@/lib/share';
 
 export function AboutAppCard() {
   const isNative = useIsNative();
@@ -16,10 +16,10 @@ export function AboutAppCard() {
               Installed · Version 1.0.0
             </div>
             <h2 className="text-2xl font-bold text-slate-900">
-              Share MLens with Classmates
+              Share ML204 with Classmates
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">
-              Finding the visual interactive figures and quizzes helpful? Share MLens with your study
+              Finding the visual interactive figures and quizzes helpful? Share ML204 with your study
               group, students, or fellow researchers.
             </p>
             <div className="flex flex-wrap gap-4 text-xs text-slate-500 pt-1">
@@ -31,11 +31,11 @@ export function AboutAppCard() {
 
           <div className="flex flex-col sm:flex-row md:flex-col gap-3 min-w-[200px]">
             <button
-              onClick={shareMLens}
+              onClick={shareML204}
               className="px-6 py-3.5 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-center flex items-center justify-center gap-2 cursor-pointer"
             >
               <span className="text-lg">🔗</span>
-              <span>Share MLens</span>
+              <span>Share ML204</span>
             </button>
             <a
               href="https://github.com/ML204/ML204"
@@ -63,7 +63,7 @@ export function AboutAppCard() {
             Official Android Release · v1.0.0
           </div>
           <h2 className="text-2xl font-bold text-slate-900">
-            Take MLens Anywhere — 100% Offline
+            Take ML204 Anywhere — 100% Offline
           </h2>
           <p className="text-sm text-slate-600 leading-relaxed">
             Install the standalone native Android app. Enjoy fully functional interactive figures,
@@ -107,7 +107,7 @@ export function AboutAppCard() {
           <li>Download the <code>app.apk</code> file above.</li>
           <li>Tap the downloaded file in your browser or Downloads folder.</li>
           <li>If prompted, enable <em>&quot;Allow from this source&quot;</em> in Android Settings.</li>
-          <li>Tap <strong>Install</strong> and launch MLens anytime!</li>
+          <li>Tap <strong>Install</strong> and launch ML204 anytime!</li>
         </ol>
       </div>
     </section>

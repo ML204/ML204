@@ -37,7 +37,7 @@ export function HomeHeroActions() {
         href="/about"
         className="px-6 py-3 bg-white text-slate-700 font-semibold rounded-xl border border-slate-300 hover:bg-slate-50 active:scale-95 transition-all duration-200 hover:border-slate-400 text-center"
       >
-        About MLens
+        About ML204
       </Link>
     </div>
   );

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { CurriculumView } from './CurriculumView';
 
 export const metadata = {
-  title: 'Curriculum Directory — MLens',
+  title: 'Curriculum Directory — ML204',
   description: 'Explore all machine learning topics organized by the ML Learning Checklist.',
 };
 

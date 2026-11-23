@@ -2,7 +2,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
   appId: 'com.mlens.app',
-  appName: 'MLens',
+  appName: 'ML204',
   webDir: 'out',
   server: {
     androidScheme: 'https',

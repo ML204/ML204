@@ -3,12 +3,12 @@
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 
-export async function shareMLens() {
+export async function shareML204() {
   const shareData = {
-    title: 'MLens — Interactive Machine Learning Book',
+    title: 'ML204 — Interactive Machine Learning Book',
     text: 'Learn machine learning visually with interactive figures and quizzes — free & 100% offline!',
     url: 'https://github.com/ML204/ML204/releases/tag/v1.0.0',
-    dialogTitle: 'Share MLens with Friends',
+    dialogTitle: 'Share ML204 with Friends',
   };
 
   try {
@@ -22,7 +22,7 @@ export async function shareMLens() {
     }
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       await navigator.clipboard.writeText(shareData.url);
-      alert('MLens download link copied to clipboard!');
+      alert('ML204 download link copied to clipboard!');
       return true;
     }
   } catch (err: unknown) {
@@ -32,3 +32,7 @@ export async function shareMLens() {
   }
   return false;
 }
+
+// Backward-compatible alias
+export const shareMLens = shareML204;
+

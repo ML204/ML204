@@ -2,8 +2,8 @@ import Link from 'next/link';
 import resourcesData from '@/data/resources.json';
 
 export const metadata = {
-  title: 'Credits, Sources & Licensing — MLens',
-  description: 'Full attribution, open-source licenses, and original sources for all educational materials in MLens.',
+  title: 'Credits, Sources & Licensing — ML204',
+  description: 'Full attribution, open-source licenses, and original sources for all educational materials in ML204.',
 };
 
 export default function CreditsPage() {
@@ -29,7 +29,7 @@ export default function CreditsPage() {
           Credits, Sources & Licensing
         </h1>
         <p className="text-sm text-slate-600 leading-relaxed max-w-2xl">
-          MLens is committed to open educational access and strict copyright compliance.
+          ML204 is committed to open educational access and strict copyright compliance.
           Every external diagram, mathematical note, software library, and reference used
           across the curriculum is fully attributed below with its license terms.
         </p>

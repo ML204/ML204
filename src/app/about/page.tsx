@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { AboutAppCard } from '@/components/about/AboutAppCard';
 
 export const metadata = {
-  title: 'About MLens — Free Interactive Machine Learning Book',
+  title: 'About ML204 — Free Interactive Machine Learning Book',
   description: 'Learn machine learning visually without code prerequisites. Download the offline Android APK app.',
 };
 
@@ -22,10 +22,10 @@ export default function AboutPage() {
           Mission & Technology
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-          About ML<span className="text-brand-600">ens</span>
+          About ML<span className="text-brand-600">204</span>
         </h1>
         <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-          MLens is a free, visual, and interactive machine learning textbook engineered
+          ML204 is a free, visual, and interactive machine learning textbook engineered
           for high school and undergraduate students. It strips away dense code boilerplate
           to focus purely on geometric intuition, mathematical rigor, and visual discovery.
         </p>
@@ -72,7 +72,7 @@ export default function AboutPage() {
             Free & Open Source Software
           </h2>
           <p className="text-xs text-slate-500">
-            MLens is built with Next.js, Tailwind CSS, KaTeX, and Capacitor under open educational licenses.
+            ML204 is built with Next.js, Tailwind CSS, KaTeX, and Capacitor under open educational licenses.
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">

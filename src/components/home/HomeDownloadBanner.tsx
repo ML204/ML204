@@ -18,7 +18,7 @@ export function HomeDownloadBanner() {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-              MLens for Android — 100% Offline
+              ML204 for Android — 100% Offline
             </h3>
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
               v1.0.0
