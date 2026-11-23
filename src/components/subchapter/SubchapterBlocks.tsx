@@ -56,8 +56,8 @@ export function Callout({ kind = 'info', children }: { kind?: CalloutKind; child
 export function Analogy({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative pl-5 my-5">
-      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-brand-300" />
-      <div className="text-slate-600 italic text-sm leading-relaxed [&>p]:mb-0 [&>p]:inline">
+      <div className="absolute left-0 top-0 bottom-0 w-1 rounded-full bg-brand-400" />
+      <div className="text-stone-700 italic text-sm leading-relaxed [&>p]:mb-0 [&>p]:inline">
         {children}
       </div>
     </div>
@@ -68,9 +68,9 @@ export function Analogy({ children }: { children: React.ReactNode }) {
 
 export function Formula({ children, label }: { children: React.ReactNode; label?: string }) {
   return (
-    <div className="my-6 rounded-xl bg-slate-50 border border-slate-200 overflow-x-auto">
+    <div className="my-6 rounded-xl bg-[#fcfaf2]/90 border border-[#ded5bd] overflow-x-auto shadow-2xs">
       {label && (
-        <div className="px-4 pt-3 pb-1 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-200">
+        <div className="px-4 pt-3 pb-1 text-xs font-semibold text-stone-500 uppercase tracking-wider border-b border-[#ded5bd]">
           {label}
         </div>
       )}
@@ -83,19 +83,19 @@ export function Formula({ children, label }: { children: React.ReactNode; label?
 
 export function SymbolTable({ rows }: { rows: { symbol: string; meaning: string }[] }) {
   return (
-    <div className="w-full overflow-x-auto my-4 rounded-xl border border-slate-200 bg-white shadow-2xs">
+    <div className="w-full overflow-x-auto my-4 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/90 shadow-2xs">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50">
-            <th className="text-left px-3.5 py-2.5 font-semibold text-slate-700 w-24">Symbol</th>
-            <th className="text-left px-3.5 py-2.5 font-semibold text-slate-700">Meaning</th>
+          <tr className="border-b border-[#ded5bd] bg-[#f8f4e6]">
+            <th className="text-left px-3.5 py-2.5 font-semibold text-stone-800 w-24">Symbol</th>
+            <th className="text-left px-3.5 py-2.5 font-semibold text-stone-800">Meaning</th>
           </tr>
         </thead>
         <tbody>
           {rows.map(({ symbol, meaning }) => (
-            <tr key={symbol} className="border-b border-slate-100 last:border-b-0">
-              <td className="px-3.5 py-2 font-mono text-brand-700">{symbol}</td>
-              <td className="px-3.5 py-2 text-slate-700">{meaning}</td>
+            <tr key={symbol} className="border-b border-[#eae2cc] last:border-b-0">
+              <td className="px-3.5 py-2 font-mono text-brand-700 font-medium">{symbol}</td>
+              <td className="px-3.5 py-2 text-stone-700">{meaning}</td>
             </tr>
           ))}
         </tbody>

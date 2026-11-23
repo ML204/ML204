@@ -24,9 +24,9 @@ export function FeedbackBar({ subchapterSlug }: FeedbackBarProps) {
   }
 
   return (
-    <div className="mt-10 pt-8 border-t border-slate-200">
+    <div className="mt-10 pt-8 border-t border-[#ded5bd]">
       <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-        <p className="text-sm font-semibold text-slate-700">Was this clear?</p>
+        <p className="text-sm font-semibold text-stone-800">Was this clear?</p>
         <div className="flex gap-2">
           {[
             { label: '😊 Yes', value: 'yes' },
@@ -39,7 +39,7 @@ export function FeedbackBar({ subchapterSlug }: FeedbackBarProps) {
               className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
                 chosen === value
                   ? 'bg-brand-600 text-white border-brand-600'
-                  : 'bg-white text-slate-600 border-slate-300 hover:bg-slate-50'
+                  : 'bg-[#fcfaf2] text-stone-700 border-[#ded5bd] hover:bg-[#fffdf8]'
               }`}
             >
               {label}

@@ -20,7 +20,7 @@ export function CompletionToggle({ slug }: CompletionToggleProps) {
   }
 
   return (
-    <div className="my-6 p-4 rounded-xl border border-slate-200 bg-white flex items-center justify-between gap-4">
+    <div className="my-6 p-4 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 flex items-center justify-between gap-4 shadow-2xs">
       <div className="flex items-center gap-3">
         <span className="text-2xl">{done ? '🏆' : '🎯'}</span>
         <div>

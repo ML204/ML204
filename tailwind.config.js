@@ -32,6 +32,14 @@ module.exports = {
           purple: '#a855f7',
           gray:   '#6b7280',
         },
+        // Eye-comfort reading template palette
+        reading: {
+          DEFAULT: '#f4eed9',
+          paper:   '#f4eed9',
+          muted:   '#eae3cd',
+          border:  '#d8d0b8',
+          text:    '#26231f',
+        },
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],

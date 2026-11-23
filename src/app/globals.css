@@ -8,6 +8,48 @@
   :root {
     --sidebar-width: 280px;
     --header-height: 56px;
+    --reading-bg: #f4eed9;
+    --reading-text: #26231f;
+    --reading-border: #dcd4be;
+  }
+
+  /* Eye-Comfort Reading Mode Palette (#f4eed9) */
+  .reading-theme {
+    background-color: #f4eed9 !important;
+    color: #26231f;
+  }
+
+  .reading-theme .prose {
+    --tw-prose-body: #292524;
+    --tw-prose-headings: #1c1917;
+    --tw-prose-lead: #44403c;
+    --tw-prose-links: #4338ca;
+    --tw-prose-bold: #1c1917;
+    --tw-prose-counters: #78716c;
+    --tw-prose-bullets: #a8a29e;
+    --tw-prose-hr: #dcd4be;
+    --tw-prose-quotes: #292524;
+    --tw-prose-quote-borders: #d1c6a8;
+    --tw-prose-captions: #78716c;
+    --tw-prose-code: #3730a3;
+    --tw-prose-pre-code: #f1f5f9;
+    --tw-prose-pre-bg: #1c1917;
+    --tw-prose-th-borders: #dcd4be;
+    --tw-prose-td-borders: #eae2cc;
+    color: #292524;
+  }
+
+  .reading-theme .prose p,
+  .reading-theme .prose li {
+    color: #292524;
+    line-height: 1.8;
+  }
+
+  .reading-theme .prose h1,
+  .reading-theme .prose h2,
+  .reading-theme .prose h3,
+  .reading-theme .prose h4 {
+    color: #1c1917;
   }
 
   html {

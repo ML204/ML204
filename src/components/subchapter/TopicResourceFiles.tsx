@@ -70,7 +70,7 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
 
   return (
     <>
-      <div className="my-8 rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+      <div className="my-8 rounded-2xl border border-[#ded5bd] bg-[#fcfaf2]/95 p-6 shadow-2xs">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2.5">
             <span className="text-xl">📁</span>

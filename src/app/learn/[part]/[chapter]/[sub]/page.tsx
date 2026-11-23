@@ -57,27 +57,36 @@ export default async function SubchapterPage({
   return (
     <article className="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-10 w-full min-w-0">
       {/* Breadcrumb */}
-      <nav className="text-xs text-slate-400 mb-6 flex items-center gap-1.5 flex-wrap">
-        <Link href="/" className="hover:text-brand-600 transition-colors">Home</Link>
+      <nav className="text-xs text-stone-500 mb-6 flex items-center gap-1.5 flex-wrap">
+        <Link href="/" className="hover:text-brand-700 transition-colors">Home</Link>
         <span>/</span>
-        <Link href="/learn" className="hover:text-brand-600 transition-colors">Curriculum</Link>
+        <Link href="/learn" className="hover:text-brand-700 transition-colors">Curriculum</Link>
         <span>/</span>
-        <Link href={`/learn/${part.slug}`} className="hover:text-brand-600 transition-colors">{part.title}</Link>
+        <Link href={`/learn/${part.slug}`} className="hover:text-brand-700 transition-colors">{part.title}</Link>
         <span>/</span>
-        <Link href={`/learn/${part.slug}/${chapter.slug}`} className="hover:text-brand-600 transition-colors">{chapter.title}</Link>
+        <Link href={`/learn/${part.slug}/${chapter.slug}`} className="hover:text-brand-700 transition-colors">{chapter.title}</Link>
         <span>/</span>
-        <span className="text-slate-700 font-medium">{subchapter.title}</span>
+        <span className="text-stone-800 font-semibold">{subchapter.title}</span>
       </nav>
 
-      {/* Title */}
-      <h1 className="text-3xl font-bold text-slate-900 mb-2 leading-tight">
-        {subchapter.title}
-      </h1>
-      {subchapter.estimatedMinutes && (
-        <p className="text-sm text-slate-400 mb-8">
-          ⏱ {subchapter.estimatedMinutes} min read
-        </p>
-      )}
+      {/* Title & Reading Meta */}
+      <div className="mb-8">
+        <h1 className="text-3xl sm:text-4xl font-extrabold text-[#1c1917] mb-3 leading-tight tracking-tight">
+          {subchapter.title}
+        </h1>
+        <div className="flex items-center gap-3 flex-wrap">
+          {subchapter.estimatedMinutes && (
+            <span className="text-xs text-stone-600 font-medium flex items-center gap-1">
+              <span>⏱</span>
+              <span>{subchapter.estimatedMinutes} min read</span>
+            </span>
+          )}
+          <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-[#eae2cc] text-stone-700 border border-[#d8cfb4]" title="Eye-Comfort Sepia Paper Theme Active">
+            <span>👁️</span>
+            <span>Eye-Care Reading Mode</span>
+          </span>
+        </div>
+      </div>
 
       {/* MDX Content or Student Preparation Card */}
       {Content ? (
@@ -133,20 +142,20 @@ export default async function SubchapterPage({
         {prev ? (
           <Link
             href={`/learn/${prev.partSlug}/${prev.chapterSlug}/${prev.slug}`}
-            className="flex-1 flex flex-col px-4 py-3 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 transition-colors"
+            className="flex-1 flex flex-col px-4 py-3 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/90 hover:border-brand-400 hover:bg-[#fffdf8] transition-all shadow-2xs"
           >
-            <span className="text-xs text-slate-400 font-medium mb-0.5">← Previous</span>
-            <span className="text-sm font-semibold text-slate-700">{prev.title}</span>
+            <span className="text-xs text-stone-500 font-medium mb-0.5">← Previous</span>
+            <span className="text-sm font-semibold text-stone-800">{prev.title}</span>
           </Link>
         ) : <div className="hidden sm:block flex-1" />}
 
         {next ? (
           <Link
             href={`/learn/${next.partSlug}/${next.chapterSlug}/${next.slug}`}
-            className="flex-1 flex flex-col items-start sm:items-end px-4 py-3 rounded-xl border border-slate-200 bg-white hover:border-brand-300 hover:bg-brand-50 transition-colors"
+            className="flex-1 flex flex-col items-start sm:items-end px-4 py-3 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/90 hover:border-brand-400 hover:bg-[#fffdf8] transition-all shadow-2xs"
           >
-            <span className="text-xs text-slate-400 font-medium mb-0.5">Next →</span>
-            <span className="text-sm font-semibold text-slate-700">{next.title}</span>
+            <span className="text-xs text-stone-500 font-medium mb-0.5">Next →</span>
+            <span className="text-sm font-semibold text-stone-800">{next.title}</span>
           </Link>
         ) : <div className="hidden sm:block flex-1" />}
       </div>
