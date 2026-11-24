@@ -1,5 +1,6 @@
 import type { MDXComponents } from 'mdx/types';
 import { CodeBlock } from '@/components/common/CodeBlock';
+import { ResponsiveTable } from '@/components/common/ResponsiveTable';
 
 export function useMDXComponents(components: MDXComponents): MDXComponents {
   return {
@@ -17,11 +18,11 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       return <code className={className} {...props}>{children}</code>;
     },
     table: ({ children, ...props }) => (
-      <div className="w-full my-6 overflow-x-auto rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 shadow-2xs table-scrollbar">
+      <ResponsiveTable>
         <table className="w-full text-sm text-center border-collapse min-w-[540px]" {...props}>
           {children}
         </table>
-      </div>
+      </ResponsiveTable>
     ),
     thead: ({ children, ...props }) => (
       <thead className="bg-[#f8f4e6] border-b border-[#ded5bd] text-xs font-semibold text-stone-800 tracking-wider" {...props}>

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { cn } from '@/lib/utils';
+import { ResponsiveTable } from '@/components/common/ResponsiveTable';
 
 // ─── Section wrapper ──────────────────────────────────────────────────────────
 
@@ -83,7 +84,7 @@ export function Formula({ children, label }: { children: React.ReactNode; label?
 
 export function SymbolTable({ rows }: { rows: { symbol: string; meaning: string }[] }) {
   return (
-    <div className="w-full overflow-x-auto my-4 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/90 shadow-2xs table-scrollbar">
+    <ResponsiveTable>
       <table className="w-full text-sm min-w-[380px]">
         <thead>
           <tr className="border-b border-[#ded5bd] bg-[#f8f4e6]">
@@ -100,7 +101,7 @@ export function SymbolTable({ rows }: { rows: { symbol: string; meaning: string 
           ))}
         </tbody>
       </table>
-    </div>
+    </ResponsiveTable>
   );
 }
 
