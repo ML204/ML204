@@ -7,7 +7,7 @@ export async function shareML204() {
   const shareData = {
     title: 'ML204 — Interactive Machine Learning Book',
     text: 'Learn machine learning visually with interactive figures and quizzes — free & 100% offline!',
-    url: 'https://github.com/ML204/ML204/releases/tag/v1.0.0',
+    url: 'https://github.com/ML204/ML204-mobile/releases/latest',
     dialogTitle: 'Share ML204 with Friends',
   };
 

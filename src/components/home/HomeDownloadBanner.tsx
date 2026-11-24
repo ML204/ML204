@@ -32,7 +32,7 @@ export function HomeDownloadBanner() {
       </div>
       <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
         <a
-          href="https://github.com/ML204/ML204/releases/download/v1.0.0/app.apk"
+          href="https://github.com/ML204/ML204-mobile/releases/latest/download/app-release.apk"
           className="flex-1 sm:flex-initial px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-2xs text-center"
         >
           Download APK (10.7 MB)
