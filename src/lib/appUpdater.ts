@@ -1,10 +1,29 @@
 'use client';
 
 import { Capacitor, CapacitorHttp } from '@capacitor/core';
+import { App } from '@capacitor/app';
 import { isDeviceOnline } from './resourceDownload';
 import { openExternalUrl } from './externalLinks';
 
-export const CURRENT_APP_VERSION = '1.0.0';
+export const CURRENT_APP_VERSION = '1.0.1';
+
+/**
+ * Gets the actual running version from Android package metadata,
+ * falling back to the compile-time CURRENT_APP_VERSION.
+ */
+export async function getAppVersion(): Promise<string> {
+  if (Capacitor.isNativePlatform()) {
+    try {
+      const info = await App.getInfo();
+      if (info && info.version) {
+        return info.version;
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return CURRENT_APP_VERSION;
+}
 
 export interface VersionInfo {
   version: string;
@@ -97,6 +116,8 @@ async function fetchJsonWithTimeout<T>(url: string, timeoutMs = 4000): Promise<T
  * Guaranteed to resolve within 5 seconds.
  */
 export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
+  const currentVersion = await getAppVersion();
+
   try {
     // 1. Fast connectivity check with timeout
     const online = await Promise.race([
@@ -107,7 +128,7 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
     if (!online) {
       return {
         status: 'offline',
-        currentVersion: CURRENT_APP_VERSION,
+        currentVersion,
         errorMessage: 'You are offline. Connect to the internet to check for updates.',
       };
     }
@@ -117,10 +138,10 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
     const primaryData = await fetchJsonWithTimeout<VersionInfo>(versionUrl, 3500);
 
     if (primaryData && primaryData.version) {
-      const isNewer = compareSemver(primaryData.version, CURRENT_APP_VERSION) > 0;
+      const isNewer = compareSemver(primaryData.version, currentVersion) > 0;
       return {
         status: isNewer ? 'update_available' : 'up_to_date',
-        currentVersion: CURRENT_APP_VERSION,
+        currentVersion,
         latestVersion: primaryData.version,
         versionInfo: primaryData,
       };
@@ -152,10 +173,10 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
         notes: ghRelease.body || undefined,
       };
 
-      const isNewer = compareSemver(tagName, CURRENT_APP_VERSION) > 0;
+      const isNewer = compareSemver(tagName, currentVersion) > 0;
       return {
         status: isNewer ? 'update_available' : 'up_to_date',
-        currentVersion: CURRENT_APP_VERSION,
+        currentVersion,
         latestVersion: tagName,
         versionInfo,
       };
@@ -163,14 +184,14 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
 
     return {
       status: 'error',
-      currentVersion: CURRENT_APP_VERSION,
+      currentVersion,
       errorMessage: 'Could not connect to update server. Check your connection.',
     };
   } catch (err) {
     console.error('[AppUpdater] Unexpected error checking update:', err);
     return {
       status: 'error',
-      currentVersion: CURRENT_APP_VERSION,
+      currentVersion,
       errorMessage: 'Unable to check for updates right now.',
     };
   }

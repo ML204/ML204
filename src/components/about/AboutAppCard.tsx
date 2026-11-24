@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useIsNative } from '@/lib/useNative';
 import { shareML204 } from '@/lib/share';
 import { openExternalUrl } from '@/lib/externalLinks';
 import {
   CURRENT_APP_VERSION,
+  getAppVersion,
   checkForAppUpdate,
   downloadAppUpdate,
   type UpdateCheckResult,
@@ -13,10 +14,15 @@ import {
 
 export function AboutAppCard() {
   const isNative = useIsNative();
+  const [appVersion, setAppVersion] = useState(CURRENT_APP_VERSION);
   const [checking, setChecking] = useState(false);
   const [downloading, setDownloading] = useState(false);
   const [downloadStarted, setDownloadStarted] = useState(false);
   const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
+
+  useEffect(() => {
+    getAppVersion().then((v) => setAppVersion(v));
+  }, []);
 
   async function handleCheckUpdate() {
     if (checking) return;
@@ -72,7 +78,7 @@ export function AboutAppCard() {
             <div className="flex items-center gap-2 flex-wrap">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-bold bg-brand-100 text-brand-800 border border-brand-300">
                 <span className="w-2 h-2 rounded-full bg-brand-600" />
-                Installed · Version {CURRENT_APP_VERSION}
+                Installed · Version {appVersion}
               </div>
 
               {/* Dynamic Update Pill */}
@@ -102,7 +108,7 @@ export function AboutAppCard() {
               <span>•</span>
               <span>🔒 100% Offline & Private</span>
               <span>•</span>
-              <span>📦 APK v{CURRENT_APP_VERSION}</span>
+              <span>📦 APK v{appVersion}</span>
             </div>
 
             {/* Update details banner if an update is found */}
@@ -214,7 +220,7 @@ export function AboutAppCard() {
         <div className="space-y-2 max-w-xl">
           <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
             <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse" />
-            Official Android Release · v{CURRENT_APP_VERSION}
+            Official Android Release · v{appVersion}
           </div>
           <h2 className="text-2xl font-bold text-slate-900">
             Take ML204 Anywhere — 100% Offline

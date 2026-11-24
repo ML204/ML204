@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useIsNative } from '@/lib/useNative';
+import { CURRENT_APP_VERSION } from '@/lib/appUpdater';
 
 export function HomeDownloadBanner() {
   const isNative = useIsNative();
@@ -21,7 +22,7 @@ export function HomeDownloadBanner() {
               ML204 for Android — 100% Offline
             </h3>
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
-              v1.0.0
+              v{CURRENT_APP_VERSION}
             </span>
           </div>
           <p className="text-xs text-slate-600 mt-0.5">

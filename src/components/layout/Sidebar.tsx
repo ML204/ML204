@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { toc } from '@/lib/toc';
 import { useMobileNav } from '@/components/layout/MobileNavContext';
 import { useCompletedSlugs } from '@/lib/progress';
+import { CURRENT_APP_VERSION } from '@/lib/appUpdater';
 
 export function Sidebar() {
   const { isOpen, close } = useMobileNav();
@@ -212,7 +213,7 @@ export function Sidebar() {
               <span className="text-stone-400 group-hover:text-brand-700">→</span>
             </Link>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#ded1af] text-stone-900 border border-[#cbbe99] font-mono">
-              v1.0.0
+              v{CURRENT_APP_VERSION}
             </span>
           </div>
         </div>
