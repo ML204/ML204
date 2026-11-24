@@ -133,7 +133,7 @@ export function AboutAppCard() {
                   <div className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-100/80 border border-emerald-300 text-emerald-950 text-xs font-medium animate-pulse">
                     <span className="text-base">⏳</span>
                     <span>
-                      Downloading APK in background... The system installer prompt will open automatically once completed!
+                      Downloading APK in background... Check your notifications or Downloads folder to install once completed!
                     </span>
                   </div>
                 ) : (
@@ -144,7 +144,7 @@ export function AboutAppCard() {
                       className="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
                     >
                       <span>{downloading ? '⏳' : '⬇'}</span>
-                      <span>{downloading ? 'Starting Download...' : 'Download & Install Update'}</span>
+                      <span>{downloading ? 'Starting Download...' : 'Download Update APK'}</span>
                     </button>
                     {updateResult.versionInfo?.releaseNotesUrl && (
                       <button
