@@ -17,8 +17,8 @@ export function useMDXComponents(components: MDXComponents): MDXComponents {
       return <code className={className} {...props}>{children}</code>;
     },
     table: ({ children, ...props }) => (
-      <div className="w-full my-6 overflow-x-auto rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 shadow-2xs">
-        <table className="w-full text-sm text-center border-collapse min-w-[320px]" {...props}>
+      <div className="w-full my-6 overflow-x-auto rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/95 shadow-2xs table-scrollbar">
+        <table className="w-full text-sm text-center border-collapse min-w-[540px]" {...props}>
           {children}
         </table>
       </div>

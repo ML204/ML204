@@ -83,18 +83,18 @@ export function Formula({ children, label }: { children: React.ReactNode; label?
 
 export function SymbolTable({ rows }: { rows: { symbol: string; meaning: string }[] }) {
   return (
-    <div className="w-full overflow-x-auto my-4 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/90 shadow-2xs">
-      <table className="w-full text-sm">
+    <div className="w-full overflow-x-auto my-4 rounded-xl border border-[#ded5bd] bg-[#fcfaf2]/90 shadow-2xs table-scrollbar">
+      <table className="w-full text-sm min-w-[380px]">
         <thead>
           <tr className="border-b border-[#ded5bd] bg-[#f8f4e6]">
-            <th className="text-left px-3.5 py-2.5 font-semibold text-stone-800 w-24">Symbol</th>
+            <th className="text-left px-3.5 py-2.5 font-semibold text-stone-800 w-24 whitespace-nowrap">Symbol</th>
             <th className="text-left px-3.5 py-2.5 font-semibold text-stone-800">Meaning</th>
           </tr>
         </thead>
         <tbody>
           {rows.map(({ symbol, meaning }) => (
             <tr key={symbol} className="border-b border-[#eae2cc] last:border-b-0">
-              <td className="px-3.5 py-2 font-mono text-brand-700 font-medium">{symbol}</td>
+              <td className="px-3.5 py-2 font-mono text-brand-700 font-medium whitespace-nowrap">{symbol}</td>
               <td className="px-3.5 py-2 text-stone-700">{meaning}</td>
             </tr>
           ))}

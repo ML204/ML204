@@ -39,22 +39,6 @@ export function ResourcesSection({ githubPath, items = [] }: ResourcesSectionPro
             </h3>
           </div>
         </div>
-
-        {githubPath && (
-          <a
-            href={`https://github.com/ML204/ML204/tree/main/${githubPath}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              e.preventDefault();
-              openExternalUrl(`https://github.com/ML204/ML204/tree/main/${githubPath}`);
-            }}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl bg-slate-900 text-white hover:bg-slate-800 transition-colors shadow-2xs"
-          >
-            <span>GitHub</span>
-            <span className="text-slate-400">↗</span>
-          </a>
-        )}
       </div>
 
       <p className="text-xs text-slate-500 mb-4 leading-relaxed">

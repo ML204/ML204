@@ -178,14 +178,39 @@
     touch-action: manipulation;
   }
 
-  /* Table responsive styling in prose */
+  /* Table responsive styling in prose & visible horizontal scrollbar */
+  .table-scrollbar {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: #c7bca1 #f4eed9;
+  }
+
+  .table-scrollbar::-webkit-scrollbar {
+    height: 7px;
+  }
+
+  .table-scrollbar::-webkit-scrollbar-track {
+    background: #f4eed9;
+    border-radius: 9999px;
+  }
+
+  .table-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #c7bca1;
+    border-radius: 9999px;
+    border: 1.5px solid #f4eed9;
+  }
+
+  .table-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: #a89a7a;
+  }
+
   .prose table {
     width: 100%;
     border-collapse: collapse;
     margin: 1.5rem 0;
     font-size: 0.875rem;
     border-radius: 0.75rem;
-    overflow: hidden;
   }
 
   .prose thead {
