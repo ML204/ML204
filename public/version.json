@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "name": "ML204",
+  "releaseDate": "2026-11-24",
+  "minAndroidVersion": "7.0+ (API 24+)",
+  "apkUrl": "https://github.com/ML204/ML204/releases/download/v1.0.0/app.apk",
+  "releaseNotesUrl": "https://github.com/ML204/ML204/releases/tag/v1.0.0",
+  "notes": "100% offline interactive textbook, formulas, quizzes, and on-demand study downloads."
+}
