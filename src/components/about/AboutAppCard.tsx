@@ -15,12 +15,14 @@ export function AboutAppCard() {
   const isNative = useIsNative();
   const [checking, setChecking] = useState(false);
   const [downloading, setDownloading] = useState(false);
+  const [downloadStarted, setDownloadStarted] = useState(false);
   const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
 
   async function handleCheckUpdate() {
     if (checking) return;
     setChecking(true);
     setUpdateResult(null);
+    setDownloadStarted(false);
 
     const safetyTimer = setTimeout(() => {
       setChecking(false);
@@ -56,6 +58,7 @@ export function AboutAppCard() {
         updateResult.versionInfo.apkUrl,
         updateResult.latestVersion || 'latest'
       );
+      setDownloadStarted(true);
     } finally {
       setDownloading(false);
     }
@@ -120,24 +123,33 @@ export function AboutAppCard() {
                     {updateResult.versionInfo.notes}
                   </p>
                 )}
-                <div className="flex items-center gap-2 pt-1">
-                  <button
-                    onClick={handleInstallUpdate}
-                    disabled={downloading}
-                    className="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
-                  >
-                    <span>{downloading ? '⏳' : '⬇'}</span>
-                    <span>{downloading ? 'Starting Download...' : 'Download & Install Update'}</span>
-                  </button>
-                  {updateResult.versionInfo?.releaseNotesUrl && (
+                {downloadStarted ? (
+                  <div className="flex items-center gap-2.5 p-3 rounded-xl bg-emerald-100/80 border border-emerald-300 text-emerald-950 text-xs font-medium animate-pulse">
+                    <span className="text-base">⏳</span>
+                    <span>
+                      Downloading APK in background... The system installer prompt will open automatically once completed!
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 pt-1">
                     <button
-                      onClick={() => openExternalUrl(updateResult.versionInfo!.releaseNotesUrl)}
-                      className="px-3 py-2 bg-white hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                      onClick={handleInstallUpdate}
+                      disabled={downloading}
+                      className="px-4 py-2 bg-amber-600 hover:bg-amber-700 active:scale-95 text-white text-xs font-bold rounded-lg shadow-sm transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-60"
                     >
-                      Release Notes ↗
+                      <span>{downloading ? '⏳' : '⬇'}</span>
+                      <span>{downloading ? 'Starting Download...' : 'Download & Install Update'}</span>
                     </button>
-                  )}
-                </div>
+                    {updateResult.versionInfo?.releaseNotesUrl && (
+                      <button
+                        onClick={() => openExternalUrl(updateResult.versionInfo!.releaseNotesUrl)}
+                        className="px-3 py-2 bg-white hover:bg-amber-100 text-amber-800 border border-amber-300 text-xs font-semibold rounded-lg transition-colors cursor-pointer"
+                      >
+                        Release Notes ↗
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
             )}
 
