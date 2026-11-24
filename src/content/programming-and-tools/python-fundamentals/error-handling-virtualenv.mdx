@@ -1,0 +1,195 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+
+export const metadata = {
+  title: 'Error Handling and Virtual Environments',
+  description: 'Defensive programming with try-except blocks, raising meaningful exceptions, environment isolation with venv, and reproducible dependency management.',
+};
+
+<Section label="What is it?">
+
+Reliable machine learning production requires resilient code and reproducible environments:
+- **Error Handling (`try`, `except`, `else`, `finally`)**: Gracefully catches runtime exceptions (such as missing files, out-of-memory errors, and bad tensor shapes) without abruptly crashing training jobs.
+- **Raising Exceptions (`raise`, `assert`)**: Enforces input validation and guards assumptions.
+- **Virtual Environments (`venv`, Conda)**: Isolated Python execution runtimes containing project-specific library versions, avoiding global system package collisions.
+- **Dependency Pinning (`requirements.txt`, `pip`)**: Freezes library versions (`torch==2.5.1`, `numpy==2.1.2`) for 100% reproducible experiments.
+
+</Section>
+
+<Section label="Why we need it">
+
+In production machine learning:
+- Multi-day training runs must handle intermittent network disconnects or bad training samples without losing checkpoints.
+- Tensor shape mismatch checks (`assert X.shape[1] == 10`) catch silent dimensional broadcast bugs early.
+- Different ML projects require conflicting versions of CUDA, PyTorch, or NumPy; virtual environments keep every project completely independent.
+- Reproducibility: A teammate or remote cloud server can run `pip install -r requirements.txt` and replicate your exact environment instantly.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Anatomy of `try` / `except` / `else` / `finally`
+
+Python provides a structured block for handling runtime errors:
+
+```python
+def load_and_preprocess(filepath):
+    try:
+        # Code that may raise an exception
+        print(f"Opening {filepath}...")
+        with open(filepath, "r", encoding="utf-8") as f:
+            data = [float(line.strip()) for line in f]
+    except FileNotFoundError:
+        # Runs ONLY if the specific exception occurs
+        print("Warning: File not found! Using zero array fallback.")
+        data = [0.0, 0.0, 0.0]
+    except ValueError as e:
+        # Handles corrupt or non-numeric data
+        print(f"Data format error: {e}")
+        data = []
+    else:
+        # Runs ONLY if NO exception was raised in try
+        print("Data loaded and validated successfully.")
+    finally:
+        # ALWAYS runs regardless of success or failure
+        print("Cleaning up temporary I/O handles.")
+
+    return data
+```
+
+### 2. Raising Custom Exceptions and Assertions
+
+Fail fast with clear error messages when invalid data enters an algorithm:
+
+```python
+def train_model(X, y):
+    if len(X) != len(y):
+        raise ValueError(f"Features and targets length mismatch: len(X)={len(X)}, len(y)={len(y)}")
+    if len(X) == 0:
+        raise ValueError("Cannot train on an empty dataset.")
+
+    # Invariants using assert
+    assert X.shape[1] > 0, "Feature dimension must be greater than zero!"
+```
+
+<Analogy>
+  A virtual environment is like a cleanroom laboratory with its own specialized tools, PPE, and reagents for a specific experiment. You never bring contaminated tools into another laboratory; when the experiment concludes, you can decommission the cleanroom without affecting any other room in the research institute.
+</Analogy>
+
+### 3. Virtual Environments with Python `venv`
+
+Create an isolated environment inside your project directory:
+
+```bash
+# 1. Create a virtual environment named .venv
+python3 -m venv .venv
+
+# 2. Activate the environment
+# On macOS / Linux:
+source .venv/bin/activate
+# On Windows:
+# .venv\Scripts\activate
+
+# 3. Verify isolated Python path
+which python  # Should point inside .venv/bin/python
+
+# 4. Install project packages
+pip install numpy pandas matplotlib scikit-learn
+
+# 5. Export frozen dependencies for teammates
+pip freeze > requirements.txt
+
+# 6. Deactivate when finished
+deactivate
+```
+
+<Callout kind="warning">
+  **Never Catch Bare `except:`:** Writing `except:` without an exception class catches system signals like `KeyboardInterrupt` (Ctrl+C) and `SystemExit`, preventing you from terminating stuck training loops! Always catch specific exceptions: `except (ValueError, KeyError, FileNotFoundError):`.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'err-q1',
+      kind: 'mcq',
+      text: 'In a `try-except-else-finally` block, when does the `finally` block execute?',
+      options: [
+        'Always, regardless of whether an exception occurred or was handled',
+        'Only when an unhandled exception crashes the program',
+        'Only when no exception was raised in the try block',
+        'Only when KeyboardInterrupt is received',
+      ],
+      correctIndex: 0,
+      explanation: 'The `finally` clause always executes before exiting the construct, making it ideal for releasing locks or closing database connections.',
+    },
+    {
+      id: 'err-q2',
+      kind: 'mcq',
+      text: 'What command creates a standard isolated virtual environment in Python 3?',
+      options: [
+        'python3 -m venv .venv',
+        'pip make-env .venv',
+        'python --create-isolate',
+        'npm init venv',
+      ],
+      correctIndex: 0,
+      explanation: 'Python 3 includes the standard library module `venv`: `python3 -m venv <directory_name>` initializes an isolated environment directory.',
+    },
+    {
+      id: 'err-q3',
+      kind: 'mcq',
+      text: 'Why should you avoid catching bare `except:` without specifying an Exception class?',
+      options: [
+        'It intercepts system interrupts like KeyboardInterrupt, preventing the user from stopping execution with Ctrl+C',
+        'It slows down NumPy calculations by a factor of 10',
+        'It corrupts files saved on SSDs',
+        'It deletes local environment variables',
+      ],
+      correctIndex: 0,
+      explanation: 'A bare `except:` catches `BaseException`, which includes `KeyboardInterrupt` and `SystemExit`, breaking normal process control.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Error Handling and Virtual Environments"
+  oneLiner="Safeguard ML pipelines with specific try-except blocks, validate dimensions with assertions, and isolate reproducible package dependencies with venv and requirements.txt."
+  takeaways={[
+    'Catch specific exceptions (FileNotFoundError, ValueError); never use bare `except:`.',
+    'Use `else` for code that should run only when no exception occurs; use `finally` for cleanup.',
+    'Always use virtual environments to prevent package version conflicts across projects.',
+    'Freeze dependencies with `pip freeze > requirements.txt` for exact reproducibility.',
+  ]}
+  commonTrap="Committing the `.venv` folder to GitHub. Always add `.venv/` and `__pycache__/` to your `.gitignore`, and only commit `requirements.txt`!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="error-handling-virtualenv"
+  topicTitle="Error Handling and Virtual Environments"
+  referenceChecklist={[
+    'Explained the execution order of try, except, else, and finally.',
+    'Explained why catching bare except is problematic.',
+    'Described how venv creates isolated library installations.',
+    'Explained the role of requirements.txt in reproducible ML research.',
+  ]}
+/>
+
+</Section>

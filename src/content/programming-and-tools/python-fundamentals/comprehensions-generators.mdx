@@ -1,0 +1,180 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+
+export const metadata = {
+  title: 'List Comprehensions and Generators',
+  description: 'Concise functional syntax, memory-efficient streams, the yield keyword, and lazy evaluation in Python data pipelines.',
+};
+
+<Section label="What is it?">
+
+Python offers powerful declarative constructs for constructing collections and streaming sequences:
+- **Comprehensions** provide concise syntax to transform and filter iterables into new lists (`[...]`), dictionaries (`{k: v ...}`), or sets (`{...}`).
+- **Generators** are stateful iterators that compute values **lazily** on-demand using the `yield` keyword or generator expressions (`(...)`), consuming $O(1)$ memory regardless of dataset size.
+
+</Section>
+
+<Section label="Why we need it">
+
+In machine learning and data processing:
+- Transforming feature labels and standardizing string tokens: `clean_tokens = [t.lower().strip() for t in tokens if len(t) > 2]`.
+- Creating inverted index maps or vocabularies: `word2idx = {w: i for i, w in enumerate(vocab)}`.
+- Streaming massive datasets (such as 100 GB of image paths or text files) without running out of RAM: a generator loads only one batch into memory at a time.
+- Custom dataset loaders in PyTorch and TensorFlow rely heavily on Python generators to feed GPUs continuously.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. List, Dictionary, and Set Comprehensions
+
+A list comprehension replaces bulky `for` loops and `append` calls with a clean single-line statement:
+
+```python
+# Traditional approach
+squares = []
+for x in range(5):
+    if x % 2 == 0:
+        squares.append(x ** 2)
+
+# Idiomatic List Comprehension: [expression for item in iterable if condition]
+squares_comp = [x ** 2 for x in range(5) if x % 2 == 0]
+print(squares_comp)  # [0, 4, 16]
+
+# Dictionary Comprehension
+labels = ["cat", "dog", "bird"]
+label2id = {label: idx for idx, label in enumerate(labels)}
+print(label2id)  # {'cat': 0, 'dog': 1, 'bird': 2}
+```
+
+### 2. The Problem with Large Lists in Memory
+
+Suppose you need to iterate over 100,000,000 numbers:
+
+```python
+# Consumes gigabytes of RAM by allocating all elements upfront
+all_nums = [x * 2 for x in range(100_000_000)]
+```
+
+If you only iterate through the numbers one by one, allocating the whole list at once wastes memory and can crash your system.
+
+### 3. Generators and the `yield` Keyword
+
+A generator function pauses execution each time it hits `yield`, returns the value to the caller, and remembers its local state for the next call:
+
+```python
+def batch_generator(data, batch_size=32):
+    """Yields chunks of data lazily without duplicating the dataset."""
+    for i in range(0, len(data), batch_size):
+        yield data[i:i + batch_size]
+
+dataset = list(range(100))
+gen = batch_generator(dataset, batch_size=20)
+
+print(next(gen))  # [0, 1, ..., 19]
+print(next(gen))  # [20, 21, ..., 39]
+```
+
+<Analogy>
+  Think of a list comprehension as a catering buffet: all 1,000 meals are cooked and laid out on tables simultaneously, requiring massive hall space. A generator is an on-demand sushi chef: each roll is prepared only when the guest asks for it, using minimal counter space.
+</Analogy>
+
+### 4. Generator Expressions
+
+Using parentheses `(...)` instead of brackets `[...]` produces a generator expression:
+
+```python
+# Generator expression: consumes O(1) auxiliary memory
+sum_of_squares = sum(x ** 2 for x in range(1_000_000))
+print("Computed sum:", sum_of_squares)
+```
+
+<Callout kind="tip">
+  **Eager vs Lazy Evaluation:** Lists evaluate eagerly (all elements computed immediately in memory). Generators evaluate lazily (items are computed only when requested by `next()` or a loop).
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'gen-q1',
+      kind: 'mcq',
+      text: 'What is the primary advantage of a generator expression over a list comprehension when processing large datasets?',
+      options: [
+        'It uses O(1) auxiliary memory because values are produced lazily on demand',
+        'It executes faster on multiple GPU cores automatically',
+        'It allows indexing directly with gen[5]',
+        'It permanently caches all results in disk storage',
+      ],
+      correctIndex: 0,
+      explanation: 'Generators generate elements lazily one-at-a-time as requested, avoiding allocating the entire sequence in memory.',
+    },
+    {
+      id: 'gen-q2',
+      kind: 'mcq',
+      text: 'What keyword turns a regular Python function into a generator function?',
+      options: [
+        'yield',
+        'return',
+        'generate',
+        'stream',
+      ],
+      correctIndex: 0,
+      explanation: 'The `yield` keyword pauses function execution, yields the intermediate value, and preserves state for subsequent `next()` calls.',
+    },
+    {
+      id: 'gen-q3',
+      kind: 'mcq',
+      text: 'What does the dictionary comprehension `{w: len(w) for w in ["loss", "epoch"]}` produce?',
+      options: [
+        '{"loss": 4, "epoch": 5}',
+        '{"loss": 0, "epoch": 1}',
+        '[4, 5]',
+        '{"loss", "epoch"}',
+      ],
+      correctIndex: 0,
+      explanation: 'The dictionary comprehension maps each word to its string length: "loss" -> 4, "epoch" -> 5.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="List Comprehensions and Generators"
+  oneLiner="Comprehensions construct collections in a readable single line; generators evaluate lazily with yield to stream massive datasets in O(1) RAM."
+  takeaways={[
+    'List comprehensions replace map/filter loops with clean, readable syntax: [expr for x in seq if cond].',
+    'Generators produce items on demand, maintaining state between yields.',
+    'Use generator expressions (expr for x in seq) when passing sequences directly into reductions like sum() or any().',
+  ]}
+  commonTrap="Trying to index or reuse an exhausted generator (`gen[0]` or looping twice). Once a generator finishes yielding, it is exhausted and cannot be rewound without recreating it!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="comprehensions-generators"
+  topicTitle="List Comprehensions and Generators"
+  referenceChecklist={[
+    'Contrasted eager list construction with lazy generator evaluation.',
+    'Explained how the yield keyword pauses and resumes function execution.',
+    'Explained memory advantages when streaming gigabytes of training data.',
+    'Provided an example of a list or dictionary comprehension.',
+  ]}
+/>
+
+</Section>

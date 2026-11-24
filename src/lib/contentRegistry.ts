@@ -7,6 +7,21 @@ type MDXModule = {
 type Loader = () => Promise<MDXModule>;
 
 export const contentRegistry: Record<string, Loader> = {
+  // Part 0: Programming and Tools
+  'programming-and-tools/python-fundamentals/variables-loops-functions': () =>
+    import('@/content/programming-and-tools/python-fundamentals/variables-loops-functions.mdx'),
+  'programming-and-tools/python-fundamentals/python-data-structures': () =>
+    import('@/content/programming-and-tools/python-fundamentals/python-data-structures.mdx'),
+  'programming-and-tools/python-fundamentals/comprehensions-generators': () =>
+    import('@/content/programming-and-tools/python-fundamentals/comprehensions-generators.mdx'),
+  'programming-and-tools/python-fundamentals/classes-and-objects': () =>
+    import('@/content/programming-and-tools/python-fundamentals/classes-and-objects.mdx'),
+  'programming-and-tools/python-fundamentals/file-io-json-csv': () =>
+    import('@/content/programming-and-tools/python-fundamentals/file-io-json-csv.mdx'),
+  'programming-and-tools/python-fundamentals/error-handling-virtualenv': () =>
+    import('@/content/programming-and-tools/python-fundamentals/error-handling-virtualenv.mdx'),
+
+  // Part 1: Math Foundations
   'math-foundations/linear-algebra/vectors-and-matrices': () =>
     import('@/content/math-foundations/linear-algebra/vectors-and-matrices.mdx'),
   'math-foundations/calculus/what-is-optimization': () =>

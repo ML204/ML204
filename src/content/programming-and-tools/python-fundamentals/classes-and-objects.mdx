@@ -1,0 +1,199 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+
+export const metadata = {
+  title: 'Classes and Objects',
+  description: 'Object-oriented programming (OOP) in Python: encapsulation, inheritance, the self parameter, and structuring custom ML estimators and PyTorch neural network modules.',
+};
+
+<Section label="What is it?">
+
+**Object-Oriented Programming (OOP)** is a programming paradigm that organizes code around **objects** that bundle state (**attributes**) and behavior (**methods**):
+- A **Class** is a blueprint (e.g. `LinearRegression` or `NeuralNetwork`).
+- An **Instance (Object)** is a concrete realization created from that class with specific parameter values.
+- `__init__` is the constructor method called when an instance is created.
+- `self` refers to the specific instance whose attributes and methods are being accessed.
+
+</Section>
+
+<Section label="Why we need it">
+
+Modern machine learning libraries are built entirely on OOP conventions:
+- **Scikit-learn**: Every model inherits from a base estimator exposing a unified `.fit(X, y)` and `.predict(X)` interface.
+- **PyTorch**: Custom deep learning models inherit from `torch.nn.Module`, defining layer attributes in `__init__` and forward execution in `.forward(x)`.
+- **Custom Preprocessors**: Packaging feature scalers, tokenizers, and dataset splitters into reusable, state-preserving classes.
+
+OOP enables clean abstraction, parameter encapsulation, and modular code reuse across machine learning systems.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Defining a Class and Constructor
+
+In Python, classes are defined with the `class` keyword. The `__init__` method initializes instance variables:
+
+```python
+class LinearModel:
+    def __init__(self, learning_rate=0.01):
+        self.learning_rate = learning_rate  # Instance attribute
+        self.weight = 0.0                   # Model parameter
+        self.bias = 0.0                     # Model parameter
+
+    def predict(self, x):
+        """Computes y = w * x + b."""
+        return self.weight * x + self.bias
+
+# Instantiating objects
+model1 = LinearModel(learning_rate=0.05)
+model2 = LinearModel(learning_rate=0.001)
+
+print("Model 1 LR:", model1.learning_rate)  # 0.05
+print("Prediction:", model1.predict(4.0))   # 0.0
+```
+
+<Analogy>
+  Think of a class as an architectural blueprint for a house. An instance is an actual physical house built from that blueprint. Each physical house has its own interior wall colors and occupants (`self.attributes`), but all follow the blueprint's structural floorplan (`methods`).
+</Analogy>
+
+### 2. Building a Scikit-Learn-Style Estimator
+
+The hallmark pattern in machine learning is the **Estimator pattern**:
+
+```python
+class CustomNormalizer:
+    def __init__(self):
+        self.mean_ = None
+        self.std_ = None
+
+    def fit(self, data):
+        """Computes and stores mean and standard deviation from training data."""
+        self.mean_ = sum(data) / len(data)
+        variance = sum((x - self.mean_) ** 2 for x in data) / len(data)
+        self.std_ = variance ** 0.5
+        return self
+
+    def transform(self, data):
+        """Scales new data using the parameters learned during fit."""
+        if self.mean_ is None or self.std_ is None:
+            raise RuntimeError("Must call fit() before transform()!")
+        return [(x - self.mean_) / self.std_ for x in data]
+
+# Usage
+scaler = CustomNormalizer()
+scaler.fit([10, 20, 30, 40])
+normalized = scaler.transform([25, 35])
+print("Normalized values:", normalized)
+```
+
+### 3. Inheritance: Reusing and Extending Classes
+
+Inheritance allows a subclass to inherit methods and attributes from a parent class, overriding or extending behavior with `super()`:
+
+```python
+class BaseEstimator:
+    def __init__(self, name="Base"):
+        self.name = name
+
+    def summary(self):
+        return f"Estimator: {self.name}"
+
+class RidgeRegression(BaseEstimator):
+    def __init__(self, alpha=1.0):
+        super().__init__(name="Ridge Regression")
+        self.alpha = alpha
+
+ridge = RidgeRegression(alpha=0.5)
+print(ridge.summary())  # "Estimator: Ridge Regression"
+print("Alpha:", ridge.alpha)
+```
+
+<Callout kind="tip">
+  **The `self` Parameter:** Python requires explicitly declaring `self` as the first argument in instance methods, allowing methods to modify or read the calling object's state.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'oop-q1',
+      kind: 'mcq',
+      text: 'What role does `self` serve in Python instance methods?',
+      options: [
+        'It explicitly refers to the specific instance of the class that called the method',
+        'It makes the method a static utility function across all threads',
+        'It imports global variables from the root workspace automatically',
+        'It prevents other classes from inheriting from this class',
+      ],
+      correctIndex: 0,
+      explanation: 'In Python, `self` represents the instance of the class, allowing access to instance attributes and methods.',
+    },
+    {
+      id: 'oop-q2',
+      kind: 'mcq',
+      text: 'In Scikit-learn estimator conventions, what does the `.fit(X, y)` method do?',
+      options: [
+        'Learns model parameters from data and stores them as state attributes on the instance',
+        'Directly evaluates test accuracy on unseen data',
+        'Deletes the dataset to save disk space',
+        'Converts categorical strings into float tensors permanently',
+      ],
+      correctIndex: 0,
+      explanation: '`.fit(X, y)` computes and fits parameters (like weights, means, or variances) from the training data and updates the instance attributes.',
+    },
+    {
+      id: 'oop-q3',
+      kind: 'mcq',
+      text: 'Which function is used in a subclass to call the parent class\'s constructor or methods?',
+      options: [
+        'super()',
+        'parent()',
+        'base()',
+        'inherit()',
+      ],
+      correctIndex: 0,
+      explanation: '`super()` returns a proxy object that delegates method calls to the parent (super) class.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Classes and Objects"
+  oneLiner="Classes encapsulate parameters and behaviors into reusable blueprints; ML libraries use OOP to standardize fit, predict, and neural layer interfaces."
+  takeaways={[
+    '__init__ initializes object state; self explicitly passes the caller instance.',
+    'Scikit-learn and PyTorch standardize training by subclassing base estimators and nn.Module.',
+    'State learned during fit() is preserved on instance variables for subsequent predict() calls.',
+  ]}
+  commonTrap="Calling .transform() or .predict() before calling .fit(): the model parameters have not been computed yet and will raise an attribute error!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="classes-and-objects"
+  topicTitle="Classes and Objects"
+  referenceChecklist={[
+    'Explained the difference between a class and an object instance.',
+    'Described the role of the __init__ constructor and the self parameter.',
+    'Explained the Scikit-learn estimator pattern (.fit() and .predict()).',
+    'Described class inheritance with super().',
+  ]}
+/>
+
+</Section>

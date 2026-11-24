@@ -1,0 +1,192 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+
+export const metadata = {
+  title: 'File I/O, JSON and CSV',
+  description: 'Robust file handling in Python: context managers (with open), serializing JSON configs, parsing CSV datasets, and handling character encodings.',
+};
+
+<Section label="What is it?">
+
+**File Input/Output (I/O)** allows Python programs to persist and read data from storage disks:
+- The **`with open(...)`** context manager guarantees files are closed cleanly even if exceptions occur.
+- **CSV (`csv` module)** reads and writes tabular comma-separated values.
+- **JSON (`json` module)** serializes and deserializes structured dictionaries and lists to universal text notation (`json.dump`, `json.load`).
+- Character encodings (e.g. `encoding="utf-8"`) prevent mojibake and decoding crashes across operating systems.
+
+</Section>
+
+<Section label="Why we need it">
+
+Machine learning projects continuously interact with files:
+- Loading raw tabular datasets: reading `.csv` files row by row or dumping processed features.
+- Persisting training hyperparameters, vocabulary mappings, and label registries in `.json` format.
+- Saving experiment checkpoints, metric histories, and evaluation logs to disk.
+- Writing safe, leak-free code that does not exhaust operating system file descriptors during distributed training.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Context Manager: `with open(...)`
+
+Always open files using the `with` statement. The context manager automatically invokes `.close()` when exiting the block, preventing resource leaks:
+
+```python
+# Writing to a text file safely
+with open("metrics.txt", "w", encoding="utf-8") as f:
+    f.write("epoch,val_loss,val_acc\n")
+    f.write("1,0.45,0.89\n")
+    f.write("2,0.32,0.93\n")
+
+# Reading lines from a file
+with open("metrics.txt", "r", encoding="utf-8") as f:
+    for line in f:
+        print(line.strip())
+```
+
+<Analogy>
+  Opening a file without `with` is like borrowing a book from the library and forgetting to return it: eventually, the library runs out of copies (the OS runs out of file descriptors). A `with` statement is like an automatic return chute: as soon as you finish reading, it returns the book immediately.
+</Analogy>
+
+### 2. Working with JSON Files (`json` module)
+
+JSON is the standard format for configuration files, APIs, and model metadata:
+- `json.dumps(obj)` / `json.dump(obj, f)`: Serializes Python objects to JSON strings or files.
+- `json.loads(s)` / `json.load(f)`: Deserializes JSON strings or files into Python dicts/lists.
+
+```python
+import json
+
+config = {
+    "model_type": "RandomForest",
+    "n_estimators": 100,
+    "max_depth": 10,
+    "features": ["age", "income", "credit_score"],
+}
+
+# Save configuration to disk
+with open("model_config.json", "w", encoding="utf-8") as f:
+    json.dump(config, f, indent=2)
+
+# Load configuration back from disk
+with open("model_config.json", "r", encoding="utf-8") as f:
+    loaded_config = json.load(f)
+
+print("Loaded model type:", loaded_config["model_type"])
+```
+
+### 3. Parsing CSV Files (`csv` module)
+
+For lightweight tabular data processing without installing external libraries:
+
+```python
+import csv
+
+# Writing CSV data
+data = [
+    ["feature_1", "feature_2", "label"],
+    [1.2, 3.4, 0],
+    [5.6, 7.8, 1],
+]
+
+with open("dataset.csv", "w", newline="", encoding="utf-8") as f:
+    writer = csv.writer(f)
+    writer.writerows(data)
+
+# Reading CSV as dictionaries
+with open("dataset.csv", "r", encoding="utf-8") as f:
+    reader = csv.DictReader(f)
+    for row in reader:
+        print(row["feature_1"], "->", row["label"])
+```
+
+<Callout kind="warning">
+  **Always Specify `encoding="utf-8"`:** Windows default encoding is often Windows-1252 or CP1252, whereas macOS/Linux default to UTF-8. Omitting `encoding="utf-8"` will cause cross-platform UnicodeDecodeError crashes when reading non-ASCII characters!
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'io-q1',
+      kind: 'mcq',
+      text: 'Why should you open files using the `with open(...) as f:` syntax in Python?',
+      options: [
+        'It automatically closes the file when the block exits, even if an exception is raised',
+        'It reads files 100x faster than standard open()',
+        'It converts binary images into text strings automatically',
+        'It requires no file path on disk',
+      ],
+      correctIndex: 0,
+      explanation: 'The `with` statement leverages context managers to guarantee that the file descriptor is cleanly closed upon exiting the block, preventing resource leaks.',
+    },
+    {
+      id: 'io-q2',
+      kind: 'mcq',
+      text: 'Which function deserializes a JSON string into a Python dictionary or list?',
+      options: [
+        'json.loads()',
+        'json.dumps()',
+        'json.dump()',
+        'json.write()',
+      ],
+      correctIndex: 0,
+      explanation: '`json.loads()` (load from string) parses a JSON-formatted string into a Python object; `json.load()` reads from a file pointer.',
+    },
+    {
+      id: 'io-q3',
+      kind: 'mcq',
+      text: 'What is the purpose of `newline=""` when writing CSV files using Python\'s `csv.writer` on Windows?',
+      options: [
+        'Prevents blank lines from being erroneously inserted between rows',
+        'Converts all numbers to floating point representation',
+        'Automatically adds column header names',
+        'Compresses the output file into a zip archive',
+      ],
+      correctIndex: 0,
+      explanation: 'On Windows, default newline translation would produce extra carriage returns (`\r\r\n`); passing `newline=""` prevents blank rows in CSV exports.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="File I/O, JSON and CSV"
+  oneLiner="Use `with open(...)` with utf-8 encoding to guarantee leak-free file handling; use `json` for configs/metadata and `csv` for tabular records."
+  takeaways={[
+    'Always use `with open(...)` so file streams close cleanly on completion or error.',
+    'Always specify encoding="utf-8" for universal cross-platform reproducibility.',
+    'json.dump/load operates on files; json.dumps/loads operates on in-memory strings.',
+  ]}
+  commonTrap="Forgetting `json.dump` vs `json.dumps`: `json.dump(data, file_handle)` writes to a file, while `json.dumps(data)` returns a string!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="file-io-json-csv"
+  topicTitle="File I/O, JSON and CSV"
+  referenceChecklist={[
+    'Explained the purpose of context managers with open().',
+    'Differentiated json.dump vs json.dumps.',
+    'Explained why encoding="utf-8" is essential for cross-platform data handling.',
+    'Demonstrated CSV reading with csv.reader or csv.DictReader.',
+  ]}
+/>
+
+</Section>

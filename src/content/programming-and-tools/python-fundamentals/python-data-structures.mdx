@@ -1,0 +1,185 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+
+export const metadata = {
+  title: 'Lists, Dictionaries, Sets and Tuples',
+  description: 'The core built-in data structures of Python: mutability, indexing, hashing, and performance characteristics in machine learning pipelines.',
+};
+
+<Section label="What is it?">
+
+Python provides four fundamental built-in collection data structures:
+- **List (`[]`)**: An ordered, mutable sequence of heterogeneous elements.
+- **Tuple (`()`)**: An ordered, immutable sequence used for fixed records and constant shapes.
+- **Dictionary (`{}`)**: An associative key-value mapping backed by a high-speed hash table with $O(1)$ average lookup time.
+- **Set (`set()`, `{}`)**: An unordered collection of unique, hashable items supporting set-theoretic operations (union, intersection, difference).
+
+</Section>
+
+<Section label="Why we need it">
+
+In machine learning and data engineering:
+- **Lists** store dynamic metrics, training histories, and batches of file paths: `losses.append(batch_loss)`.
+- **Tuples** represent fixed structural dimensions and tensor shapes: `shape = (batch_size, 3, 224, 224)`.
+- **Dictionaries** store hyperparameter configurations, metrics dictionaries, and JSON model weights: `config = {"lr": 1e-3, "epochs": 50}`.
+- **Sets** deduplicate vocabulary tokens, track visited states in reinforcement learning, and compute set overlaps: `vocab = set(tokens)`.
+
+Understanding their time complexities and memory trade-offs prevents computational bottlenecks when processing large datasets.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Lists: Mutable Sequences
+
+Lists are dynamic arrays. Appending to the end is $O(1)$ amortized, while inserting or deleting from the middle is $O(n)$ because remaining elements must shift in memory:
+
+```python
+# List creation and operations
+features = ["area", "bedrooms", "age"]
+features.append("bathrooms")        # Add to end: O(1)
+features.insert(0, "zip_code")      # Insert at front: O(n)
+print("Slice [1:3]:", features[1:3]) # ['area', 'bedrooms']
+```
+
+### 2. Tuples: Immutable Records
+
+Once created, tuple elements cannot be modified, added, or removed. Because they are immutable and hashable (if their contents are hashable), tuples can serve as dictionary keys:
+
+```python
+# Fixed image coordinates and tensor shapes
+img_dims = (1920, 1080)
+spatial_weights = {(0, 1): 0.45, (1, 0): 0.55}
+
+# Unpacking tuples cleanly
+width, height = img_dims
+print(f"Width: {width}, Height: {height}")
+```
+
+<Analogy>
+  Think of a list as a loose-leaf binder where you can add, remove, and reorder pages anytime. A tuple is a printed paperback book: once bound, the pages cannot be modified or re-indexed.
+</Analogy>
+
+### 3. Dictionaries: Fast $O(1)$ Key-Value Hash Maps
+
+Dictionaries map unique keys to values using hash tables. They preserve insertion order (in Python 3.7+):
+
+```python
+metrics = {
+    "train_loss": 0.24,
+    "val_loss": 0.31,
+    "accuracy": 0.945,
+}
+
+# Safe lookup with default fallback
+recall = metrics.get("recall", 0.0)
+
+# Iterating over key-value pairs
+for metric, score in metrics.items():
+    print(f"{metric}: {score:.3f}")
+```
+
+### 4. Sets: Unordered Unique Collections
+
+Sets enforce uniqueness and provide $O(1)$ average membership testing (`x in my_set`):
+
+```python
+corpus_a = {"neural", "network", "gradient", "descent"}
+corpus_b = {"gradient", "boosting", "tree", "forest"}
+
+# Set theoretic operations
+common_words = corpus_a & corpus_b        # Intersection: {'gradient'}
+all_words = corpus_a | corpus_b           # Union
+unique_to_a = corpus_a - corpus_b         # Difference
+```
+
+<Callout kind="warning">
+  **Dictionary & Set Keys Must Be Hashable:** You can use strings, numbers, and tuples as dictionary keys or set members. You **cannot** use mutable objects like lists or other dictionaries (`unhashable type: 'list'`).
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'ds-q1',
+      kind: 'mcq',
+      text: 'Which of the following can be used as a key in a Python dictionary?',
+      options: [
+        'A tuple: `(1, 2)`',
+        'A list: `[1, 2]`',
+        'A set: `{1, 2}`',
+        'A dictionary: `{"a": 1}`',
+      ],
+      correctIndex: 0,
+      explanation: 'Dictionary keys must be hashable and immutable. Tuples are immutable and hashable (provided their elements are hashable), whereas lists, sets, and dictionaries are mutable and unhashable.',
+    },
+    {
+      id: 'ds-q2',
+      kind: 'mcq',
+      text: 'What is the average time complexity for checking membership (`item in collection`) in a Python set of size n?',
+      options: [
+        'O(1)',
+        'O(n)',
+        'O(log n)',
+        'O(n²)',
+      ],
+      correctIndex: 0,
+      explanation: 'Python sets are implemented as hash tables, providing average O(1) constant-time membership lookups, compared to O(n) for lists.',
+    },
+    {
+      id: 'ds-q3',
+      kind: 'mcq',
+      text: 'What is the result of `list(set([3, 1, 3, 2, 1]))`?',
+      options: [
+        'A collection containing {1, 2, 3} with duplicates removed',
+        '[3, 1, 3, 2, 1] preserved in original order',
+        'An error because sets cannot be converted to lists',
+        '[3, 3, 1, 1, 2]',
+      ],
+      correctIndex: 0,
+      explanation: 'Converting a list to a set strips duplicate elements, leaving distinct items 1, 2, and 3.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Lists, Dictionaries, Sets and Tuples"
+  oneLiner="Lists are mutable sequences; tuples are immutable shapes/records; dictionaries are O(1) key-value hash maps; sets are deduplicated unique collections."
+  takeaways={[
+    'Use lists for ordered, dynamic sequences (e.g. loss histories, training batches).',
+    'Use tuples for fixed multidimensional tensor shapes and immutable coordinates.',
+    'Use dictionaries for model configs, metric logs, and parameter lookups.',
+    'Sets provide O(1) membership checks and fast deduplication.',
+  ]}
+  commonTrap="Using `list` for membership checking (`if token in token_list:`) inside a loop over a large corpus — this causes an O(n²) bottleneck. Always convert to a `set` first for O(1) lookups!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="python-data-structures"
+  topicTitle="Lists, Dictionaries, Sets and Tuples"
+  referenceChecklist={[
+    'Explained mutability vs immutability between lists and tuples.',
+    'Explained hash tables and O(1) lookup in dictionaries and sets.',
+    'Gave examples of why tensor shapes are tuples and metrics are dictionaries.',
+    'Mentioned why lists cannot be dictionary keys.',
+  ]}
+/>
+
+</Section>

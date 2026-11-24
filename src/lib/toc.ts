@@ -35,12 +35,12 @@ export const toc: Part[] = [
         slug: 'python-fundamentals',
         title: 'Python Fundamentals',
         subchapters: [
-          { slug: 'variables-loops-functions',     title: 'Variables, Loops and Functions',           estimatedMinutes: 6 },
-          { slug: 'python-data-structures',        title: 'Lists, Dictionaries, Sets and Tuples',      estimatedMinutes: 7 },
-          { slug: 'comprehensions-generators',     title: 'List Comprehensions and Generators',        estimatedMinutes: 6 },
-          { slug: 'classes-and-objects',           title: 'Classes and Objects',                       estimatedMinutes: 7 },
-          { slug: 'file-io-json-csv',              title: 'File I/O, JSON and CSV',                   estimatedMinutes: 6 },
-          { slug: 'error-handling-virtualenv',     title: 'Error Handling and Virtual Environments',   estimatedMinutes: 6 },
+          { slug: 'variables-loops-functions',     title: 'Variables, Loops and Functions',           estimatedMinutes: 6, done: true },
+          { slug: 'python-data-structures',        title: 'Lists, Dictionaries, Sets and Tuples',      estimatedMinutes: 7, done: true },
+          { slug: 'comprehensions-generators',     title: 'List Comprehensions and Generators',        estimatedMinutes: 6, done: true },
+          { slug: 'classes-and-objects',           title: 'Classes and Objects',                       estimatedMinutes: 7, done: true },
+          { slug: 'file-io-json-csv',              title: 'File I/O, JSON and CSV',                   estimatedMinutes: 6, done: true },
+          { slug: 'error-handling-virtualenv',     title: 'Error Handling and Virtual Environments',   estimatedMinutes: 6, done: true },
         ],
       },
       {

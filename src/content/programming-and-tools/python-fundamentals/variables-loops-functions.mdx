@@ -1,0 +1,200 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+
+export const metadata = {
+  title: 'Variables, Loops and Functions',
+  description: 'Core syntax, dynamic typing, control flow, loops, and modular function definitions in modern Python for machine learning.',
+};
+
+<Section label="What is it?">
+
+Python is a dynamically typed, high-level programming language that forms the lingua franca of machine learning and modern data science.
+
+In Python:
+- **Variables** are references (names) assigned to objects stored in memory.
+- **Control flow** (`if`, `elif`, `else`) evaluates Boolean expressions to branch program execution.
+- **Loops** (`for`, `while`) iterate over collections, batches, and numerical sequences.
+- **Functions** (`def`, `lambda`) package reusable logic, parameterize transformations, and accept arguments (`*args`, `**kwargs`) to build modular ML training pipelines.
+
+</Section>
+
+<Section label="Why we need it">
+
+Every machine learning workflow relies on Python control flow:
+- Iterating over training epochs and mini-batches: `for epoch in range(num_epochs):`.
+- Applying learning rate decay or early stopping: `if val_loss < best_loss: best_loss = val_loss`.
+- Creating modular data preprocessing and evaluation functions: `def compute_accuracy(y_true, y_pred):`.
+- Flexible parameter unpacking for deep learning layers and training configurations: `def forward(self, *inputs, **kwargs):`.
+
+Mastering core Python syntax guarantees you write clean, idiomatic, bug-free machine learning algorithms.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Variables and Dynamic Typing
+
+Unlike statically typed languages like C++ or Java, Python variables do not require an explicit type declaration. Variable names point to objects in heap memory:
+
+```python
+learning_rate = 0.01          # float
+batch_size = 64               # int
+model_name = "ResNet-50"      # str
+is_training = True            # bool
+loss_history = [0.82, 0.65]   # list
+```
+
+<Analogy>
+  Think of Python variables as sticky tags on physical boxes. The box holds the data (e.g. integer 64), and the tag (`batch_size`) just points to that box. You can move the sticky tag to another box at any time.
+</Analogy>
+
+### 2. Control Flow: Conditional Branching
+
+Python uses indentation (4 spaces) rather than curly braces `{}` to define code blocks:
+
+```python
+val_loss = 0.35
+best_loss = 0.40
+
+if val_loss < best_loss:
+    print("New checkpoint saved!")
+    best_loss = val_loss
+elif val_loss == best_loss:
+    print("Loss plateaued.")
+else:
+    print("Validation loss increased — check for overfitting.")
+```
+
+### 3. Iteration: `for` and `while` Loops
+
+In ML, `for` loops iterate over datasets, tensors, and training iterations:
+
+```python
+# Iterating over a sequence using range()
+epochs = 5
+for epoch in range(1, epochs + 1):
+    print(f"Epoch {epoch}/{epochs} running...")
+
+# Using enumerate to track batch indices and values
+batches = ["batch_0", "batch_1", "batch_2"]
+for batch_idx, data in enumerate(batches):
+    print(f"Processing batch {batch_idx}: {data}")
+```
+
+### 4. Functions, Return Values, and Default Parameters
+
+Functions encapsulate computational steps:
+
+```python
+def linear_prediction(x, weight=2.5, bias=1.0):
+    """Computes y_hat = w * x + b."""
+    return weight * x + bias
+
+y_hat = linear_prediction(x=4.0)
+print("Predicted:", y_hat)  # 2.5 * 4.0 + 1.0 = 11.0
+```
+
+### 5. Arbitrary Arguments: `*args` and `**kwargs`
+
+Machine learning libraries (like PyTorch and Scikit-learn) make heavy use of argument unpacking:
+- `*args`: Collects positional arguments as a **tuple**.
+- `**kwargs`: Collects keyword arguments as a **dictionary**.
+
+```python
+def build_pipeline(dataset, *layers, **hyperparams):
+    print("Dataset:", dataset)
+    print("Layers to stack:", layers)          # ('Conv2D', 'ReLU', 'Dense')
+    print("Hyperparameters:", hyperparams)    # {'lr': 0.001, 'decay': 1e-4}
+
+build_pipeline("MNIST", "Conv2D", "ReLU", "Dense", lr=0.001, decay=1e-4)
+```
+
+<Callout kind="tip">
+  **Lambda Functions:** Quick, one-line anonymous functions useful for sorting or passing inline transformations: `square = lambda x: x ** 2`.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'py-q1',
+      kind: 'mcq',
+      text: 'What is the output of the following code snippet: `def f(x, w=2): return x * w + 1` evaluated at `f(3)`?',
+      options: [
+        '7',
+        '6',
+        '5',
+        'Error: w is missing',
+      ],
+      correctIndex: 0,
+      explanation: 'Since w has a default value of 2, f(3) evaluates as 3 * 2 + 1 = 7.',
+    },
+    {
+      id: 'py-q2',
+      kind: 'mcq',
+      text: 'In Python function signatures, what data type does `**kwargs` collect arguments into?',
+      options: [
+        'A dictionary (dict) of keyword arguments',
+        'A tuple of positional arguments',
+        'A set of unique argument names',
+        'A list of key-value pairs',
+      ],
+      correctIndex: 0,
+      explanation: '`*args` collects extra positional arguments into a tuple, while `**kwargs` collects arbitrary keyword arguments into a standard Python dictionary.',
+    },
+    {
+      id: 'py-q3',
+      kind: 'mcq',
+      text: 'What will `enumerate(["a", "b", "c"], start=1)` yield in its first iteration?',
+      options: [
+        '(1, "a")',
+        '(0, "a")',
+        '("a", 1)',
+        '1',
+      ],
+      correctIndex: 0,
+      explanation: '`enumerate(iterable, start=1)` yields tuples of (index, element) beginning at index 1, so the first yield is (1, "a").',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Variables, Loops and Functions"
+  oneLiner="Python binds dynamic names to objects, branches via indentation, iterates with for/while loops, and modularizes logic with functions accepting default args, *args, and **kwargs."
+  takeaways={[
+    'Python uses 4-space indentation to enforce readable, bracket-free block scoping.',
+    '*args gathers extra positional inputs into a tuple; **kwargs gathers named inputs into a dictionary.',
+    'Default arguments evaluate only once when the function is defined — never use mutable defaults like [] or {}.',
+  ]}
+  commonTrap="Using a mutable default argument: `def append_loss(loss, history=[]):` shares that same list across all future function invocations!"
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="variables-loops-functions"
+  topicTitle="Variables, Loops and Functions"
+  referenceChecklist={[
+    'Explained dynamic typing vs static typing in Python.',
+    'Described how indentation replaces curly brackets for code blocks.',
+    'Explained the difference between *args and **kwargs in functions.',
+    'Connected loop control flow to training epochs and validation loss tracking.',
+  ]}
+/>
+
+</Section>
