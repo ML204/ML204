@@ -1,7 +1,7 @@
 'use client';
 
+import { Capacitor, CapacitorHttp } from '@capacitor/core';
 import { isDeviceOnline } from './resourceDownload';
-import { Capacitor } from '@capacitor/core';
 import { openExternalUrl } from './externalLinks';
 
 export const CURRENT_APP_VERSION = '1.0.0';
@@ -45,55 +45,111 @@ export function compareSemver(v1: string, v2: string): number {
 }
 
 /**
- * Checks for application updates from production version metadata or GitHub Releases.
+ * Robust JSON fetcher with guaranteed timeout and native CapacitorHttp support.
  */
-export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
-  const online = await isDeviceOnline();
-  if (!online) {
-    return {
-      status: 'offline',
-      currentVersion: CURRENT_APP_VERSION,
-      errorMessage: 'You are offline. Connect to the internet to check for updates.',
-    };
+async function fetchJsonWithTimeout<T>(url: string, timeoutMs = 4000): Promise<T | null> {
+  const isNative = Capacitor.isNativePlatform();
+
+  // On Native Android/iOS: use CapacitorHttp (Java/Obj-C HTTP stack) to bypass WebView socket limits
+  if (isNative) {
+    try {
+      const response = await CapacitorHttp.get({
+        url,
+        connectTimeout: timeoutMs,
+        readTimeout: timeoutMs,
+        headers: {
+          'Cache-Control': 'no-cache',
+          Accept: 'application/json',
+        },
+      });
+      if (response.status === 200 && response.data) {
+        return typeof response.data === 'string' ? JSON.parse(response.data) : (response.data as T);
+      }
+    } catch (err) {
+      console.warn('[AppUpdater] CapacitorHttp failed for url:', url, err);
+    }
   }
 
-  // 1. Primary: fetch from high-speed production server (avoids GitHub rate limits)
+  // Web or fallback: standard fetch with AbortController timeout
   try {
-    const res = await fetch(`https://mlens-theta.vercel.app/version.json?_t=${Date.now()}`, {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { Accept: 'application/json' },
       cache: 'no-store',
     });
+    clearTimeout(timer);
+
     if (res.ok) {
-      const data = (await res.json()) as VersionInfo;
-      const isNewer = compareSemver(data.version, CURRENT_APP_VERSION) > 0;
+      return (await res.json()) as T;
+    }
+  } catch (err) {
+    console.warn('[AppUpdater] Web fetch failed for url:', url, err);
+  }
+
+  return null;
+}
+
+/**
+ * Checks for application updates from production version metadata or GitHub Releases.
+ * Guaranteed to resolve within 5 seconds.
+ */
+export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
+  try {
+    // 1. Fast connectivity check with timeout
+    const online = await Promise.race([
+      isDeviceOnline(),
+      new Promise<boolean>((resolve) => setTimeout(() => resolve(true), 1500)),
+    ]);
+
+    if (!online) {
+      return {
+        status: 'offline',
+        currentVersion: CURRENT_APP_VERSION,
+        errorMessage: 'You are offline. Connect to the internet to check for updates.',
+      };
+    }
+
+    // 2. Primary check: Vercel CDN metadata
+    const versionUrl = `https://mlens-theta.vercel.app/version.json?_t=${Date.now()}`;
+    const primaryData = await fetchJsonWithTimeout<VersionInfo>(versionUrl, 3500);
+
+    if (primaryData && primaryData.version) {
+      const isNewer = compareSemver(primaryData.version, CURRENT_APP_VERSION) > 0;
       return {
         status: isNewer ? 'update_available' : 'up_to_date',
         currentVersion: CURRENT_APP_VERSION,
-        latestVersion: data.version,
-        versionInfo: data,
+        latestVersion: primaryData.version,
+        versionInfo: primaryData,
       };
     }
-  } catch (err) {
-    console.warn('[AppUpdater] Primary version check failed, attempting GitHub API fallback:', err);
-  }
 
-  // 2. Fallback: query GitHub Releases API
-  try {
-    const ghRes = await fetch('https://api.github.com/repos/ML204/ML204/releases/latest', {
-      headers: { Accept: 'application/vnd.github.v3+json' },
-    });
-    if (ghRes.ok) {
-      const release = await ghRes.json();
-      const tagName = (release.tag_name || '').replace(/^v/, '');
-      const apkAsset = release.assets?.find((a: { name?: string }) => a.name?.endsWith('.apk'));
-      const apkUrl = apkAsset?.browser_download_url || `https://github.com/ML204/ML204/releases/download/${release.tag_name}/app.apk`;
+    // 3. Fallback: GitHub Releases API
+    const ghUrl = 'https://api.github.com/repos/ML204/ML204/releases/latest';
+    interface GhRelease {
+      tag_name: string;
+      name?: string;
+      published_at?: string;
+      body?: string;
+      html_url?: string;
+      assets?: Array<{ name?: string; browser_download_url?: string }>;
+    }
+    const ghRelease = await fetchJsonWithTimeout<GhRelease>(ghUrl, 3500);
+
+    if (ghRelease && ghRelease.tag_name) {
+      const tagName = ghRelease.tag_name.replace(/^v/, '');
+      const apkAsset = ghRelease.assets?.find((a) => a.name?.endsWith('.apk'));
+      const apkUrl = apkAsset?.browser_download_url || `https://github.com/ML204/ML204/releases/download/${ghRelease.tag_name}/app.apk`;
 
       const versionInfo: VersionInfo = {
         version: tagName,
-        name: release.name || `ML204 v${tagName}`,
-        releaseDate: release.published_at ? release.published_at.split('T')[0] : undefined,
+        name: ghRelease.name || `ML204 v${tagName}`,
+        releaseDate: ghRelease.published_at ? ghRelease.published_at.split('T')[0] : undefined,
         apkUrl,
-        releaseNotesUrl: release.html_url || `https://github.com/ML204/ML204/releases/tag/${release.tag_name}`,
-        notes: release.body || undefined,
+        releaseNotesUrl: ghRelease.html_url || `https://github.com/ML204/ML204/releases/tag/${ghRelease.tag_name}`,
+        notes: ghRelease.body || undefined,
       };
 
       const isNewer = compareSemver(tagName, CURRENT_APP_VERSION) > 0;
@@ -104,15 +160,20 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
         versionInfo,
       };
     }
-  } catch (err) {
-    console.error('[AppUpdater] GitHub fallback failed:', err);
-  }
 
-  return {
-    status: 'error',
-    currentVersion: CURRENT_APP_VERSION,
-    errorMessage: 'Could not connect to update server. Please try again later.',
-  };
+    return {
+      status: 'error',
+      currentVersion: CURRENT_APP_VERSION,
+      errorMessage: 'Could not connect to update server. Check your connection.',
+    };
+  } catch (err) {
+    console.error('[AppUpdater] Unexpected error checking update:', err);
+    return {
+      status: 'error',
+      currentVersion: CURRENT_APP_VERSION,
+      errorMessage: 'Unable to check for updates right now.',
+    };
+  }
 }
 
 /**
@@ -140,12 +201,10 @@ export async function downloadAppUpdate(apkUrl: string, latestVersion: string = 
       }
     }
 
-    // Fallback: open in external browser
     openExternalUrl(apkUrl);
     return true;
   }
 
-  // Web fallback: standard anchor download
   if (typeof window !== 'undefined') {
     const a = document.createElement('a');
     a.href = apkUrl;

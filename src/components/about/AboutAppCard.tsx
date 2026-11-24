@@ -18,17 +18,32 @@ export function AboutAppCard() {
   const [updateResult, setUpdateResult] = useState<UpdateCheckResult | null>(null);
 
   async function handleCheckUpdate() {
+    if (checking) return;
     setChecking(true);
+    setUpdateResult(null);
+
+    const safetyTimer = setTimeout(() => {
+      setChecking(false);
+      setUpdateResult({
+        status: 'error',
+        currentVersion: CURRENT_APP_VERSION,
+        errorMessage: 'Update check timed out. Please check your connection.',
+      });
+    }, 5000);
+
     try {
       const result = await checkForAppUpdate();
+      clearTimeout(safetyTimer);
       setUpdateResult(result);
     } catch {
+      clearTimeout(safetyTimer);
       setUpdateResult({
         status: 'error',
         currentVersion: CURRENT_APP_VERSION,
         errorMessage: 'Failed to verify updates.',
       });
     } finally {
+      clearTimeout(safetyTimer);
       setChecking(false);
     }
   }
