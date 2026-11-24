@@ -8,8 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "sync:resources": "node scripts/sync-resources-manifest.mjs",
-    "prune:android": "node scripts/prune-android-resources.mjs",
-    "cap:sync": "next build && npx cap sync android && node scripts/prune-android-resources.mjs"
+    "package:web": "next build && cd out && zip -q -r ../web-build.zip . && cd .."
   },
   "dependencies": {
     "@capacitor/app": "^8.1.2",
@@ -40,8 +39,6 @@
     "tailwind-merge": "^2.5.4"
   },
   "devDependencies": {
-    "@capacitor/android": "^8.6.2",
-    "@capacitor/cli": "^8.6.2",
     "@types/d3": "^7.4.3",
     "@types/katex": "^0.16.7",
     "@types/node": "^20",
