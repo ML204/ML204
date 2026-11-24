@@ -272,3 +272,70 @@
     transform: scale(0.95);
   }
 }
+
+/* ==========================================================================
+   Python Editor Syntax Highlighting Theme (VS Code / Tokyo Night Style)
+   ========================================================================== */
+.token.comment,
+.token.prolog,
+.token.doctype,
+.token.cdata {
+  color: #565f89;
+  font-style: italic;
+}
+
+.token.punctuation {
+  color: #8994bb;
+}
+
+.token.keyword {
+  color: #bb9af7;
+  font-weight: 600;
+}
+
+.token.function,
+.token.class-name {
+  color: #7aa2f7;
+  font-weight: 600;
+}
+
+.token.string,
+.token.triple-quoted-string,
+.token.char,
+.token.attr-value {
+  color: #9ece6a;
+}
+
+.token.number,
+.token.boolean,
+.token.constant {
+  color: #ff9e64;
+}
+
+.token.builtin {
+  color: #e0af68;
+  font-weight: 500;
+}
+
+.token.operator,
+.token.entity,
+.token.url {
+  color: #89ddff;
+}
+
+.token.decorator,
+.token.annotation {
+  color: #e0af68;
+  font-style: italic;
+}
+
+.token.variable,
+.token.property {
+  color: #c0caf5;
+}
+
+.token.regex,
+.token.important {
+  color: #f7768e;
+}
+
