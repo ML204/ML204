@@ -1,6 +1,6 @@
 # Contributing to ML204 📖
 
-Welcome to **ML204**! We are building a free, visual, interactive machine learning textbook for high school and undergraduate students.
+Welcome to **ML204**! We are building a free, visual, interactive machine learning textbook for college and undergraduate students.
 
 To support **10 to 20 contributors** working concurrently without stepping on each other's toes or causing merge conflicts, please follow this topic-distribution guide.
 

@@ -19,7 +19,7 @@ export default function HomePage() {
         </h1>
         <p className="text-base sm:text-lg text-slate-600 max-w-2xl mx-auto leading-relaxed">
           Drag a point. Move a slider. Watch the idea come alive. A free interactive
-          textbook for high school and undergraduate students — no coding required.
+          textbook for college and undergraduate students — no coding required.
         </p>
         <HomeHeroActions />
       </div>

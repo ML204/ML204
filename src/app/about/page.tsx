@@ -26,7 +26,7 @@ export default function AboutPage() {
         </h1>
         <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
           ML204 is a free, visual, and interactive machine learning textbook engineered
-          for high school and undergraduate students. It strips away dense code boilerplate
+          for college and undergraduate students. It strips away dense code boilerplate
           to focus purely on geometric intuition, mathematical rigor, and visual discovery.
         </p>
       </div>

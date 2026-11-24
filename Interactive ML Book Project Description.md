@@ -6,7 +6,7 @@ Prepared for Hamim · November 22, 2026 · Draft v1
 
 The Interactive ML Book is a free, book-style learning website that teaches machine learning through **editable figures**. Instead of only reading about a concept, the student changes a value, drags a point or moves a slider and watches the figure respond. Every topic is explained in simple language and in depth, so that a student can understand it, explain it to a friend and teach it to others.
 
-The platform is for students from high school to undergraduate level. It launches in English, with Bangla support planned for a later phase. It follows the structure of the ML learning checklist, without the IoT/TinyML section and without programming: the platform teaches theory only.
+The platform is for students from college to undergraduate level. It launches in English, with Bangla support planned for a later phase. It follows the structure of the ML learning checklist, without the IoT/TinyML section and without programming: the platform teaches theory only.
 
 ## 2. Vision and Goals
 
