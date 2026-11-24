@@ -46,18 +46,11 @@ function getFileMeta(name: string, ext: string) {
 }
 
 export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResourceFilesProps) {
-  const [copied, setCopied] = useState(false);
   const [offlineModalOpen, setOfflineModalOpen] = useState(false);
   const [activeFileName, setActiveFileName] = useState<string>('');
   const loc = getTopicLocation(topicSlug);
   const relPath = loc ? `${loc.partSlug}/${loc.chapterSlug}/${topicSlug}` : topicSlug;
-  const dirPath = `ML204/resources/${relPath}/`;
-
-  function copyPath() {
-    navigator.clipboard.writeText(dirPath);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
+  const githubFolderUrl = `https://github.com/ML204/resources/tree/main/${relPath}`;
 
   async function handleDownload(file: TopicFile) {
     setActiveFileName(file.name);
@@ -75,7 +68,7 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
   return (
     <>
       <div className="my-8 rounded-2xl border border-[#ded5bd] bg-[#fcfaf2]/95 p-6 shadow-2xs">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+        <div className="flex items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2.5">
             <span className="text-xl">📁</span>
             <div>
@@ -93,14 +86,21 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
             </div>
           </div>
 
-          <button
-            onClick={copyPath}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-mono font-medium rounded-xl border border-slate-200 bg-slate-50 hover:bg-brand-50 hover:text-brand-600 text-slate-600 transition-colors self-start sm:self-auto shadow-2xs"
-            title="Click to copy directory path"
+          <a
+            href={githubFolderUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => {
+              if (Capacitor.isNativePlatform()) {
+                e.preventDefault();
+                openExternalUrl(githubFolderUrl);
+              }
+            }}
+            className="text-xs font-semibold text-slate-600 hover:text-brand-600 transition-colors flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200/80 bg-white hover:bg-slate-50 shadow-2xs"
           >
-            <span>{dirPath}</span>
-            <span>{copied ? '✓ Copied' : '📋'}</span>
-          </button>
+            <span>GitHub</span>
+            <span className="text-[10px]">↗</span>
+          </a>
         </div>
 
         {files.length > 0 ? (
