@@ -1,72 +1,4 @@
 {
-  "vectors-and-matrices": {
-    "part": "math-foundations",
-    "chapter": "linear-algebra",
-    "sub": "vectors-and-matrices",
-    "files": [
-      {
-        "name": "Vectors_and_Matrices_Summary.md",
-        "size": "567 B",
-        "extension": "md"
-      }
-    ]
-  },
-  "gradient-descent": {
-    "part": "math-foundations",
-    "chapter": "calculus",
-    "sub": "gradient-descent",
-    "files": [
-      {
-        "name": "Gradient_Descent_Summary.md",
-        "size": "1.0 KB",
-        "extension": "md"
-      }
-    ]
-  },
-  "ordinary-least-squares": {
-    "part": "classical-ml",
-    "chapter": "supervised-regression",
-    "sub": "ordinary-least-squares",
-    "files": [
-      {
-        "name": "OLS.pdf",
-        "size": "279.3 KB",
-        "extension": "pdf"
-      },
-      {
-        "name": "OLS_matrix_notes.tex",
-        "size": "16.2 KB",
-        "extension": "tex"
-      },
-      {
-        "name": "Ordinary_Least_Squares_Summary.md",
-        "size": "2.0 KB",
-        "extension": "md"
-      }
-    ]
-  },
-  "ridge-regression": {
-    "part": "classical-ml",
-    "chapter": "supervised-regression",
-    "sub": "ridge-regression",
-    "files": [
-      {
-        "name": "Ridge_Regression_Notes.tex",
-        "size": "34.5 KB",
-        "extension": "tex"
-      },
-      {
-        "name": "Ridge_Regression_Summary.md",
-        "size": "1.7 KB",
-        "extension": "md"
-      },
-      {
-        "name": "Ridge_regression.pdf",
-        "size": "877.7 KB",
-        "extension": "pdf"
-      }
-    ]
-  },
   "lasso-regression": {
     "part": "classical-ml",
     "chapter": "supervised-regression",
@@ -106,6 +38,28 @@
       }
     ]
   },
+  "ordinary-least-squares": {
+    "part": "classical-ml",
+    "chapter": "supervised-regression",
+    "sub": "ordinary-least-squares",
+    "files": [
+      {
+        "name": "OLS.pdf",
+        "size": "279.3 KB",
+        "extension": "pdf"
+      },
+      {
+        "name": "OLS_matrix_notes.tex",
+        "size": "16.2 KB",
+        "extension": "tex"
+      },
+      {
+        "name": "Ordinary_Least_Squares_Summary.md",
+        "size": "2.0 KB",
+        "extension": "md"
+      }
+    ]
+  },
   "polynomial-regression": {
     "part": "classical-ml",
     "chapter": "supervised-regression",
@@ -123,31 +77,283 @@
       }
     ]
   },
-  "model-evaluation-plots": {
-    "part": "programming-and-tools",
-    "chapter": "visualization",
-    "sub": "model-evaluation-plots",
+  "ridge-regression": {
+    "part": "classical-ml",
+    "chapter": "supervised-regression",
+    "sub": "ridge-regression",
     "files": [
       {
-        "name": "matplotlib_visualization_homework.ipynb",
-        "size": "319.7 KB",
+        "name": "Ridge_Regression_Notes.tex",
+        "size": "34.5 KB",
+        "extension": "tex"
+      },
+      {
+        "name": "Ridge_Regression_Summary.md",
+        "size": "1.7 KB",
+        "extension": "md"
+      },
+      {
+        "name": "Ridge_regression.pdf",
+        "size": "877.7 KB",
+        "extension": "pdf"
+      }
+    ]
+  },
+  "gradient-descent": {
+    "part": "math-foundations",
+    "chapter": "calculus",
+    "sub": "gradient-descent",
+    "files": [
+      {
+        "name": "Gradient_Descent_Summary.md",
+        "size": "1.0 KB",
+        "extension": "md"
+      }
+    ]
+  },
+  "vectors-and-matrices": {
+    "part": "math-foundations",
+    "chapter": "linear-algebra",
+    "sub": "vectors-and-matrices",
+    "files": [
+      {
+        "name": "Vectors_and_Matrices_Summary.md",
+        "size": "567 B",
+        "extension": "md"
+      }
+    ]
+  },
+  "numpy-arrays-and-shapes": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-arrays-and-shapes",
+    "files": [
+      {
+        "name": "NumPy_Arrays_and_Shapes_Comprehensive_Guide.ipynb",
+        "size": "89.0 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "NumPy_Arrays_and_Shapes_Exercise_Solutions.ipynb",
+        "size": "20.0 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "NumPy_Arrays_and_Shapes_Practice_Exercise.ipynb",
+        "size": "9.8 KB",
         "extension": "ipynb"
       }
     ]
   },
-  "seaborn-statistical-graphics": {
+  "numpy-broadcasting": {
     "part": "programming-and-tools",
-    "chapter": "visualization",
-    "sub": "seaborn-statistical-graphics",
+    "chapter": "numpy",
+    "sub": "numpy-broadcasting",
     "files": [
       {
-        "name": "matplotlib_seaborn_case_study.ipynb",
-        "size": "1.2 MB",
+        "name": "NumPy_Array_Broadcasting_and_Operations_Homework.ipynb",
+        "size": "314.8 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-indexing-and-slicing": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-indexing-and-slicing",
+    "files": [
+      {
+        "name": "NumPy_Indexing_and_Data_Manipulation_Guide.ipynb",
+        "size": "202.3 KB",
         "extension": "ipynb"
       },
       {
-        "name": "matplotlib_seaborn_case_study_solutions.ipynb",
-        "size": "1.0 MB",
+        "name": "NumPy_Indexing_and_Data_Manipulation_Solutions.ipynb",
+        "size": "40.3 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-linear-algebra": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-linear-algebra",
+    "files": [
+      {
+        "name": "NumPy_Linear_Algebra_and_Normal_Equation_Exercise.ipynb",
+        "size": "9.9 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "NumPy_Linear_Algebra_and_Normal_Equation_Solutions.ipynb",
+        "size": "22.2 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-vectorization": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-vectorization",
+    "files": [
+      {
+        "name": "NumPy_Vectorized_Operations_and_Distance_Exercise.ipynb",
+        "size": "9.9 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "NumPy_Vectorized_Operations_and_Distance_Solutions.ipynb",
+        "size": "22.2 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-data-ingestion": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-data-ingestion",
+    "files": [
+      {
+        "name": "Pandas_Data_Ingestion_and_Cleaning_Guide.ipynb",
+        "size": "643.3 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "Pandas_Data_Ingestion_and_Cleaning_Solutions.ipynb",
+        "size": "106.2 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-filtering-and-sorting": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-filtering-and-sorting",
+    "files": [
+      {
+        "name": "Pandas_Selecting_Filtering_and_Sorting_Exercise.ipynb",
+        "size": "15.7 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "Pandas_Selecting_Filtering_and_Sorting_Solutions.ipynb",
+        "size": "54.3 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-groupby-and-aggregations": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-groupby-and-aggregations",
+    "files": [
+      {
+        "name": "Pandas_GroupBy_and_Aggregations_Homework.ipynb",
+        "size": "319.2 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-joins-and-merges": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-joins-and-merges",
+    "files": [
+      {
+        "name": "Pandas_Merging_Joining_and_Concatenating_Exercise.ipynb",
+        "size": "15.7 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "Pandas_Merging_Joining_and_Concatenating_Solutions.ipynb",
+        "size": "54.3 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-series-and-dataframes": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-series-and-dataframes",
+    "files": [
+      {
+        "name": "Pandas_Series_and_DataFrames_Comprehensive_Guide.ipynb",
+        "size": "226.4 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "Pandas_Series_and_DataFrames_Exercise_Solutions.ipynb",
+        "size": "54.9 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "Pandas_Series_and_DataFrames_Practice_Exercise.ipynb",
+        "size": "13.0 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "classes-and-objects": {
+    "part": "programming-and-tools",
+    "chapter": "python-fundamentals",
+    "sub": "classes-and-objects",
+    "files": [
+      {
+        "name": "Python_Classes_and_Objects_Reference.py",
+        "size": "238 B",
+        "extension": "py"
+      }
+    ]
+  },
+  "comprehensions-generators": {
+    "part": "programming-and-tools",
+    "chapter": "python-fundamentals",
+    "sub": "comprehensions-generators",
+    "files": [
+      {
+        "name": "Python_List_Comprehensions_and_Lambdas.py",
+        "size": "89 B",
+        "extension": "py"
+      }
+    ]
+  },
+  "file-io-json-csv": {
+    "part": "programming-and-tools",
+    "chapter": "python-fundamentals",
+    "sub": "file-io-json-csv",
+    "files": [
+      {
+        "name": "Python_File_IO_and_CSV_Processing.py",
+        "size": "2.9 KB",
+        "extension": "py"
+      }
+    ]
+  },
+  "python-data-structures": {
+    "part": "programming-and-tools",
+    "chapter": "python-fundamentals",
+    "sub": "python-data-structures",
+    "files": [
+      {
+        "name": "Python_Lists_Tuples_and_Arrays_Reference.py",
+        "size": "283 B",
+        "extension": "py"
+      }
+    ]
+  },
+  "variables-loops-functions": {
+    "part": "programming-and-tools",
+    "chapter": "python-fundamentals",
+    "sub": "variables-loops-functions",
+    "files": [
+      {
+        "name": "Python_Functions_and_Scopes_Reference.py",
+        "size": "526 B",
+        "extension": "py"
+      },
+      {
+        "name": "Python_Variables_Loops_and_Functions_Guide.ipynb",
+        "size": "138.5 KB",
         "extension": "ipynb"
       }
     ]
@@ -158,12 +364,12 @@
     "sub": "diagnostic-charts",
     "files": [
       {
-        "name": "04_matplotlib_exercise_2.ipynb",
+        "name": "Diagnostic_Charts_and_Heatmaps_Exercise.ipynb",
         "size": "18.5 KB",
         "extension": "ipynb"
       },
       {
-        "name": "05_matplotlib_exercise_2_solutions.ipynb",
+        "name": "Diagnostic_Charts_and_Heatmaps_Solutions.ipynb",
         "size": "36.7 KB",
         "extension": "ipynb"
       }
@@ -175,188 +381,47 @@
     "sub": "matplotlib-fundamentals",
     "files": [
       {
-        "name": "01_matplotlib_comprehensive_guide.ipynb",
+        "name": "Matplotlib_Fundamentals_Comprehensive_Guide.ipynb",
         "size": "120.0 KB",
         "extension": "ipynb"
       },
       {
-        "name": "02_matplotlib_exercise_1.ipynb",
-        "size": "14.1 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "03_matplotlib_exercise_1_solutions.ipynb",
+        "name": "Matplotlib_Fundamentals_Exercise_Solutions.ipynb",
         "size": "29.4 KB",
         "extension": "ipynb"
-      }
-    ]
-  },
-  "numpy-indexing-and-slicing": {
-    "part": "programming-and-tools",
-    "chapter": "numpy",
-    "sub": "numpy-indexing-and-slicing",
-    "files": [
-      {
-        "name": "numpy_data_manipulation_guide.ipynb",
-        "size": "202.3 KB",
-        "extension": "ipynb"
       },
       {
-        "name": "numpy_data_manipulation_solutions.ipynb",
-        "size": "40.3 KB",
+        "name": "Matplotlib_Fundamentals_Practice_Exercise.ipynb",
+        "size": "14.1 KB",
         "extension": "ipynb"
       }
     ]
   },
-  "numpy-vectorization": {
+  "model-evaluation-plots": {
     "part": "programming-and-tools",
-    "chapter": "numpy",
-    "sub": "numpy-vectorization",
+    "chapter": "visualization",
+    "sub": "model-evaluation-plots",
     "files": [
       {
-        "name": "04_numpy_exercise_2.ipynb",
-        "size": "9.9 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "05_numpy_exercise_2_solutions.ipynb",
-        "size": "22.2 KB",
+        "name": "Model_Evaluation_and_Diagnostic_Plots_Homework.ipynb",
+        "size": "319.7 KB",
         "extension": "ipynb"
       }
     ]
   },
-  "numpy-arrays-and-shapes": {
+  "seaborn-statistical-graphics": {
     "part": "programming-and-tools",
-    "chapter": "numpy",
-    "sub": "numpy-arrays-and-shapes",
+    "chapter": "visualization",
+    "sub": "seaborn-statistical-graphics",
     "files": [
       {
-        "name": "01_numpy_comprehensive_guide.ipynb",
-        "size": "89.0 KB",
+        "name": "Seaborn_Statistical_Plots_Case_Study.ipynb",
+        "size": "1.2 MB",
         "extension": "ipynb"
       },
       {
-        "name": "02_numpy_exercise_1.ipynb",
-        "size": "9.8 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "03_numpy_exercise_1_solutions.ipynb",
-        "size": "20.0 KB",
-        "extension": "ipynb"
-      }
-    ]
-  },
-  "numpy-linear-algebra": {
-    "part": "programming-and-tools",
-    "chapter": "numpy",
-    "sub": "numpy-linear-algebra",
-    "files": [
-      {
-        "name": "04_numpy_exercise_2.ipynb",
-        "size": "9.9 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "05_numpy_exercise_2_solutions.ipynb",
-        "size": "22.2 KB",
-        "extension": "ipynb"
-      }
-    ]
-  },
-  "numpy-broadcasting": {
-    "part": "programming-and-tools",
-    "chapter": "numpy",
-    "sub": "numpy-broadcasting",
-    "files": [
-      {
-        "name": "numpy_broadcasting_homework.ipynb",
-        "size": "314.8 KB",
-        "extension": "ipynb"
-      }
-    ]
-  },
-  "pandas-series-and-dataframes": {
-    "part": "programming-and-tools",
-    "chapter": "pandas",
-    "sub": "pandas-series-and-dataframes",
-    "files": [
-      {
-        "name": "01_pandas_easy_guide.ipynb",
-        "size": "226.4 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "02_pandas_exercise_1.ipynb",
-        "size": "13.0 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "03_pandas_exercise_1_solutions.ipynb",
-        "size": "54.9 KB",
-        "extension": "ipynb"
-      }
-    ]
-  },
-  "pandas-joins-and-merges": {
-    "part": "programming-and-tools",
-    "chapter": "pandas",
-    "sub": "pandas-joins-and-merges",
-    "files": [
-      {
-        "name": "04_pandas_exercise_2.ipynb",
-        "size": "15.7 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "05_pandas_exercise_2_solutions.ipynb",
-        "size": "54.3 KB",
-        "extension": "ipynb"
-      }
-    ]
-  },
-  "pandas-filtering-and-sorting": {
-    "part": "programming-and-tools",
-    "chapter": "pandas",
-    "sub": "pandas-filtering-and-sorting",
-    "files": [
-      {
-        "name": "04_pandas_exercise_2.ipynb",
-        "size": "15.7 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "05_pandas_exercise_2_solutions.ipynb",
-        "size": "54.3 KB",
-        "extension": "ipynb"
-      }
-    ]
-  },
-  "pandas-data-ingestion": {
-    "part": "programming-and-tools",
-    "chapter": "pandas",
-    "sub": "pandas-data-ingestion",
-    "files": [
-      {
-        "name": "pandas_data_cleaning_guide.ipynb",
-        "size": "643.3 KB",
-        "extension": "ipynb"
-      },
-      {
-        "name": "pandas_data_cleaning_solutions.ipynb",
-        "size": "106.2 KB",
-        "extension": "ipynb"
-      }
-    ]
-  },
-  "pandas-groupby-and-aggregations": {
-    "part": "programming-and-tools",
-    "chapter": "pandas",
-    "sub": "pandas-groupby-and-aggregations",
-    "files": [
-      {
-        "name": "pandas_groupby_homework.ipynb",
-        "size": "319.2 KB",
+        "name": "Seaborn_Statistical_Plots_Case_Study_Solutions.ipynb",
+        "size": "1.0 MB",
         "extension": "ipynb"
       }
     ]
