@@ -396,3 +396,33 @@ export const toc: Part[] = [
     ],
   },
 ];
+
+export interface TopicLocation {
+  partSlug: string;
+  partTitle: string;
+  chapterSlug: string;
+  chapterTitle: string;
+  subSlug: string;
+  subTitle: string;
+}
+
+const topicLocationMap = new Map<string, TopicLocation>();
+
+for (const part of toc) {
+  for (const chapter of part.chapters) {
+    for (const sub of chapter.subchapters) {
+      topicLocationMap.set(sub.slug, {
+        partSlug: part.slug,
+        partTitle: part.title,
+        chapterSlug: chapter.slug,
+        chapterTitle: chapter.title,
+        subSlug: sub.slug,
+        subTitle: sub.title,
+      });
+    }
+  }
+}
+
+export function getTopicLocation(subSlug: string): TopicLocation | undefined {
+  return topicLocationMap.get(subSlug);
+}

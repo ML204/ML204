@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { toc } from './toc';
+import { toc, getTopicLocation } from './toc';
 
 export interface TopicFile {
   name: string;
@@ -41,12 +41,15 @@ export function getTopicFiles(topicSlug: string): TopicFile[] {
         if (bytes >= 1024 * 1024) size = `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
         else if (bytes >= 1024) size = `${(bytes / 1024).toFixed(1)} KB`;
 
+        const loc = getTopicLocation(topicSlug);
+        const relPath = loc ? `${loc.partSlug}/${loc.chapterSlug}/${topicSlug}` : topicSlug;
+
         return {
           name: filename,
           size,
           extension: ext || 'file',
           href: `/resources/${topicSlug}/${encodeURIComponent(filename)}`,
-          githubUrl: `https://github.com/ML204/ML204/blob/main/public/resources/${topicSlug}/${encodeURIComponent(filename)}`,
+          githubUrl: `https://github.com/ML204/resources/tree/main/${relPath}/${encodeURIComponent(filename)}`,
           updatedAt: stat.mtime.toLocaleDateString(),
         };
       });

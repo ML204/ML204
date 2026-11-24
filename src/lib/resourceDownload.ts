@@ -2,6 +2,7 @@
 
 import { Network } from '@capacitor/network';
 import { Capacitor } from '@capacitor/core';
+import { getTopicLocation } from './toc';
 
 export interface DownloadableFile {
   name: string;
@@ -65,11 +66,15 @@ export async function isDeviceOnline(): Promise<boolean> {
 }
 
 /**
- * Computes the canonical online download URL from production Vercel server.
+ * Computes the canonical online download URL from ML204/resources repository.
  */
 export function getOnlineDownloadUrl(topicSlug: string, filename: string): string {
   const encFile = encodeURIComponent(filename);
-  return `https://mlens-theta.vercel.app/resources/${topicSlug}/${encFile}`;
+  const loc = getTopicLocation(topicSlug);
+  if (loc) {
+    return `https://raw.githubusercontent.com/ML204/resources/main/${loc.partSlug}/${loc.chapterSlug}/${topicSlug}/${encFile}`;
+  }
+  return `https://raw.githubusercontent.com/ML204/resources/main/${topicSlug}/${encFile}`;
 }
 
 /**
