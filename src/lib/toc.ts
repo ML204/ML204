@@ -44,17 +44,6 @@ export const toc: Part[] = [
         ],
       },
       {
-        slug: 'dev-environment',
-        title: 'Development Environment',
-        subchapters: [
-          { slug: 'python-installation-tooling',   title: 'Installing Python & Package Managers',      estimatedMinutes: 6 },
-          { slug: 'virtual-environments-venv-conda', title: 'Virtual Environments — venv & Conda',    estimatedMinutes: 6 },
-          { slug: 'jupyter-notebooks',             title: 'Jupyter Notebook & JupyterLab',             estimatedMinutes: 6 },
-          { slug: 'ml-editor-setup',               title: 'VS Code Setup for Machine Learning',        estimatedMinutes: 6 },
-          { slug: 'pip-and-dependencies',          title: 'pip and requirements.txt',                  estimatedMinutes: 5 },
-        ],
-      },
-      {
         slug: 'numpy',
         title: 'NumPy Array Programming',
         subchapters: [
