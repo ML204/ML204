@@ -1,9 +1,9 @@
 {
-  "version": "1.0.1",
-  "name": "ML204 v1.0.1",
+  "version": "1.0.2",
+  "name": "ML204 v1.0.2",
   "releaseDate": "2026-11-24",
   "minAndroidVersion": "7.0+ (API 24+)",
-  "apkUrl": "https://github.com/ML204/ML204/releases/download/v1.0.1/app.apk",
-  "releaseNotesUrl": "https://github.com/ML204/ML204/releases/tag/v1.0.1",
-  "notes": "Added in-app update checker, improved mobile formula viewports, and automatic package installer integration."
+  "apkUrl": "https://github.com/ML204/ML204/releases/download/v1.0.2/app.apk",
+  "releaseNotesUrl": "https://github.com/ML204/ML204/releases/tag/v1.0.2",
+  "notes": "Added Part 0: Programming and Tools (NumPy, pandas, visualization, and Python fundamentals), overhauled Study Notes & Files with direct GitHub repository integration, and refreshed UI."
 }

@@ -240,14 +240,14 @@ export function AboutAppCard() {
 
         <div className="flex flex-col sm:flex-row md:flex-col gap-3 min-w-[200px]">
           <a
-            href="https://github.com/ML204/ML204/releases/download/v1.0.0/app.apk"
+            href="https://github.com/ML204/ML204/releases/latest/download/app.apk"
             className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
           >
             <span className="text-xl">📱</span>
             <span>Download APK</span>
           </a>
           <a
-            href="https://github.com/ML204/ML204/releases/tag/v1.0.0"
+            href="https://github.com/ML204/ML204/releases/latest"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2.5 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-center transition-colors flex items-center justify-center gap-1.5"
