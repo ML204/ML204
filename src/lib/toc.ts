@@ -24,6 +24,80 @@ export interface Part {
 }
 
 export const toc: Part[] = [
+  // ── Part 0: Programming and Tools (Checklist §1) ──────────────────────────
+  {
+    number: 0,
+    slug: 'programming-and-tools',
+    title: 'Programming and Tools',
+    icon: '💻',
+    chapters: [
+      {
+        slug: 'python-fundamentals',
+        title: 'Python Fundamentals',
+        subchapters: [
+          { slug: 'variables-loops-functions',     title: 'Variables, Loops and Functions',           estimatedMinutes: 6 },
+          { slug: 'python-data-structures',        title: 'Lists, Dictionaries, Sets and Tuples',      estimatedMinutes: 7 },
+          { slug: 'comprehensions-generators',     title: 'List Comprehensions and Generators',        estimatedMinutes: 6 },
+          { slug: 'classes-and-objects',           title: 'Classes and Objects',                       estimatedMinutes: 7 },
+          { slug: 'file-io-json-csv',              title: 'File I/O, JSON and CSV',                   estimatedMinutes: 6 },
+          { slug: 'error-handling-virtualenv',     title: 'Error Handling and Virtual Environments',   estimatedMinutes: 6 },
+        ],
+      },
+      {
+        slug: 'dev-environment',
+        title: 'Development Environment',
+        subchapters: [
+          { slug: 'python-installation-tooling',   title: 'Installing Python & Package Managers',      estimatedMinutes: 6 },
+          { slug: 'virtual-environments-venv-conda', title: 'Virtual Environments — venv & Conda',    estimatedMinutes: 6 },
+          { slug: 'jupyter-notebooks',             title: 'Jupyter Notebook & JupyterLab',             estimatedMinutes: 6 },
+          { slug: 'ml-editor-setup',               title: 'VS Code Setup for Machine Learning',        estimatedMinutes: 6 },
+          { slug: 'pip-and-dependencies',          title: 'pip and requirements.txt',                  estimatedMinutes: 5 },
+        ],
+      },
+      {
+        slug: 'numpy',
+        title: 'NumPy Array Programming',
+        subchapters: [
+          { slug: 'numpy-arrays-and-shapes',       title: 'Arrays, Shapes and Data Types',             estimatedMinutes: 7 },
+          { slug: 'numpy-indexing-and-slicing',    title: 'Indexing, Slicing and Strides',             estimatedMinutes: 7 },
+          { slug: 'numpy-broadcasting',            title: 'Array Broadcasting Rules',                  estimatedMinutes: 7 },
+          { slug: 'numpy-vectorization',           title: 'Vectorized Operations Without Loops',       estimatedMinutes: 7 },
+          { slug: 'numpy-linear-algebra',          title: 'Linear Algebra Operations in NumPy',        estimatedMinutes: 7 },
+        ],
+      },
+      {
+        slug: 'pandas',
+        title: 'Data Analysis with pandas',
+        subchapters: [
+          { slug: 'pandas-series-and-dataframes',  title: 'Series and DataFrames',                     estimatedMinutes: 7 },
+          { slug: 'pandas-data-ingestion',         title: 'Loading CSV, Excel and JSON',               estimatedMinutes: 6 },
+          { slug: 'pandas-filtering-and-sorting',  title: 'Selecting, Filtering and Sorting',          estimatedMinutes: 7 },
+          { slug: 'pandas-groupby-and-aggregations', title: 'groupby and Aggregations',                estimatedMinutes: 7 },
+          { slug: 'pandas-joins-and-merges',       title: 'Merging, Joining and Concatenating',        estimatedMinutes: 7 },
+          { slug: 'pandas-time-series',            title: 'Handling Dates and Time Series',            estimatedMinutes: 7 },
+        ],
+      },
+      {
+        slug: 'visualization',
+        title: 'Data Visualization',
+        subchapters: [
+          { slug: 'matplotlib-fundamentals',       title: 'Matplotlib Fundamentals',                   estimatedMinutes: 7 },
+          { slug: 'seaborn-statistical-graphics',  title: 'Statistical Plots with Seaborn',            estimatedMinutes: 7 },
+          { slug: 'diagnostic-charts',             title: 'Histograms, Scatter, Box and Heatmaps',     estimatedMinutes: 7 },
+          { slug: 'model-evaluation-plots',        title: 'Plotting Model Results & Diagnostics',      estimatedMinutes: 7 },
+        ],
+      },
+      {
+        slug: 'git-and-sql',
+        title: 'Git and SQL for ML',
+        subchapters: [
+          { slug: 'git-version-control',           title: 'Git: Commits, Branches and Pull Requests',  estimatedMinutes: 7 },
+          { slug: 'ml-project-repository-structure', title: 'Structuring ML Project Repositories',     estimatedMinutes: 6 },
+          { slug: 'sql-queries-joins-aggregations', title: 'SQL: SELECT, WHERE, JOIN and GROUP BY',    estimatedMinutes: 7 },
+        ],
+      },
+    ],
+  },
   // ── Part 1: Math Foundations (Checklist §2) ───────────────────────────────
   {
     number: 1,
