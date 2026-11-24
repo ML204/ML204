@@ -1,6 +1,5 @@
-import fs from 'fs';
-import path from 'path';
 import { toc, getTopicLocation } from './toc';
+import manifestData from '@/data/resourcesManifest.json';
 
 export interface TopicFile {
   name: string;
@@ -22,41 +21,45 @@ export interface TopicDirectory {
   files: TopicFile[];
 }
 
+interface ManifestFile {
+  name: string;
+  size: string;
+  extension: string;
+}
+
+interface ManifestEntry {
+  part: string;
+  chapter: string;
+  sub: string;
+  files: ManifestFile[];
+}
+
+const manifest = manifestData as unknown as Record<string, ManifestEntry>;
+
 export function getTopicFiles(topicSlug: string): TopicFile[] {
-  try {
-    const dir = path.join(process.cwd(), 'public', 'resources', topicSlug);
-    if (!fs.existsSync(dir)) return [];
-    const filenames = fs.readdirSync(dir);
+  const entry = manifest[topicSlug];
+  if (!entry || !entry.files) return [];
 
-    return filenames
-      .filter((f) => !f.startsWith('.') && f.toLowerCase() !== 'readme.md')
-      .map((filename) => {
-        const fullPath = path.join(dir, filename);
-        const stat = fs.statSync(fullPath);
-        const ext = path.extname(filename).toLowerCase().replace('.', '');
+  const loc = getTopicLocation(topicSlug);
+  const part = loc?.partSlug || entry.part;
+  const chapter = loc?.chapterSlug || entry.chapter;
+  const sub = loc?.subSlug || topicSlug;
+  const relPath = `${part}/${chapter}/${sub}`;
 
-        // Format size
-        const bytes = stat.size;
-        let size = `${bytes} B`;
-        if (bytes >= 1024 * 1024) size = `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
-        else if (bytes >= 1024) size = `${(bytes / 1024).toFixed(1)} KB`;
+  return entry.files.map((file) => {
+    const encFile = encodeURIComponent(file.name);
+    const rawUrl = `https://raw.githubusercontent.com/ML204/resources/main/${relPath}/${encFile}`;
+    const treeUrl = `https://github.com/ML204/resources/blob/main/${relPath}/${encFile}`;
 
-        const loc = getTopicLocation(topicSlug);
-        const relPath = loc ? `${loc.partSlug}/${loc.chapterSlug}/${topicSlug}` : topicSlug;
-
-        return {
-          name: filename,
-          size,
-          extension: ext || 'file',
-          href: `/resources/${topicSlug}/${encodeURIComponent(filename)}`,
-          githubUrl: `https://github.com/ML204/resources/tree/main/${relPath}/${encodeURIComponent(filename)}`,
-          updatedAt: stat.mtime.toLocaleDateString(),
-        };
-      });
-  } catch (err) {
-    console.error(`Error reading topic files for ${topicSlug}:`, err);
-    return [];
-  }
+    return {
+      name: file.name,
+      size: file.size,
+      extension: file.extension,
+      href: rawUrl,
+      githubUrl: treeUrl,
+      updatedAt: 'Latest',
+    };
+  });
 }
 
 export function getAllTopicsWithFiles(): TopicDirectory[] {

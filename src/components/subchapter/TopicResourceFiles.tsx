@@ -5,6 +5,7 @@ import type { TopicFile } from '@/lib/topicFiles';
 import { downloadStudyResource } from '@/lib/resourceDownload';
 import { openExternalUrl } from '@/lib/externalLinks';
 import { OfflineModal } from '@/components/common/OfflineModal';
+import { getTopicLocation } from '@/lib/toc';
 import { Capacitor } from '@capacitor/core';
 
 interface TopicResourceFilesProps {
@@ -48,7 +49,9 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
   const [copied, setCopied] = useState(false);
   const [offlineModalOpen, setOfflineModalOpen] = useState(false);
   const [activeFileName, setActiveFileName] = useState<string>('');
-  const dirPath = `public/resources/${topicSlug}/`;
+  const loc = getTopicLocation(topicSlug);
+  const relPath = loc ? `${loc.partSlug}/${loc.chapterSlug}/${topicSlug}` : topicSlug;
+  const dirPath = `ML204/resources/${relPath}/`;
 
   function copyPath() {
     navigator.clipboard.writeText(dirPath);

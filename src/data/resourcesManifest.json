@@ -1,0 +1,126 @@
+{
+  "vectors-and-matrices": {
+    "part": "math-foundations",
+    "chapter": "linear-algebra",
+    "sub": "vectors-and-matrices",
+    "files": [
+      {
+        "name": "Vectors_and_Matrices_Summary.md",
+        "size": "567 B",
+        "extension": "md"
+      }
+    ]
+  },
+  "gradient-descent": {
+    "part": "math-foundations",
+    "chapter": "calculus",
+    "sub": "gradient-descent",
+    "files": [
+      {
+        "name": "Gradient_Descent_Summary.md",
+        "size": "1.0 KB",
+        "extension": "md"
+      }
+    ]
+  },
+  "ordinary-least-squares": {
+    "part": "classical-ml",
+    "chapter": "supervised-regression",
+    "sub": "ordinary-least-squares",
+    "files": [
+      {
+        "name": "OLS.pdf",
+        "size": "279.3 KB",
+        "extension": "pdf"
+      },
+      {
+        "name": "OLS_matrix_notes.tex",
+        "size": "16.2 KB",
+        "extension": "tex"
+      },
+      {
+        "name": "Ordinary_Least_Squares_Summary.md",
+        "size": "2.0 KB",
+        "extension": "md"
+      }
+    ]
+  },
+  "ridge-regression": {
+    "part": "classical-ml",
+    "chapter": "supervised-regression",
+    "sub": "ridge-regression",
+    "files": [
+      {
+        "name": "Ridge_Regression_Notes.tex",
+        "size": "34.5 KB",
+        "extension": "tex"
+      },
+      {
+        "name": "Ridge_Regression_Summary.md",
+        "size": "1.7 KB",
+        "extension": "md"
+      },
+      {
+        "name": "Ridge_regression.pdf",
+        "size": "877.7 KB",
+        "extension": "pdf"
+      }
+    ]
+  },
+  "lasso-regression": {
+    "part": "classical-ml",
+    "chapter": "supervised-regression",
+    "sub": "lasso-regression",
+    "files": [
+      {
+        "name": "Lasso_Regression.pdf",
+        "size": "537.3 KB",
+        "extension": "pdf"
+      },
+      {
+        "name": "Lasso_Regression_Notes.tex",
+        "size": "26.4 KB",
+        "extension": "tex"
+      },
+      {
+        "name": "Lasso_Regression_Summary.md",
+        "size": "2.0 KB",
+        "extension": "md"
+      }
+    ]
+  },
+  "linear-regression": {
+    "part": "classical-ml",
+    "chapter": "supervised-regression",
+    "sub": "linear-regression",
+    "files": [
+      {
+        "name": "Linear_Regression.pdf",
+        "size": "17.0 KB",
+        "extension": "pdf"
+      },
+      {
+        "name": "Linear_Regression_Summary.md",
+        "size": "1.2 KB",
+        "extension": "md"
+      }
+    ]
+  },
+  "polynomial-regression": {
+    "part": "classical-ml",
+    "chapter": "supervised-regression",
+    "sub": "polynomial-regression",
+    "files": [
+      {
+        "name": "Polynomial_Regression.pdf",
+        "size": "1.7 MB",
+        "extension": "pdf"
+      },
+      {
+        "name": "Polynomial_Regression.tex",
+        "size": "38.8 KB",
+        "extension": "tex"
+      }
+    ]
+  }
+}
