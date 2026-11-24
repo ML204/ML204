@@ -92,8 +92,36 @@ Students often conflate the theoretical error term with the empirical residual. 
 The Ordinary Least Squares criterion selects the estimate $\hat{\boldsymbol{\beta}}$ that minimizes the scalar sum of squared residuals:
 
 $$
-\text{RSS} = \sum_{i=1}^{n} e_i^2 = \mathbf{e}^T\mathbf{e}
+\begin{aligned}
+\text{RSS} &= \sum_{i=1}^{n} e_i^2 \\
+&= \mathbf{e}^T\mathbf{e}
+\end{aligned}
 $$
+
+#### Why Does $\sum_{i=1}^{n} e_i^2 = \mathbf{e}^T\mathbf{e}$?
+
+To see why the sum of squared residuals equals the vector dot product $\mathbf{e}^T\mathbf{e}$, write out the vectors explicitly:
+
+1. **Residual Column Vector** ($\mathbf{e} \in \mathbb{R}^{n \times 1}$):
+   $$
+   \mathbf{e} = \begin{bmatrix} e_1 \\ \vdots \\ e_n \end{bmatrix}
+   $$
+
+2. **Transposed Row Vector** ($\mathbf{e}^T \in \mathbb{R}^{1 \times n}$):
+   $$
+   \mathbf{e}^T = \begin{bmatrix} e_1 & \dots & e_n \end{bmatrix}
+   $$
+
+3. **Inner Product (Row $\times$ Column)**:
+   $$
+   \begin{aligned}
+   \mathbf{e}^T\mathbf{e} &= \begin{bmatrix} e_1 & \dots & e_n \end{bmatrix} \begin{bmatrix} e_1 \\ \vdots \\ e_n \end{bmatrix} \\
+   &= e_1^2 + \dots + e_n^2 \\
+   &= \sum_{i=1}^{n} e_i^2
+   \end{aligned}
+   $$
+
+In geometric terms, $\mathbf{e}^T\mathbf{e} = \|\mathbf{e}\|_2^2$ is the **squared Euclidean norm** (length) of the residual vector in observation space $\mathbb{R}^n$.
 
 Substituting the residual definition $\mathbf{e} = \mathbf{y} - \mathbf{X}\hat{\boldsymbol{\beta}}$:
 
