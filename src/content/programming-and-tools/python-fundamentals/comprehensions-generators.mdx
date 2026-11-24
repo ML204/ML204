@@ -4,27 +4,44 @@ import {
 } from '@/components/subchapter/SubchapterBlocks';
 import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
 import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'List Comprehensions and Generators',
-  description: 'Concise functional syntax, memory-efficient streams, the yield keyword, and lazy evaluation in Python data pipelines.',
+  description: 'Master concise functional transformations, lazy evaluation, memory-efficient data streaming, generator state mechanics, and yield from in machine learning pipelines.',
 };
 
 <Section label="What is it?">
 
-Python offers powerful declarative constructs for constructing collections and streaming sequences:
-- **Comprehensions** provide concise syntax to transform and filter iterables into new lists (`[...]`), dictionaries (`{k: v ...}`), or sets (`{...}`).
-- **Generators** are stateful iterators that compute values **lazily** on-demand using the `yield` keyword or generator expressions (`(...)`), consuming $O(1)$ memory regardless of dataset size.
+Python provides two complementary paradigms for sequence processing:
+- **Comprehensions**: Compact declarative syntax for mapping, filtering, and constructing new collections (**lists**, **dictionaries**, **sets**) in a single, highly optimized C-level loop.
+- **Generators**: Stateful, resumable iterators that produce elements **lazily on-demand** using the `yield` statement or generator expressions (`(...)`), operating in $O(1)$ auxiliary RAM regardless of sequence length.
+
+### Motivating Benchmark: Eager List vs Lazy Generator
+When training deep neural networks on datasets containing millions of samples, loading everything into memory at once causes Out-Of-Memory (OOM) crashes:
+
+```python
+import sys
+
+# An eager list allocates all 10,000,000 integers in heap memory upfront:
+eager_list = [x for x in range(10_000_000)]
+print(f"List RAM Footprint: {sys.getsizeof(eager_list) / (1024 * 1024):.2f} MB")
+# Output: ~80.00 MB (plus overhead of pointed objects!)
+
+# A lazy generator expression allocates only the iterator state object:
+lazy_gen = (x for x in range(10_000_000))
+print(f"Generator RAM Footprint: {sys.getsizeof(lazy_gen)} Bytes")
+# Output: ~104 Bytes (constant O(1) memory!)
+```
 
 </Section>
 
 <Section label="Why we need it">
 
-In machine learning and data processing:
-- Transforming feature labels and standardizing string tokens: `clean_tokens = [t.lower().strip() for t in tokens if len(t) > 2]`.
-- Creating inverted index maps or vocabularies: `word2idx = {w: i for i, w in enumerate(vocab)}`.
-- Streaming massive datasets (such as 100 GB of image paths or text files) without running out of RAM: a generator loads only one batch into memory at a time.
-- Custom dataset loaders in PyTorch and TensorFlow rely heavily on Python generators to feed GPUs continuously.
+In machine learning and big data pipelines:
+- **Out-of-Core Processing**: A machine learning dataset might be 500 GB, but system RAM is only 16 GB. Generators stream chunks from disk directly into GPUs without loading the full dataset into memory.
+- **Fast Feature Engineering**: List and dictionary comprehensions execute up to 35% faster than explicit `for` loops and `.append()` calls because bytecode execution runs inside CPython's optimized C loop.
+- **PyTorch & TensorFlow DataLoaders**: Under the hood, modern batch collators and worker threads use the generator protocol (`__next__` and `StopIteration`) to pipeline batch loading asynchronously while GPU forward passes execute.
 
 </Section>
 
@@ -32,72 +49,183 @@ In machine learning and data processing:
 
 <Section label="Explained in detail">
 
-### 1. List, Dictionary, and Set Comprehensions
+### 1. The Anatomy of Comprehensions
 
-A list comprehension replaces bulky `for` loops and `append` calls with a clean single-line statement:
+#### List Comprehensions
+The standard syntax follows:
+$$
+[\text{expression} \quad \text{for} \quad \text{item} \quad \text{in} \quad \text{iterable} \quad \text{if} \quad \text{condition}]
+$$
 
 ```python
-# Traditional approach
-squares = []
-for x in range(5):
-    if x % 2 == 0:
-        squares.append(x ** 2)
+# Cleaning text tokens for a Natural Language Processing model:
+raw_tokens = ["  Neural  ", "Net", "AI", " ", "transformers ", "nlp"]
 
-# Idiomatic List Comprehension: [expression for item in iterable if condition]
-squares_comp = [x ** 2 for x in range(5) if x % 2 == 0]
-print(squares_comp)  # [0, 4, 16]
-
-# Dictionary Comprehension
-labels = ["cat", "dog", "bird"]
-label2id = {label: idx for idx, label in enumerate(labels)}
-print(label2id)  # {'cat': 0, 'dog': 1, 'bird': 2}
+clean_tokens = [t.strip().lower() for t in raw_tokens if len(t.strip()) > 2]
+print(clean_tokens)  # ['neural', 'net', 'transformers', 'nlp']
 ```
 
-### 2. The Problem with Large Lists in Memory
+#### Conditional Transformation vs Conditional Filtering
+Pay close attention to where the `if` clause is placed:
+1. **Filtering (trailing `if`)**: Keeps only elements matching the condition:
+   ```python
+   positives = [x for x in numbers if x > 0]
+   ```
+2. **Transformation (ternary `if-else` before `for`)**: Transforms every element conditionally:
+   ```python
+   # ReLU activation: f(x) = x if x > 0 else 0
+   relu_activations = [x if x > 0 else 0.0 for x in activations]
+   ```
 
-Suppose you need to iterate over 100,000,000 numbers:
-
+#### Dictionary and Set Comprehensions
 ```python
-# Consumes gigabytes of RAM by allocating all elements upfront
-all_nums = [x * 2 for x in range(100_000_000)]
+# Inverted vocabulary index: mapping words to unique token IDs
+vocab = ["<pad>", "<unk>", "learning", "rate", "loss"]
+word2idx = {word: idx for idx, word in enumerate(vocab)}
+print(word2idx)
+# {'<pad>': 0, '<unk>': 1, 'learning': 2, 'rate': 3, 'loss': 4}
+
+# Unique file extensions across a training folder:
+file_names = ["img_1.jpg", "img_2.png", "img_3.jpg", "audio.wav"]
+extensions = {name.split(".")[-1] for name in file_names}
+print(extensions)  # {'jpg', 'png', 'wav'}
 ```
 
-If you only iterate through the numbers one by one, allocating the whole list at once wastes memory and can crash your system.
-
-### 3. Generators and the `yield` Keyword
-
-A generator function pauses execution each time it hits `yield`, returns the value to the caller, and remembers its local state for the next call:
+#### Nested Comprehensions: Flattening Matrices
+Comprehensions can flatten 2D matrices into 1D feature arrays:
 
 ```python
-def batch_generator(data, batch_size=32):
-    """Yields chunks of data lazily without duplicating the dataset."""
-    for i in range(0, len(data), batch_size):
-        yield data[i:i + batch_size]
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6],
+    [7, 8, 9]
+]
 
-dataset = list(range(100))
-gen = batch_generator(dataset, batch_size=20)
-
-print(next(gen))  # [0, 1, ..., 19]
-print(next(gen))  # [20, 21, ..., 39]
+# Nested comprehension order mirrors standard nested loops:
+# for row in matrix:
+#     for val in row:
+#         yield val
+flattened = [val for row in matrix for val in row]
+print(flattened)  # [1, 2, 3, 4, 5, 6, 7, 8, 9]
 ```
 
 <Analogy>
-  Think of a list comprehension as a catering buffet: all 1,000 meals are cooked and laid out on tables simultaneously, requiring massive hall space. A generator is an on-demand sushi chef: each roll is prepared only when the guest asks for it, using minimal counter space.
+  Think of a list comprehension as an assembly line worker putting pre-ordered parts into a fixed storage crate. A generator is a conveyor belt that sends each part down the line only when the next worker reaches out their hand.
 </Analogy>
 
-### 4. Generator Expressions
+---
 
-Using parentheses `(...)` instead of brackets `[...]` produces a generator expression:
+### 2. Generator Functions and the `yield` Keyword
+
+When a function contains the `yield` keyword, Python compiles it into a **generator function**. Calling the function does not run the code; it returns a generator object implementing the **iterator protocol**:
 
 ```python
-# Generator expression: consumes O(1) auxiliary memory
-sum_of_squares = sum(x ** 2 for x in range(1_000_000))
-print("Computed sum:", sum_of_squares)
+def count_down(n):
+    print("Starting generator...")
+    while n > 0:
+        yield n
+        n -= 1
+    print("Generator exhausted.")
+
+gen = count_down(3)
+print(type(gen))  # <class 'generator'>
 ```
 
-<Callout kind="tip">
-  **Eager vs Lazy Evaluation:** Lists evaluate eagerly (all elements computed immediately in memory). Generators evaluate lazily (items are computed only when requested by `next()` or a loop).
-</Callout>
+#### The Iterator Protocol Under the Hood
+Each call to `next(gen)` resumes the function execution from the exact line where it paused at `yield`:
+
+```python
+print(next(gen))  # Prints "Starting generator..." then yields 3
+print(next(gen))  # Resumes, decrements, yields 2
+print(next(gen))  # Resumes, decrements, yields 1
+# print(next(gen)) # Raises StopIteration and prints "Generator exhausted."
+```
+
+When used in a `for` loop, Python automatically catches `StopIteration` and terminates the loop cleanly:
+
+```python
+for val in count_down(3):
+    print("Received:", val)
+```
+
+---
+
+### 3. Practical ML Pipeline: Streaming Large Datasets
+
+Here is how real-world machine learning data loaders feed mini-batches without saturating RAM:
+
+```python
+import random
+
+def batch_streamer(file_paths, batch_size=32):
+    """
+    Streams samples from disk, batches them, and yields them to the trainer.
+    Consumes minimal RAM even if file_paths contains 1,000,000 files!
+    """
+    batch_features = []
+    batch_labels = []
+
+    for path in file_paths:
+        # Simulate reading sample from disk
+        feature, label = [0.5, -1.2, 3.4], 1
+
+        batch_features.append(feature)
+        batch_labels.append(label)
+
+        if len(batch_features) == batch_size:
+            yield batch_features, batch_labels
+            batch_features = []
+            batch_labels = []
+
+    # Yield remaining samples if dataset length is not divisible by batch_size
+    if batch_features:
+        yield batch_features, batch_labels
+```
+
+---
+
+### 4. Advanced Generator Mechanics: `yield from`
+
+The `yield from` expression delegates generation to another sub-generator or iterable, cleanly nesting data streaming pipelines:
+
+```python
+def stream_dataset_splits(train_files, val_files):
+    print("Streaming training split:")
+    yield from (f"Train: {f}" for f in train_files)
+
+    print("Streaming validation split:")
+    yield from (f"Val: {f}" for f in val_files)
+
+dataset = stream_dataset_splits(["t1.csv", "t2.csv"], ["v1.csv"])
+for item in dataset:
+    print(" ", item)
+```
+
+#### Two-Way Generator Communication (`.send()`)
+Generators can also receive data from the caller using `gen.send(value)`, turning them into **coroutines**:
+
+```python
+def running_average():
+    """Calculates cumulative moving average of incoming training loss."""
+    total = 0.0
+    count = 0
+    average = None
+    while True:
+        # Pauses and yields current average, then receives new sample
+        val = yield average
+        if val is None:
+            break
+        total += val
+        count += 1
+        average = total / count
+
+avg_tracker = running_average()
+next(avg_tracker)  # Prime the generator to the first yield (returns None)
+
+print("Batch 1 avg:", avg_tracker.send(10.0))  # 10.0
+print("Batch 2 avg:", avg_tracker.send(20.0))  # 15.0
+print("Batch 3 avg:", avg_tracker.send(30.0))  # 20.0
+```
 
 </Section>
 
@@ -108,43 +236,56 @@ print("Computed sum:", sum_of_squares)
 <Quiz
   questions={[
     {
-      id: 'gen-q1',
+      id: 'gen-detail-q1',
       kind: 'mcq',
-      text: 'What is the primary advantage of a generator expression over a list comprehension when processing large datasets?',
+      text: 'What will the comprehension `[x ** 2 for x in range(6) if x % 2 == 0]` evaluate to?',
       options: [
-        'It uses O(1) auxiliary memory because values are produced lazily on demand',
-        'It executes faster on multiple GPU cores automatically',
-        'It allows indexing directly with gen[5]',
-        'It permanently caches all results in disk storage',
+        '[0, 4, 16]',
+        '[0, 1, 4, 9, 16, 25]',
+        '[4, 16, 36]',
+        '[0, 2, 4]',
       ],
       correctIndex: 0,
-      explanation: 'Generators generate elements lazily one-at-a-time as requested, avoiding allocating the entire sequence in memory.',
+      explanation: 'range(6) produces 0, 1, 2, 3, 4, 5. The filter `if x % 2 == 0` keeps 0, 2, 4. Squaring them yields [0, 4, 16].',
     },
     {
-      id: 'gen-q2',
+      id: 'gen-detail-q2',
       kind: 'mcq',
-      text: 'What keyword turns a regular Python function into a generator function?',
+      text: 'What happens when a generator function finishes executing all statements or hits an explicit `return`?',
       options: [
-        'yield',
-        'return',
-        'generate',
-        'stream',
+        'It raises a `StopIteration` exception signaling the iterator is exhausted',
+        'It re-starts execution from the first line automatically',
+        'It raises a `RuntimeError: GeneratorDead` exception',
+        'It returns `None` and pauses permanently',
       ],
       correctIndex: 0,
-      explanation: 'The `yield` keyword pauses function execution, yields the intermediate value, and preserves state for subsequent `next()` calls.',
+      explanation: 'In the Python iterator protocol, when a generator finishes its code or returns, it raises `StopIteration`. For-loops catch this exception to exit cleanly.',
     },
     {
-      id: 'gen-q3',
+      id: 'gen-detail-q3',
       kind: 'mcq',
-      text: 'What does the dictionary comprehension `{w: len(w) for w in ["loss", "epoch"]}` produce?',
+      text: 'What is the key difference in placement between `[x for x in seq if cond]` and `[a if cond else b for x in seq]`?',
       options: [
-        '{"loss": 4, "epoch": 5}',
-        '{"loss": 0, "epoch": 1}',
-        '[4, 5]',
-        '{"loss", "epoch"}',
+        'The trailing `if` filters which elements are included; the ternary `if-else` before `for` transforms every element conditionally',
+        'The trailing `if` runs in parallel; the ternary `if` runs sequentially',
+        'There is no difference; Python allows both syntaxes interchangeably',
+        'The ternary `if-else` creates a dictionary comprehension instead of a list',
       ],
       correctIndex: 0,
-      explanation: 'The dictionary comprehension maps each word to its string length: "loss" -> 4, "epoch" -> 5.',
+      explanation: 'A trailing `if` is a filter (some elements are omitted). A leading `if-else` is a ternary expression that must produce a value for every single element.',
+    },
+    {
+      id: 'gen-detail-q4',
+      kind: 'mcq',
+      text: 'Why would an ML engineer prefer `sum(x.numel() for x in model.parameters())` over `sum([x.numel() for x in model.parameters()])` to count model parameters?',
+      options: [
+        'The generator expression evaluates lazily in O(1) extra RAM without constructing a temporary list of integers',
+        'The list comprehension causes numerical overflow on 64-bit architectures',
+        'The generator expression runs on GPU CUDA cores directly',
+        'Python forbids passing list comprehensions into built-in sum()',
+      ],
+      correctIndex: 0,
+      explanation: 'Passing a generator directly into `sum()` feeds numbers one by one in O(1) auxiliary memory. Constructing a list allocates an unnecessary intermediate list in RAM.',
     },
   ]}
 />
@@ -157,23 +298,55 @@ print("Computed sum:", sum_of_squares)
 
 <TeachThisCard
   topic="List Comprehensions and Generators"
-  oneLiner="Comprehensions construct collections in a readable single line; generators evaluate lazily with yield to stream massive datasets in O(1) RAM."
+  oneLiner="Comprehensions construct collections in optimized C loops; generators stream massive ML datasets lazily in O(1) RAM using the yield statement."
   takeaways={[
-    'List comprehensions replace map/filter loops with clean, readable syntax: [expr for x in seq if cond].',
-    'Generators produce items on demand, maintaining state between yields.',
-    'Use generator expressions (expr for x in seq) when passing sequences directly into reductions like sum() or any().',
+    'Use list/dict comprehensions when the final collection must be fully indexed, sliced, or stored in RAM.',
+    'Use generator functions or expressions `(...)` when streaming large datasets, computing aggregations (sum, min, max), or feeding training mini-batches.',
+    'Remember that generators are single-use: once exhausted by a loop, they cannot be rewound or indexed with `gen[0]`.',
+    'Use `yield from` to cleanly delegate streaming to sub-iterators without nested while loops.',
   ]}
-  commonTrap="Trying to index or reuse an exhausted generator (`gen[0]` or looping twice). Once a generator finishes yielding, it is exhausted and cannot be rewound without recreating it!"
+  commonTrap="Attempting to re-iterate over an exhausted generator. If you run two consecutive loops over the same generator object, the second loop will immediately exit with 0 iterations! To iterate again, instantiate a new generator."
 />
 
 <ExplainInOwnWords
   subchapterSlug="comprehensions-generators"
   topicTitle="List Comprehensions and Generators"
   referenceChecklist={[
-    'Contrasted eager list construction with lazy generator evaluation.',
-    'Explained how the yield keyword pauses and resumes function execution.',
-    'Explained memory advantages when streaming gigabytes of training data.',
-    'Provided an example of a list or dictionary comprehension.',
+    'Explained eager list allocation vs lazy generator stream evaluation.',
+    'Demonstrated the syntax of list, dictionary, and set comprehensions.',
+    'Explained how the yield keyword pauses execution and preserves local variable state.',
+    'Explained why generators prevent Out-Of-Memory (OOM) crashes in large ML pipelines.',
+    'Mentioned that generators raise StopIteration when exhausted.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/python-fundamentals/comprehensions-generators"
+  items={[
+    {
+      title: "PEP 255: Simple Generators & The Iterator Protocol",
+      type: "article",
+      description: "Python Enhancement Proposal introducing the yield statement, iterator semantics, and state machines.",
+      url: "https://peps.python.org/pep-0255/"
+    },
+    {
+      title: "Real Python: Python Generators and the yield Statement",
+      type: "article",
+      description: "Comprehensive tutorial on memory profiling, generator pipelines, and coroutines with send().",
+      url: "https://realpython.com/introduction-to-python-generators/"
+    },
+    {
+      title: "Comprehensions & Streaming Generators Notebook",
+      type: "cheatsheet",
+      description: "Interactive Jupyter notebook with memory benchmarks and custom data stream implementations.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/python-fundamentals/comprehensions-generators"
+    }
   ]}
 />
 

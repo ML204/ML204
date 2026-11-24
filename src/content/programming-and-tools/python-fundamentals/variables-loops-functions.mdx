@@ -4,33 +4,57 @@ import {
 } from '@/components/subchapter/SubchapterBlocks';
 import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
 import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'Variables, Loops and Functions',
-  description: 'Core syntax, dynamic typing, control flow, loops, and modular function definitions in modern Python for machine learning.',
+  description: 'Deep dive into Python variables, memory references, LEGB scope, control flow, loops, and modular function architecture for machine learning.',
 };
 
 <Section label="What is it?">
 
-Python is a dynamically typed, high-level programming language that forms the lingua franca of machine learning and modern data science.
+Python is a dynamically typed, high-level, garbage-collected programming language that serves as the foundation of modern machine learning and artificial intelligence.
 
-In Python:
-- **Variables** are references (names) assigned to objects stored in memory.
-- **Control flow** (`if`, `elif`, `else`) evaluates Boolean expressions to branch program execution.
-- **Loops** (`for`, `while`) iterate over collections, batches, and numerical sequences.
-- **Functions** (`def`, `lambda`) package reusable logic, parameterize transformations, and accept arguments (`*args`, `**kwargs`) to build modular ML training pipelines.
+At its core:
+- **Variables** are human-readable references (names) bound to objects in heap memory.
+- **Control flow** (`if`, `elif`, `else`, `match-case`) determines the execution trajectory based on Boolean conditions and pattern matching.
+- **Loops** (`for`, `while`) iterate over collections, numerical intervals, streaming batches, and training epochs.
+- **Functions** (`def`, `lambda`) encapsulate computational logic, manage local parameter scopes, and accept flexible argument signatures (`*args`, `**kwargs`) to build modular ML training pipelines.
+
+### Motivating Example: An Epoch Training Loop
+Every modern machine learning framework — from PyTorch to TensorFlow and JAX — expresses model training through standard Python control structures:
+
+```python
+# A complete mini-batch training loop in pure Python logic
+def train_one_epoch(model_weights, dataset, learning_rate=0.01):
+    epoch_loss = 0.0
+    num_samples = len(dataset)
+
+    for step, (features, target) in enumerate(dataset):
+        # Forward pass: compute prediction
+        prediction = sum(w * x for w, x in zip(model_weights, features))
+        error = prediction - target
+        loss = error ** 2
+        epoch_loss += loss
+
+        # Backward pass: gradient descent weight update
+        for i in range(len(model_weights)):
+            gradient = 2 * error * features[i]
+            model_weights[i] -= learning_rate * gradient
+
+    avg_loss = epoch_loss / num_samples
+    return model_weights, avg_loss
+```
 
 </Section>
 
 <Section label="Why we need it">
 
-Every machine learning workflow relies on Python control flow:
-- Iterating over training epochs and mini-batches: `for epoch in range(num_epochs):`.
-- Applying learning rate decay or early stopping: `if val_loss < best_loss: best_loss = val_loss`.
-- Creating modular data preprocessing and evaluation functions: `def compute_accuracy(y_true, y_pred):`.
-- Flexible parameter unpacking for deep learning layers and training configurations: `def forward(self, *inputs, **kwargs):`.
-
-Mastering core Python syntax guarantees you write clean, idiomatic, bug-free machine learning algorithms.
+In machine learning engineering, writing inefficient or buggy Python syntax can slow down training runs by orders of magnitude or cause silent numerical errors:
+1. **Understanding Object Identity vs Equality**: Confusing `is` and `==` causes subtle bugs when comparing tensor devices, None checks, or cached weights.
+2. **Dynamic Scope Resolution (LEGB)**: Misunderstanding variable scoping inside training loops leads to accidentally overwriting global hyperparameters or capturing stale loop variables.
+3. **Flexible Function Signatures**: PyTorch and Hugging Face neural layers accept arbitrary arguments (`def forward(self, *inputs, **kwargs):`). Understanding unpacking is critical for reading and customizing open-source architectures.
+4. **Early Stopping & Branching**: Training algorithms depend on robust control flow to detect divergence (NaN losses), decay learning rates, and save model checkpoints.
 
 </Section>
 
@@ -38,86 +62,230 @@ Mastering core Python syntax guarantees you write clean, idiomatic, bug-free mac
 
 <Section label="Explained in detail">
 
-### 1. Variables and Dynamic Typing
+### 1. Variables and the Python Memory Model
 
-Unlike statically typed languages like C++ or Java, Python variables do not require an explicit type declaration. Variable names point to objects in heap memory:
+In compiled languages like C or Rust, a variable declaration allocates a fixed block of memory on the stack:
+
+```c
+int x = 42; // Allocated 4 bytes on stack labeled "x"
+```
+
+In Python, **everything is an object allocated on the heap**. A variable is simply a name (pointer) in a namespace referencing that heap object:
 
 ```python
-learning_rate = 0.01          # float
-batch_size = 64               # int
-model_name = "ResNet-50"      # str
-is_training = True            # bool
-loss_history = [0.82, 0.65]   # list
+a = [1, 2, 3]
+b = a          # b points to the exact same list in heap memory
+b.append(4)
+print(a)       # Output: [1, 2, 3, 4] — 'a' was modified through 'b'!
+```
+
+#### Object Identity (`is`) vs Value Equality (`==`)
+- `==` checks if the **values** of two objects are equal by invoking the object's `__eq__()` method.
+- `is` checks if two variables point to the **exact same memory address** using their `id()`.
+
+```python
+list1 = [1, 2, 3]
+list2 = [1, 2, 3]
+
+print(list1 == list2)  # True (identical contents)
+print(list1 is list2)  # False (distinct objects at different memory addresses)
+
+# Always use 'is' when checking singletons like None
+model = None
+if model is None:
+    print("Initialize model weights first.")
 ```
 
 <Analogy>
-  Think of Python variables as sticky tags on physical boxes. The box holds the data (e.g. integer 64), and the tag (`batch_size`) just points to that box. You can move the sticky tag to another box at any time.
+  Think of Python variables as contact names in your phone's address book. "Mom" and "Dr. Smith" might both point to the exact same phone number (the object in memory). Changing the voicemail greeting under "Mom" updates it for "Dr. Smith" too, because there is only one physical phone.
 </Analogy>
 
-### 2. Control Flow: Conditional Branching
+---
 
-Python uses indentation (4 spaces) rather than curly braces `{}` to define code blocks:
+### 2. Variable Scope and the LEGB Rule
 
-```python
-val_loss = 0.35
-best_loss = 0.40
+When Python encounters a variable name, it searches for it in four sequential scopes:
 
-if val_loss < best_loss:
-    print("New checkpoint saved!")
-    best_loss = val_loss
-elif val_loss == best_loss:
-    print("Loss plateaued.")
-else:
-    print("Validation loss increased — check for overfitting.")
-```
-
-### 3. Iteration: `for` and `while` Loops
-
-In ML, `for` loops iterate over datasets, tensors, and training iterations:
+| Scope | Search Order | Description |
+| :--- | :---: | :--- |
+| **Local (L)** | 1st | Variables defined inside the current function body. |
+| **Enclosing (E)** | 2nd | Variables in outer enclosing functions (closures / nested functions). |
+| **Global (G)** | 3rd | Variables defined at the top-level of the script or module. |
+| **Built-in (B)** | 4th | Predefined Python names (`len`, `range`, `sum`, `Exception`). |
 
 ```python
-# Iterating over a sequence using range()
-epochs = 5
-for epoch in range(1, epochs + 1):
-    print(f"Epoch {epoch}/{epochs} running...")
+learning_rate = 0.05  # Global scope
 
-# Using enumerate to track batch indices and values
-batches = ["batch_0", "batch_1", "batch_2"]
-for batch_idx, data in enumerate(batches):
-    print(f"Processing batch {batch_idx}: {data}")
+def train():
+    epoch = 1         # Enclosing scope for step()
+
+    def step():
+        loss = 0.42   # Local scope
+        print(f"Epoch {epoch}, Step Loss: {loss}, LR: {learning_rate}")
+
+    step()
+
+train()
 ```
 
-### 4. Functions, Return Values, and Default Parameters
-
-Functions encapsulate computational steps:
-
-```python
-def linear_prediction(x, weight=2.5, bias=1.0):
-    """Computes y_hat = w * x + b."""
-    return weight * x + bias
-
-y_hat = linear_prediction(x=4.0)
-print("Predicted:", y_hat)  # 2.5 * 4.0 + 1.0 = 11.0
-```
-
-### 5. Arbitrary Arguments: `*args` and `**kwargs`
-
-Machine learning libraries (like PyTorch and Scikit-learn) make heavy use of argument unpacking:
-- `*args`: Collects positional arguments as a **tuple**.
-- `**kwargs`: Collects keyword arguments as a **dictionary**.
-
-```python
-def build_pipeline(dataset, *layers, **hyperparams):
-    print("Dataset:", dataset)
-    print("Layers to stack:", layers)          # ('Conv2D', 'ReLU', 'Dense')
-    print("Hyperparameters:", hyperparams)    # {'lr': 0.001, 'decay': 1e-4}
-
-build_pipeline("MNIST", "Conv2D", "ReLU", "Dense", lr=0.001, decay=1e-4)
-```
-
-<Callout kind="tip">
-  **Lambda Functions:** Quick, one-line anonymous functions useful for sorting or passing inline transformations: `square = lambda x: x ** 2`.
+<Callout kind="warning">
+  **Modifying Globals Inside Functions:** If you assign to a variable inside a function (`learning_rate = 0.01`), Python treats it as a **new local variable** unless you explicitly declare `global learning_rate`. Modifying global state inside training functions is considered an antipattern — pass parameters explicitly as arguments instead!
 </Callout>
+
+---
+
+### 3. Modern Type Annotations in Machine Learning
+
+While Python is dynamically typed at runtime, modern production codebases (PyTorch, JAX, HuggingFace Transformers) use **Type Hints** from the `typing` module to document interfaces and catch bugs during static analysis:
+
+```python
+from typing import List, Dict, Optional, Tuple, Callable
+
+def compute_batch_loss(
+    predictions: List[float],
+    targets: List[float],
+    loss_fn: Callable[[float, float], float],
+    weights: Optional[List[float]] = None
+) -> Tuple[float, Dict[str, float]]:
+    """Calculates total loss and metric dictionary."""
+    total_loss = 0.0
+    for pred, target in zip(predictions, targets):
+        total_loss += loss_fn(pred, target)
+
+    metrics = {"mean_loss": total_loss / len(predictions)}
+    return total_loss, metrics
+```
+
+---
+
+### 4. Advanced Control Flow & Pattern Matching
+
+#### Short-Circuit Evaluation
+Python's `and` and `or` operators evaluate lazily:
+- `A and B`: If `A` is false, `B` is never evaluated.
+- `A or B`: If `A` is true, `B` is never evaluated.
+
+```python
+# Safe guard check: if weights is None, weights.shape is never called!
+if weights is not None and len(weights) > 0:
+    print("Valid weight vector.")
+```
+
+#### Structural Pattern Matching (`match-case`)
+Introduced in Python 3.10+, `match-case` replaces long `if-elif-else` chains when dispatching model architectures or optimizer types:
+
+```python
+def configure_optimizer(optimizer_type: str, lr: float):
+    match optimizer_type.lower():
+        case "adam":
+            print(f"Initializing Adam optimizer with lr={lr}")
+        case "sgd":
+            print(f"Initializing Stochastic Gradient Descent with lr={lr}")
+        case "rmsprop":
+            print(f"Initializing RMSprop with lr={lr}")
+        case _:
+            raise ValueError(f"Unknown optimizer: {optimizer_type}")
+```
+
+---
+
+### 5. Iteration Masterclass: `for`, `while`, and Loop Tools
+
+#### `for...else` Construct
+In Python, loops can have an `else` block. The `else` block runs **only if the loop finishes naturally without encountering a `break`**:
+
+```python
+# Early stopping check: search for non-finite losses
+losses = [0.85, 0.72, 0.63, 0.58]
+
+for loss in losses:
+    if loss != loss or loss > 1000:  # Check for NaN or explosion
+        print("Training diverged! Aborting.")
+        break
+else:
+    print("All epochs completed successfully with stable loss.")
+```
+
+#### Essential Loop Built-ins
+1. **`enumerate(iterable, start=0)`**: Returns `(index, item)` pairs without manual counter variables:
+   ```python
+   for batch_idx, batch in enumerate(data_loader, start=1):
+       print(f"Batch {batch_idx}")
+   ```
+2. **`zip(*iterables, strict=False)`**: Pairs corresponding elements from multiple iterables:
+   ```python
+   features = ["age", "income", "credit_score"]
+   importances = [0.15, 0.60, 0.25]
+   for feat, imp in zip(features, importances, strict=True):
+       print(f"{feat}: {imp * 100:.1f}%")
+   ```
+3. **`reversed(sequence)`**: Iterates over a sequence backwards in $O(1)$ auxiliary memory without creating a reversed copy.
+
+---
+
+### 6. Functions in Depth: Signatures, Default Traps & Decorators
+
+#### Positional-Only (`/`) and Keyword-Only (`*`) Parameters
+Modern Python lets you enforce how callers provide arguments:
+
+```python
+def train_step(data, target, /, model_name, *, learning_rate=0.01, clip_norm=1.0):
+    """
+    - data, target: Positional-only (cannot pass data=...)
+    - model_name: Positional or keyword
+    - learning_rate, clip_norm: Keyword-only (must pass by name)
+    """
+    pass
+
+# train_step(X, y, "Transformer", learning_rate=0.001)  # Valid!
+# train_step(X, y, "Transformer", 0.001)                # TypeError!
+```
+
+#### The Mutable Default Argument Pitfall
+Default argument values are evaluated **once when the function is defined**, not each time it is called:
+
+```python
+# DANGEROUS: The list is shared across all function calls!
+def record_loss(loss, history=[]):
+    history.append(loss)
+    return history
+
+print(record_loss(0.5))  # [0.5]
+print(record_loss(0.3))  # [0.5, 0.3] — Unintended state retention!
+
+# CORRECT: Use None as default and instantiate inside the function
+def record_loss_safe(loss, history=None):
+    if history is None:
+        history = []
+    history.append(loss)
+    return history
+```
+
+#### Higher-Order Functions and Decorators
+Functions in Python are **first-class citizens**: they can be passed as arguments, assigned to variables, and returned from other functions. A **decorator** wraps a function to extend its behavior without modifying its source code:
+
+```python
+import time
+import functools
+
+def benchmark(func):
+    """Measures model inference or function execution time."""
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        result = func(*args, **kwargs)
+        elapsed = time.perf_counter() - start
+        print(f"[{func.__name__}] Executed in {elapsed * 1000:.2f} ms")
+        return result
+    return wrapper
+
+@benchmark
+def evaluate_model(predictions, ground_truth):
+    time.sleep(0.05)  # Simulate metric calculation
+    return sum(p == g for p, g in zip(predictions, ground_truth)) / len(predictions)
+
+acc = evaluate_model([1, 0, 1], [1, 0, 0])
+```
 
 </Section>
 
@@ -128,43 +296,56 @@ build_pipeline("MNIST", "Conv2D", "ReLU", "Dense", lr=0.001, decay=1e-4)
 <Quiz
   questions={[
     {
-      id: 'py-q1',
+      id: 'py-detail-q1',
       kind: 'mcq',
-      text: 'What is the output of the following code snippet: `def f(x, w=2): return x * w + 1` evaluated at `f(3)`?',
+      text: 'What will happen when the following code executes?\n\ndef log_metric(val, log=[]):\n    log.append(val)\n    return log\n\nprint(log_metric(10))\nprint(log_metric(20))',
       options: [
-        '7',
-        '6',
-        '5',
-        'Error: w is missing',
+        'Prints [10] then [10, 20] because the default list is created only once when defined',
+        'Prints [10] then [20] because a new list is initialized per function invocation',
+        'Raises a SyntaxError: mutable defaults are forbidden in Python',
+        'Raises a TypeError: log argument is missing in the second call',
       ],
       correctIndex: 0,
-      explanation: 'Since w has a default value of 2, f(3) evaluates as 3 * 2 + 1 = 7.',
+      explanation: 'In Python, default arguments are evaluated only once at function definition time. Therefore, the same list instance is reused across repeated calls.',
     },
     {
-      id: 'py-q2',
+      id: 'py-detail-q2',
       kind: 'mcq',
-      text: 'In Python function signatures, what data type does `**kwargs` collect arguments into?',
+      text: 'In the LEGB variable lookup hierarchy, what does the letter "E" stand for?',
       options: [
-        'A dictionary (dict) of keyword arguments',
-        'A tuple of positional arguments',
-        'A set of unique argument names',
-        'A list of key-value pairs',
+        'Enclosing (outer nested functions or closures)',
+        'Environment (virtual environment system variables)',
+        'External (third-party imported packages)',
+        'Execution (active runtime thread stack)',
       ],
       correctIndex: 0,
-      explanation: '`*args` collects extra positional arguments into a tuple, while `**kwargs` collects arbitrary keyword arguments into a standard Python dictionary.',
+      explanation: 'LEGB stands for Local, Enclosing, Global, and Built-in. Enclosing refers to outer enclosing functions (closures) around a nested function.',
     },
     {
-      id: 'py-q3',
+      id: 'py-detail-q3',
       kind: 'mcq',
-      text: 'What will `enumerate(["a", "b", "c"], start=1)` yield in its first iteration?',
+      text: 'What is the key difference between `a == b` and `a is b` in Python?',
       options: [
-        '(1, "a")',
-        '(0, "a")',
-        '("a", 1)',
-        '1',
+        '`==` checks equality of object values, while `is` checks whether both point to the exact same memory address',
+        '`==` checks memory addresses, while `is` checks string representations',
+        '`is` is used only for numeric floats, while `==` is used for lists',
+        'They are completely identical and interchangeable in modern Python',
       ],
       correctIndex: 0,
-      explanation: '`enumerate(iterable, start=1)` yields tuples of (index, element) beginning at index 1, so the first yield is (1, "a").',
+      explanation: '`==` compares values via `__eq__`, whereas `is` tests object identity (whether `id(a) == id(b)`).',
+    },
+    {
+      id: 'py-detail-q4',
+      kind: 'mcq',
+      text: 'When does the `else` clause of a `for` loop execute?',
+      options: [
+        'Only when the loop completes all iterations without encountering a `break` statement',
+        'Whenever an exception is thrown inside the loop',
+        'At the start of every iteration as a fallback branch',
+        'Only if the iterable passed into the loop was completely empty',
+      ],
+      correctIndex: 0,
+      explanation: 'The `else` block on a `for` or `while` loop executes only when the loop terminates naturally, not when exited prematurely via `break`.',
     },
   ]}
 />
@@ -177,23 +358,55 @@ build_pipeline("MNIST", "Conv2D", "ReLU", "Dense", lr=0.001, decay=1e-4)
 
 <TeachThisCard
   topic="Variables, Loops and Functions"
-  oneLiner="Python binds dynamic names to objects, branches via indentation, iterates with for/while loops, and modularizes logic with functions accepting default args, *args, and **kwargs."
+  oneLiner="Python variables are heap object pointers resolved via the LEGB hierarchy; functions encapsulate logic with explicit scopes, default argument safety, and higher-order decorator wrapping."
   takeaways={[
-    'Python uses 4-space indentation to enforce readable, bracket-free block scoping.',
-    '*args gathers extra positional inputs into a tuple; **kwargs gathers named inputs into a dictionary.',
-    'Default arguments evaluate only once when the function is defined — never use mutable defaults like [] or {}.',
+    'Variables are pointers: modifying a mutable object affects every variable referencing that same memory address.',
+    'Always use `None` as the default for optional mutable parameters: `def func(history=None): if history is None: history = []`.',
+    'Use `strict=True` in `zip(a, b, strict=True)` to prevent silent truncation when processing mismatched feature and label lists.',
+    'Decorators wrap function calls cleanly using `@functools.wraps` to preserve function docstrings and introspective metadata.',
   ]}
-  commonTrap="Using a mutable default argument: `def append_loss(loss, history=[]):` shares that same list across all future function invocations!"
+  commonTrap="Assuming `is` and `==` are the same for small integers vs large integers or lists. Python interns small integers (-5 to 256), but for arbitrary objects, never use `is` to check numerical value equality!"
 />
 
 <ExplainInOwnWords
   subchapterSlug="variables-loops-functions"
   topicTitle="Variables, Loops and Functions"
   referenceChecklist={[
-    'Explained dynamic typing vs static typing in Python.',
-    'Described how indentation replaces curly brackets for code blocks.',
-    'Explained the difference between *args and **kwargs in functions.',
-    'Connected loop control flow to training epochs and validation loss tracking.',
+    'Explained how Python variables point to heap objects rather than allocating memory slots on a stack.',
+    'Differentiated value equality (==) from object identity (is).',
+    'Walked through the LEGB search hierarchy with a concrete example.',
+    'Explained the mutable default argument trap and its idiomatic solution.',
+    'Described how decorators wrap functions to add benchmarking or logging.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/python-fundamentals/variables-loops-functions"
+  items={[
+    {
+      title: "Python Official Documentation: Control Flow & Functions",
+      type: "book",
+      description: "Official language reference covering argument unpacking, decorators, and generator mechanics.",
+      url: "https://docs.python.org/3/tutorial/controlflow.html"
+    },
+    {
+      title: "Fluent Python: Clear, Concise, and Effective Programming",
+      type: "book",
+      description: "Luciano Ramalho's definitive guide to Python data models, closures, scopes, and first-class functions.",
+      url: "https://www.oreilly.com/library/view/fluent-python-2nd/9781492056348/"
+    },
+    {
+      title: "Python Functions & Scopes Reference Notebook",
+      type: "cheatsheet",
+      description: "Interactive Jupyter notebook and Python script located in this topic's resources directory.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/python-fundamentals/variables-loops-functions"
+    }
   ]}
 />
 

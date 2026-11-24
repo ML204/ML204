@@ -4,30 +4,40 @@ import {
 } from '@/components/subchapter/SubchapterBlocks';
 import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
 import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'Classes and Objects',
-  description: 'Object-oriented programming (OOP) in Python: encapsulation, inheritance, the self parameter, and structuring custom ML estimators and PyTorch neural network modules.',
+  description: 'Master Object-Oriented Programming (OOP) in Python: class and instance attributes, properties, inheritance, MRO, magic dunder methods, and implementing PyTorch and Scikit-learn estimator architectures from scratch.',
 };
 
 <Section label="What is it?">
 
-**Object-Oriented Programming (OOP)** is a programming paradigm that organizes code around **objects** that bundle state (**attributes**) and behavior (**methods**):
-- A **Class** is a blueprint (e.g. `LinearRegression` or `NeuralNetwork`).
-- An **Instance (Object)** is a concrete realization created from that class with specific parameter values.
-- `__init__` is the constructor method called when an instance is created.
-- `self` refers to the specific instance whose attributes and methods are being accessed.
+**Object-Oriented Programming (OOP)** is a software engineering paradigm that packages state (**attributes**) and related behavior (**methods**) into cohesive, reusable entities called **objects**:
+- A **Class** serves as a structural blueprint defining how objects behave.
+- An **Instance** is an allocated object created from that class with its own specific state.
+- `__init__` is the initializer method called when an instance is instantiated.
+- `self` explicitly references the calling instance object, providing access to its unique namespace.
+
+### Motivating Architecture: The Scikit-Learn Estimator Pattern
+All production machine learning frameworks are built around OOP principles. For example, Scikit-learn models inherit from common base classes exposing a uniform interface:
+
+```python
+# The universal Machine Learning interface implemented via OOP:
+model = RidgeRegression(alpha=0.1)  # 1. Instantiate with hyperparameters
+model.fit(X_train, y_train)         # 2. Learn parameters from data (state update)
+predictions = model.predict(X_test) # 3. Generate predictions using learned state
+```
 
 </Section>
 
 <Section label="Why we need it">
 
-Modern machine learning libraries are built entirely on OOP conventions:
-- **Scikit-learn**: Every model inherits from a base estimator exposing a unified `.fit(X, y)` and `.predict(X)` interface.
-- **PyTorch**: Custom deep learning models inherit from `torch.nn.Module`, defining layer attributes in `__init__` and forward execution in `.forward(x)`.
-- **Custom Preprocessors**: Packaging feature scalers, tokenizers, and dataset splitters into reusable, state-preserving classes.
-
-OOP enables clean abstraction, parameter encapsulation, and modular code reuse across machine learning systems.
+In modern machine learning engineering:
+- **PyTorch Neural Networks**: Every custom deep learning model subclasses `torch.nn.Module`, initializing layers in `__init__` and defining execution in `forward()`.
+- **Custom PyTorch Datasets**: Inheriting from `torch.utils.data.Dataset` requires implementing magic methods `__len__` and `__getitem__`.
+- **Callable Layers**: Neural network layers act like functions because they implement the `__call__` dunder method (`output = layer(input)`).
+- **Clean Hyperparameter Encapsulation**: Packaging models, data preprocessors, and evaluation metrics into classes keeps state tidy and eliminates risky global variables.
 
 </Section>
 
@@ -35,88 +45,238 @@ OOP enables clean abstraction, parameter encapsulation, and modular code reuse a
 
 <Section label="Explained in detail">
 
-### 1. Defining a Class and Constructor
-
-In Python, classes are defined with the `class` keyword. The `__init__` method initializes instance variables:
+### 1. Anatomy of a Python Class
 
 ```python
-class LinearModel:
-    def __init__(self, learning_rate=0.01):
-        self.learning_rate = learning_rate  # Instance attribute
-        self.weight = 0.0                   # Model parameter
-        self.bias = 0.0                     # Model parameter
+class RidgeRegression:
+    # Class attribute: shared across ALL instances of this class
+    framework = "ML204-Core"
 
-    def predict(self, x):
-        """Computes y = w * x + b."""
-        return self.weight * x + self.bias
+    def __init__(self, alpha: float = 1.0):
+        # Instance attributes: unique to THIS specific instance
+        self.alpha = alpha
+        self.weights_ = None  # Trailing underscore convention for learned state
+        self.bias_ = None
 
-# Instantiating objects
-model1 = LinearModel(learning_rate=0.05)
-model2 = LinearModel(learning_rate=0.001)
+    def fit(self, X, y):
+        """Learns model weights from feature matrix X and target vector y."""
+        # Solves: w = (X^T X + alpha * I)^(-1) X^T y
+        print(f"Fitting model with regularization alpha={self.alpha}...")
+        self.weights_ = [0.25, -0.80]
+        self.bias_ = 0.05
+        return self  # Return self to allow method chaining (model.fit().predict())
 
-print("Model 1 LR:", model1.learning_rate)  # 0.05
-print("Prediction:", model1.predict(4.0))   # 0.0
+    def predict(self, X):
+        """Generates predictions using learned weights."""
+        if self.weights_ is None:
+            raise RuntimeError("Model is not fitted yet! Call .fit() first.")
+        return [sum(w * x for w, x in zip(self.weights_, row)) + self.bias_ for row in X]
 ```
 
 <Analogy>
-  Think of a class as an architectural blueprint for a house. An instance is an actual physical house built from that blueprint. Each physical house has its own interior wall colors and occupants (`self.attributes`), but all follow the blueprint's structural floorplan (`methods`).
+  Think of a class as an automotive blueprint for an electric vehicle. The blueprint defines what an accelerator pedal does (`methods`) and where the battery sits. An instance is an actual car rolling off the factory line. Each physical car has its own battery charge level (`self.battery_level`), but all share the same acceleration logic.
 </Analogy>
 
-### 2. Building a Scikit-Learn-Style Estimator
+---
 
-The hallmark pattern in machine learning is the **Estimator pattern**:
+### 2. Method Types: Instance, Class, and Static Methods
+
+Python distinguishes between three kinds of methods using decorators:
 
 ```python
-class CustomNormalizer:
-    def __init__(self):
-        self.mean_ = None
-        self.std_ = None
+class TransformerModel:
+    default_hidden_dim = 768
 
-    def fit(self, data):
-        """Computes and stores mean and standard deviation from training data."""
-        self.mean_ = sum(data) / len(data)
-        variance = sum((x - self.mean_) ** 2 for x in data) / len(data)
-        self.std_ = variance ** 0.5
+    def __init__(self, hidden_dim: int, num_layers: int):
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+
+    # 1. Instance Method: Receives 'self' (the specific instance)
+    def count_parameters(self) -> int:
+        return self.hidden_dim * self.num_layers * 12
+
+    # 2. Class Method: Receives 'cls' (the class itself) — ideal for factory constructors!
+    @classmethod
+    def from_pretrained(cls, model_size: str = "base"):
+        """Alternative constructor loading preset configurations."""
+        if model_size == "large":
+            return cls(hidden_dim=1024, num_layers=24)
+        return cls(hidden_dim=cls.default_hidden_dim, num_layers=12)
+
+    # 3. Static Method: Plain utility function tied to the class namespace (no self or cls)
+    @staticmethod
+    def validate_tensor_shape(shape: tuple) -> bool:
+        return len(shape) == 3 and shape[0] > 0
+```
+
+```python
+# Using the factory constructor:
+large_model = TransformerModel.from_pretrained("large")
+print("Hidden dim:", large_model.hidden_dim)  # 1024
+```
+
+---
+
+### 3. Encapsulation & Managed Attributes with `@property`
+
+In Python, there are no true `private` keywords. Instead, encapsulation relies on conventions and property decorators:
+- `_attribute` (single underscore): Protected by convention (internal implementation detail, do not touch).
+- `__attribute` (dunder prefix): Triggers **Name Mangling** (`_ClassName__attribute`) to prevent accidental override in subclasses.
+- `@property`: Turns a method into a managed attribute with getter, setter, and validation logic:
+
+```python
+class HyperparameterConfig:
+    def __init__(self, learning_rate: float):
+        self._learning_rate = None
+        self.learning_rate = learning_rate  # Triggers setter validation!
+
+    @property
+    def learning_rate(self) -> float:
+        """Getter: returns internal value."""
+        return self._learning_rate
+
+    @learning_rate.setter
+    def learning_rate(self, value: float):
+        """Setter: validates input before assigning."""
+        if value <= 0:
+            raise ValueError(f"Learning rate must be strictly positive! Received {value}")
+        self._learning_rate = value
+
+config = HyperparameterConfig(0.01)
+print(config.learning_rate)  # 0.01
+# config.learning_rate = -0.5  # Raises ValueError: Learning rate must be strictly positive!
+```
+
+---
+
+### 4. Inheritance, `super()`, and Method Resolution Order (MRO)
+
+Inheritance enables code reuse and polymorphism. Subclasses inherit capabilities from parent classes and call parent constructors via `super()`:
+
+```python
+class BaseNeuralLayer:
+    def __init__(self, in_features: int, out_features: int):
+        self.in_features = in_features
+        self.out_features = out_features
+
+    def forward(self, x):
+        raise NotImplementedError("Subclasses must implement forward()!")
+
+class LinearLayer(BaseNeuralLayer):
+    def __init__(self, in_features: int, out_features: int, bias: bool = True):
+        # Call base class constructor
+        super().__init__(in_features, out_features)
+        self.has_bias = bias
+
+    def forward(self, x):
+        return f"Computing matrix product of shape ({self.in_features}, {self.out_features})"
+```
+
+#### Method Resolution Order (MRO)
+When resolving attributes in multiple inheritance, Python uses the **C3 Linearization** algorithm:
+
+```python
+print(LinearLayer.__mro__)
+# (<class 'LinearLayer'>, <class 'BaseNeuralLayer'>, <class 'object'>)
+```
+
+---
+
+### 5. Magic (Dunder) Methods in Machine Learning
+
+Dunder (double underscore) methods allow user-defined objects to interact with Python built-ins like `len()`, `[]`, `()`, and `print()`:
+
+| Magic Method | Built-in Syntax | Machine Learning Application |
+| :--- | :---: | :--- |
+| `__repr__(self)` | `repr(obj)` | Clean debugging output: `Ridge(alpha=0.1)`. |
+| `__len__(self)` | `len(dataset)` | Returns dataset sample count in PyTorch DataLoaders. |
+| `__getitem__(self, idx)` | `dataset[idx]` | Indexing samples or tensor slicing. |
+| `__call__(self, *args)` | `layer(x)` | Making neural network layers callable like functions! |
+
+#### Building a PyTorch-Style Dataset and Callable Layer
+```python
+class TabularDataset:
+    def __init__(self, features, targets):
+        self.X = features
+        self.y = targets
+
+    def __len__(self):
+        return len(self.X)
+
+    def __getitem__(self, idx):
+        return self.X[idx], self.y[idx]
+
+class DenseNeuron:
+    def __init__(self, weights, bias):
+        self.weights = weights
+        self.bias = bias
+
+    # __call__ allows instance to be called directly like a function!
+    def __call__(self, x):
+        return sum(w * val for w, val in zip(self.weights, x)) + self.bias
+
+# Testing the container and callable protocols:
+data = TabularDataset([[1.0, 2.0], [3.0, 4.0]], [1, 0])
+print(f"Dataset has {len(data)} samples.")  # Uses __len__
+sample_x, sample_y = data[0]               # Uses __getitem__
+
+neuron = DenseNeuron(weights=[0.5, -0.2], bias=0.1)
+output = neuron(sample_x)                  # Uses __call__!
+print("Neuron output:", output)
+```
+
+---
+
+### 6. Full Custom Scikit-Learn Transformer from Scratch
+
+Let's assemble all these concepts into a production-grade feature normalizer:
+
+```python
+class CustomStandardScaler:
+    """Standardizes features by removing the mean and scaling to unit variance."""
+    def __init__(self, with_mean=True, with_std=True):
+        self.with_mean = with_mean
+        self.with_std = with_std
+        self.mean_ = None
+        self.scale_ = None
+
+    def fit(self, X):
+        """Computes mean and standard deviation per column."""
+        n_samples = len(X)
+        n_features = len(X[0])
+
+        if self.with_mean:
+            self.mean_ = [sum(row[j] for row in X) / n_samples for j in range(n_features)]
+        else:
+            self.mean_ = [0.0] * n_features
+
+        if self.with_std:
+            self.scale_ = []
+            for j in range(n_features):
+                variance = sum((row[j] - self.mean_[j]) ** 2 for row in X) / n_samples
+                self.scale_.append(variance ** 0.5 if variance > 0 else 1.0)
+        else:
+            self.scale_ = [1.0] * n_features
+
         return self
 
-    def transform(self, data):
-        """Scales new data using the parameters learned during fit."""
-        if self.mean_ is None or self.std_ is None:
-            raise RuntimeError("Must call fit() before transform()!")
-        return [(x - self.mean_) / self.std_ for x in data]
+    def transform(self, X):
+        """Applies feature standardization."""
+        if self.mean_ is None or self.scale_ is None:
+            raise RuntimeError("Transformer is not fitted! Call .fit() first.")
 
-# Usage
-scaler = CustomNormalizer()
-scaler.fit([10, 20, 30, 40])
-normalized = scaler.transform([25, 35])
-print("Normalized values:", normalized)
+        return [
+            [(row[j] - self.mean_[j]) / self.scale_[j] for j in range(len(row))]
+            for row in X
+        ]
+
+    def fit_transform(self, X):
+        """Fits and transforms in a single pass."""
+        return self.fit(X).transform(X)
+
+    def __repr__(self):
+        return f"CustomStandardScaler(with_mean={self.with_mean}, with_std={self.with_std})"
 ```
-
-### 3. Inheritance: Reusing and Extending Classes
-
-Inheritance allows a subclass to inherit methods and attributes from a parent class, overriding or extending behavior with `super()`:
-
-```python
-class BaseEstimator:
-    def __init__(self, name="Base"):
-        self.name = name
-
-    def summary(self):
-        return f"Estimator: {self.name}"
-
-class RidgeRegression(BaseEstimator):
-    def __init__(self, alpha=1.0):
-        super().__init__(name="Ridge Regression")
-        self.alpha = alpha
-
-ridge = RidgeRegression(alpha=0.5)
-print(ridge.summary())  # "Estimator: Ridge Regression"
-print("Alpha:", ridge.alpha)
-```
-
-<Callout kind="tip">
-  **The `self` Parameter:** Python requires explicitly declaring `self` as the first argument in instance methods, allowing methods to modify or read the calling object's state.
-</Callout>
 
 </Section>
 
@@ -127,43 +287,56 @@ print("Alpha:", ridge.alpha)
 <Quiz
   questions={[
     {
-      id: 'oop-q1',
+      id: 'oop-detail-q1',
       kind: 'mcq',
-      text: 'What role does `self` serve in Python instance methods?',
+      text: 'What magic method allows an instance of a Python class to be called like a function (e.g. `output = model(inputs)`) in PyTorch neural networks?',
       options: [
-        'It explicitly refers to the specific instance of the class that called the method',
-        'It makes the method a static utility function across all threads',
-        'It imports global variables from the root workspace automatically',
-        'It prevents other classes from inheriting from this class',
+        '`__call__(self, *args, **kwargs)`',
+        '`__invoke__(self, *args)`',
+        '`__run__(self, *args)`',
+        '`__execute__(self, *args)`',
       ],
       correctIndex: 0,
-      explanation: 'In Python, `self` represents the instance of the class, allowing access to instance attributes and methods.',
+      explanation: 'Implementing `__call__` turns instances of a class into callable objects, allowing PyTorch layers like `torch.nn.Linear` to be executed as `layer(x)`.',
     },
     {
-      id: 'oop-q2',
+      id: 'oop-detail-q2',
       kind: 'mcq',
-      text: 'In Scikit-learn estimator conventions, what does the `.fit(X, y)` method do?',
+      text: 'What is the primary difference between an instance method and a method decorated with `@classmethod`?',
       options: [
-        'Learns model parameters from data and stores them as state attributes on the instance',
-        'Directly evaluates test accuracy on unseen data',
-        'Deletes the dataset to save disk space',
-        'Converts categorical strings into float tensors permanently',
+        'An instance method receives `self` (the instance), while a `@classmethod` receives `cls` (the class itself)',
+        'An instance method runs faster because it bypasses the interpreter',
+        '`@classmethod` cannot be called from outside the module',
+        '`@classmethod` does not allow returning values',
       ],
       correctIndex: 0,
-      explanation: '`.fit(X, y)` computes and fits parameters (like weights, means, or variances) from the training data and updates the instance attributes.',
+      explanation: 'A `@classmethod` receives the class object (`cls`) as its first argument, making it ideal for alternative constructors (such as `from_pretrained()`).',
     },
     {
-      id: 'oop-q3',
+      id: 'oop-detail-q3',
       kind: 'mcq',
-      text: 'Which function is used in a subclass to call the parent class\'s constructor or methods?',
+      text: 'In Scikit-learn estimator architecture, why is `.fit()` designed to return `self`?',
       options: [
-        'super()',
-        'parent()',
-        'base()',
-        'inherit()',
+        'To allow method chaining, such as `model.fit(X, y).predict(X_val)`',
+        'To prevent garbage collection from deleting the model object',
+        'To serialize the weights into a JSON file automatically',
+        'Because Python requires every method to return an object',
       ],
       correctIndex: 0,
-      explanation: '`super()` returns a proxy object that delegates method calls to the parent (super) class.',
+      explanation: 'Returning `self` allows concise method chaining (e.g. `scaler.fit(X).transform(X)` or `clf.fit(X, y).score(X, y)`).',
+    },
+    {
+      id: 'oop-detail-q4',
+      kind: 'mcq',
+      text: 'What two magic methods must be implemented to create a custom PyTorch-compatible map-style Dataset?',
+      options: [
+        '`__len__` and `__getitem__`',
+        '`__init__` and `__iter__`',
+        '`__fit__` and `__predict__`',
+        '`__enter__` and `__exit__`',
+      ],
+      correctIndex: 0,
+      explanation: 'A map-style PyTorch dataset must implement `__len__` (to report total sample count) and `__getitem__` (to fetch a sample by index).',
     },
   ]}
 />
@@ -176,23 +349,55 @@ print("Alpha:", ridge.alpha)
 
 <TeachThisCard
   topic="Classes and Objects"
-  oneLiner="Classes encapsulate parameters and behaviors into reusable blueprints; ML libraries use OOP to standardize fit, predict, and neural layer interfaces."
+  oneLiner="Classes encapsulate weights and algorithms into reusable blueprints; ML frameworks leverage @classmethod factories, @property guards, and dunder methods like __call__ and __getitem__."
   takeaways={[
-    '__init__ initializes object state; self explicitly passes the caller instance.',
-    'Scikit-learn and PyTorch standardize training by subclassing base estimators and nn.Module.',
-    'State learned during fit() is preserved on instance variables for subsequent predict() calls.',
+    'Use `@classmethod` factory methods (like `Model.from_config()`) to provide clean alternative constructors.',
+    'Use `@property` setters to validate hyperparameters (e.g. learning rate > 0) upon assignment.',
+    'Implement `__len__` and `__getitem__` to integrate custom data containers seamlessly with PyTorch DataLoaders.',
+    'Implement `__call__` so model and layer instances can be invoked cleanly as `predictions = model(features)`.',
   ]}
-  commonTrap="Calling .transform() or .predict() before calling .fit(): the model parameters have not been computed yet and will raise an attribute error!"
+  commonTrap="Confusing class attributes with instance attributes: defining `class Model: weights = []` shares that single weights list across all model instances! Always initialize state in `__init__` as `self.weights = []`."
 />
 
 <ExplainInOwnWords
   subchapterSlug="classes-and-objects"
   topicTitle="Classes and Objects"
   referenceChecklist={[
-    'Explained the difference between a class and an object instance.',
-    'Described the role of the __init__ constructor and the self parameter.',
-    'Explained the Scikit-learn estimator pattern (.fit() and .predict()).',
-    'Described class inheritance with super().',
+    'Explained the difference between class blueprints and allocated object instances.',
+    'Differentiated instance methods (self), class methods (cls), and static methods.',
+    'Explained the purpose of @property getters and setters for parameter validation.',
+    'Demonstrated how magic dunder methods (__len__, __getitem__, __call__) empower ML libraries.',
+    'Explained the Scikit-learn estimator interface (.fit() and .predict()).',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/python-fundamentals/classes-and-objects"
+  items={[
+    {
+      title: "Scikit-Learn Developer Guide: Developing Custom Estimators",
+      type: "article",
+      description: "Official guide on implementing BaseEstimator, TransformerMixin, and fit/predict conventions.",
+      url: "https://scikit-learn.org/stable/developers/develop.html"
+    },
+    {
+      title: "PyTorch Documentation: Writing Custom Datasets & DataLoaders",
+      type: "article",
+      description: "Step-by-step tutorial on subclassing Dataset with __len__ and __getitem__ for deep learning pipelines.",
+      url: "https://pytorch.org/tutorials/beginner/data_loading_tutorial.html"
+    },
+    {
+      title: "Python OOP & Custom Estimator Notebook",
+      type: "cheatsheet",
+      description: "Hands-on Jupyter notebook and Python scripts for OOP design patterns and custom model classes.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/python-fundamentals/classes-and-objects"
+    }
   ]}
 />
 

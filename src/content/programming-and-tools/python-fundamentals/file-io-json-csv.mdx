@@ -4,29 +4,43 @@ import {
 } from '@/components/subchapter/SubchapterBlocks';
 import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
 import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'File I/O, JSON and CSV',
-  description: 'Robust file handling in Python: context managers (with open), serializing JSON configs, parsing CSV datasets, and handling character encodings.',
+  description: 'Robust file handling in machine learning: context managers, modern pathlib filesystem navigation, JSON serialization of model hyperparameters, and CSV parsing.',
 };
 
 <Section label="What is it?">
 
-**File Input/Output (I/O)** allows Python programs to persist and read data from storage disks:
-- The **`with open(...)`** context manager guarantees files are closed cleanly even if exceptions occur.
-- **CSV (`csv` module)** reads and writes tabular comma-separated values.
-- **JSON (`json` module)** serializes and deserializes structured dictionaries and lists to universal text notation (`json.dump`, `json.load`).
-- Character encodings (e.g. `encoding="utf-8"`) prevent mojibake and decoding crashes across operating systems.
+**File Input/Output (I/O)** is the subsystem through which a Python program exchanges data with persistent non-volatile storage (SSDs, hard drives, network filesystems):
+- **Text & Binary Modes**: Direct stream handling via `open(filename, mode, encoding)`.
+- **Context Managers (`with open(...)`)**: Scoped execution blocks that guarantee files are cleanly flushed and closed, preventing operating system resource leaks.
+- **`pathlib.Path`**: Modern object-oriented filesystem manipulation replacing brittle string concatenation.
+- **Serialization Formats**:
+  - **CSV (`csv` module)**: Universal standard for raw tabular datasets.
+  - **JSON (`json` module)**: Structured, human-readable format for hyperparameter configurations, token vocabularies, and model metadata.
+  - **Binary Formats (`pickle`, `joblib`, Safetensors)**: Fast serialization of learned weights and compiled pipelines.
+
+### File Mode Matrix
+
+| Mode | Purpose | Truncate on Open? | Create if Missing? |
+| :---: | :--- | :---: | :---: |
+| `'r'` | Read text (default) | No | No (raises `FileNotFoundError`) |
+| `'w'` | Write text | **Yes** (erases existing file!) | Yes |
+| `'a'` | Append text to end of file | No | Yes |
+| `'x'` | Exclusive creation (fails if file already exists) | No | Yes |
+| `'rb'` / `'wb'` | Raw binary read / write (images, audio, model checkpoints) | Depends on w/r | Depends on w/r |
 
 </Section>
 
 <Section label="Why we need it">
 
-Machine learning projects continuously interact with files:
-- Loading raw tabular datasets: reading `.csv` files row by row or dumping processed features.
-- Persisting training hyperparameters, vocabulary mappings, and label registries in `.json` format.
-- Saving experiment checkpoints, metric histories, and evaluation logs to disk.
-- Writing safe, leak-free code that does not exhaust operating system file descriptors during distributed training.
+In production machine learning:
+- **Crash-Resistant Experiment Logging**: If an error crashes a 12-hour training script at epoch 98, unclosed file buffers can lose all logged metric points. Context managers guarantee logs are flushed to disk.
+- **Cross-Platform Path Portability**: Hardcoding forward slashes (`/`) or backslashes (`\`) causes scripts to crash when moved between Windows workstations and Linux GPU cloud clusters. `pathlib.Path` provides universal portability.
+- **Hyperparameter Reproducibility**: Serializing model configurations (`learning_rate`, `batch_size`, `optimizer`) to `.json` files alongside model weights allows exact reproduction of historical benchmark experiments.
+- **Model Checkpointing Security**: Machine learning engineers must understand the serious security vulnerabilities of unpickling untrusted model files downloaded from the web.
 
 </Section>
 
@@ -34,81 +48,193 @@ Machine learning projects continuously interact with files:
 
 <Section label="Explained in detail">
 
-### 1. The Context Manager: `with open(...)`
+### 1. The Context Manager: How `with` Prevents Resource Leaks
 
-Always open files using the `with` statement. The context manager automatically invokes `.close()` when exiting the block, preventing resource leaks:
+Opening a file requests a **file descriptor** from the operating system kernel. Operating systems strictly cap the maximum number of simultaneous open file descriptors (often 1024 by default). If you open files in a loop without closing them, the process crashes with `OSError: [Errno 24] Too many open files`.
+
+The `with` statement utilizes the **Context Manager Protocol**:
+1. It calls the object's `__enter__()` method to acquire the resource.
+2. It executes the enclosed block.
+3. It calls `__exit__()` automatically — **even if an unhandled exception or crash occurs!**
 
 ```python
-# Writing to a text file safely
-with open("metrics.txt", "w", encoding="utf-8") as f:
-    f.write("epoch,val_loss,val_acc\n")
-    f.write("1,0.45,0.89\n")
-    f.write("2,0.32,0.93\n")
+# Safe, leak-proof text writing:
+with open("training_log.txt", "w", encoding="utf-8") as f:
+    f.write("epoch,loss,accuracy\n")
+    f.write("1,0.521,0.854\n")
+    f.write("2,0.384,0.912\n")
 
-# Reading lines from a file
-with open("metrics.txt", "r", encoding="utf-8") as f:
+# Reading lines lazily (streams file line-by-line without loading entire file to RAM):
+with open("training_log.txt", "r", encoding="utf-8") as f:
     for line in f:
         print(line.strip())
 ```
 
 <Analogy>
-  Opening a file without `with` is like borrowing a book from the library and forgetting to return it: eventually, the library runs out of copies (the OS runs out of file descriptors). A `with` statement is like an automatic return chute: as soon as you finish reading, it returns the book immediately.
+  Think of opening a file as turning on a water tap in a laboratory sink. Opening a file without `with` requires you to remember to manually turn off the handle (`f.close()`). If you slip or get distracted by an error, the sink overflows and floods the building (OS descriptor exhaustion). A `with` block is a spring-loaded foot pedal: the water flows only while your foot is pressed down, and shuts off instantly the moment you step away.
 </Analogy>
 
-### 2. Working with JSON Files (`json` module)
+---
 
-JSON is the standard format for configuration files, APIs, and model metadata:
-- `json.dumps(obj)` / `json.dump(obj, f)`: Serializes Python objects to JSON strings or files.
-- `json.loads(s)` / `json.load(f)`: Deserializes JSON strings or files into Python dicts/lists.
+### 2. Building a Custom Context Manager for ML Timing
+
+You can write your own context manager by implementing `__enter__` and `__exit__`:
+
+```python
+import time
+
+class EpochTimer:
+    """Measures and logs elapsed wall-clock time for a training phase."""
+    def __init__(self, phase_name: str):
+        self.phase_name = phase_name
+        self.start_time = None
+
+    def __enter__(self):
+        self.start_time = time.perf_counter()
+        print(f"[{self.phase_name}] Started...")
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        elapsed = time.perf_counter() - self.start_time
+        print(f"[{self.phase_name}] Finished in {elapsed:.3f} seconds.")
+        # Returning False propagates exceptions; returning True suppresses them
+        return False
+
+# Usage:
+with EpochTimer("Model Validation"):
+    time.sleep(0.1)  # Simulate computing validation metrics
+```
+
+---
+
+### 3. Modern Filesystem Operations with `pathlib.Path`
+
+Avoid legacy `os.path.join` and raw string manipulations. The `pathlib` module represents filesystem paths as first-class objects:
+
+```python
+from pathlib import Path
+
+# 1. Path composition using the division operator '/'
+project_dir = Path("./experiments")
+checkpoint_dir = project_dir / "run_01" / "checkpoints"
+
+# 2. Directory creation (creates parent directories safely, ignores if existing)
+checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+# 3. Path inspection
+model_file = checkpoint_dir / "best_model.pt"
+print("File name:", model_file.name)         # "best_model.pt"
+print("File stem:", model_file.stem)         # "best_model"
+print("Extension:", model_file.suffix)       # ".pt"
+print("Exists?  :", model_file.exists())       # False
+
+# 4. Globbing: recursively search for all CSV files in a dataset folder
+data_dir = Path("./data")
+for csv_path in data_dir.glob("**/*.csv"):
+    print("Discovered dataset:", csv_path)
+```
+
+---
+
+### 4. JSON Serialization & Custom Encoders for ML
+
+JSON (JavaScript Object Notation) represents strings, numbers, booleans, lists, and key-value maps:
+- `json.dump(obj, file)`: Serializes object to a file.
+- `json.dumps(obj)`: Serializes object to an in-memory string.
+- `json.load(file)`: Deserializes file to Python object.
+- `json.loads(string)`: Deserializes string to Python object.
 
 ```python
 import json
 
-config = {
-    "model_type": "RandomForest",
-    "n_estimators": 100,
-    "max_depth": 10,
-    "features": ["age", "income", "credit_score"],
+experiment_metadata = {
+    "model_name": "ResNet18",
+    "hyperparameters": {
+        "learning_rate": 0.001,
+        "batch_size": 64,
+        "optimizer": "AdamW",
+    },
+    "metrics": {
+        "best_val_accuracy": 0.942,
+        "converged": True,
+    }
 }
 
-# Save configuration to disk
-with open("model_config.json", "w", encoding="utf-8") as f:
-    json.dump(config, f, indent=2)
-
-# Load configuration back from disk
-with open("model_config.json", "r", encoding="utf-8") as f:
-    loaded_config = json.load(f)
-
-print("Loaded model type:", loaded_config["model_type"])
+# Save formatted JSON with indentation
+config_path = Path("experiment_config.json")
+with open(config_path, "w", encoding="utf-8") as f:
+    json.dump(experiment_metadata, f, indent=2, sort_keys=True)
 ```
 
-### 3. Parsing CSV Files (`csv` module)
+<Callout kind="warning">
+  **The NumPy Type Serialization Error:** Python's standard `json` module cannot serialize NumPy numbers (`np.float32`, `np.int64`, or `np.ndarray`), raising `TypeError: Object of type float32 is not JSON serializable`. Always convert NumPy scalars using `float(val)` or implement a custom `json.JSONEncoder`!
+</Callout>
 
-For lightweight tabular data processing without installing external libraries:
+```python
+class MLJSONEncoder(json.JSONEncoder):
+    """Handles NumPy and Path objects during JSON serialization."""
+    def default(self, obj):
+        # Convert Path objects to strings
+        if isinstance(obj, Path):
+            return str(obj)
+        # Convert objects with tolist() (like NumPy arrays) to standard Python lists
+        if hasattr(obj, "tolist"):
+            return obj.tolist()
+        return super().default(obj)
+```
+
+---
+
+### 5. CSV Parsing and Tabular Datasets
+
+Python's `csv` module parses comma-separated or tab-separated records without requiring pandas:
 
 ```python
 import csv
 
-# Writing CSV data
-data = [
-    ["feature_1", "feature_2", "label"],
-    [1.2, 3.4, 0],
-    [5.6, 7.8, 1],
+# 1. Writing tabular datasets with DictWriter
+training_samples = [
+    {"sample_id": 101, "feature_x": 0.85, "label": "spam"},
+    {"sample_id": 102, "feature_x": 0.12, "label": "ham"},
 ]
 
-with open("dataset.csv", "w", newline="", encoding="utf-8") as f:
-    writer = csv.writer(f)
-    writer.writerows(data)
+csv_file = Path("samples.csv")
+with open(csv_file, "w", newline="", encoding="utf-8") as f:
+    fieldnames = ["sample_id", "feature_x", "label"]
+    writer = csv.DictWriter(f, fieldnames=fieldnames)
+    writer.writeheader()
+    writer.writerows(training_samples)
 
-# Reading CSV as dictionaries
-with open("dataset.csv", "r", encoding="utf-8") as f:
+# 2. Reading tabular datasets with DictReader
+with open(csv_file, "r", encoding="utf-8") as f:
     reader = csv.DictReader(f)
     for row in reader:
-        print(row["feature_1"], "->", row["label"])
+        print(f"Sample {row['sample_id']} has label: {row['label']}")
 ```
 
-<Callout kind="warning">
-  **Always Specify `encoding="utf-8"`:** Windows default encoding is often Windows-1252 or CP1252, whereas macOS/Linux default to UTF-8. Omitting `encoding="utf-8"` will cause cross-platform UnicodeDecodeError crashes when reading non-ASCII characters!
+---
+
+### 6. Binary Serialization & The Security Warning of `pickle`
+
+For serializing complex Python objects (such as trained Scikit-learn pipelines), the standard library provides `pickle`, and high-performance libraries provide `joblib`:
+
+```python
+import pickle
+
+trained_weights = {"w1": [0.2, 0.4], "b1": 0.05}
+
+# Serializing to binary:
+with open("weights.pkl", "wb") as f:
+    pickle.dump(trained_weights, f)
+
+# Deserializing from binary:
+with open("weights.pkl", "rb") as f:
+    loaded_weights = pickle.load(f)
+```
+
+<Callout kind="danger">
+  **CRITICAL SECURITY WARNING: Never Unpickle Untrusted Files!**
+  Python's `pickle` format is executable bytecode. Deserializing a malicious `.pkl` or `.pt` file downloaded from an untrusted source can execute arbitrary shell commands on your operating system! For sharing public weights, always prefer safe formats like **Safetensors** or ONNX.
 </Callout>
 
 </Section>
@@ -120,43 +246,56 @@ with open("dataset.csv", "r", encoding="utf-8") as f:
 <Quiz
   questions={[
     {
-      id: 'io-q1',
+      id: 'io-detail-q1',
       kind: 'mcq',
-      text: 'Why should you open files using the `with open(...) as f:` syntax in Python?',
+      text: 'Why is `with open(...)` preferred over calling `open()` and `close()` manually in Python?',
       options: [
-        'It automatically closes the file when the block exits, even if an exception is raised',
-        'It reads files 100x faster than standard open()',
-        'It converts binary images into text strings automatically',
-        'It requires no file path on disk',
+        'It automatically invokes the `__exit__` method to close the file handle, even if an unexpected exception occurs inside the block',
+        'It automatically converts CSV files into SQL databases',
+        'It executes file reads on a separate background thread automatically',
+        'It compresses files using gzip compression by default',
       ],
       correctIndex: 0,
-      explanation: 'The `with` statement leverages context managers to guarantee that the file descriptor is cleanly closed upon exiting the block, preventing resource leaks.',
+      explanation: 'The context manager ensures that `__exit__` runs whenever the block exits, guaranteeing that OS file descriptors are freed even during crashes or exceptions.',
     },
     {
-      id: 'io-q2',
+      id: 'io-detail-q2',
       kind: 'mcq',
-      text: 'Which function deserializes a JSON string into a Python dictionary or list?',
+      text: 'What error occurs if you attempt to serialize a NumPy float (e.g. `np.float32(0.42)`) using standard `json.dumps()`?',
       options: [
-        'json.loads()',
-        'json.dumps()',
-        'json.dump()',
-        'json.write()',
+        '`TypeError: Object of type float32 is not JSON serializable`',
+        '`ValueError: Infinity detected in JSON buffer`',
+        '`MemoryError: NumPy array exceeds JSON buffer`',
+        'It automatically converts it to a string without error',
       ],
       correctIndex: 0,
-      explanation: '`json.loads()` (load from string) parses a JSON-formatted string into a Python object; `json.load()` reads from a file pointer.',
+      explanation: 'Python\'s standard `json` serializer does not recognize third-party NumPy scalar types out-of-the-box, raising a TypeError unless converted to native `float()` or handled via a custom JSONEncoder.',
     },
     {
-      id: 'io-q3',
+      id: 'io-detail-q3',
       kind: 'mcq',
-      text: 'What is the purpose of `newline=""` when writing CSV files using Python\'s `csv.writer` on Windows?',
+      text: 'In modern Python, what operator does `pathlib.Path` overload to concatenate filesystem paths portably across operating systems?',
       options: [
-        'Prevents blank lines from being erroneously inserted between rows',
-        'Converts all numbers to floating point representation',
-        'Automatically adds column header names',
-        'Compresses the output file into a zip archive',
+        'The division operator `/` (e.g. `Path("data") / "train.csv"`)',
+        'The addition operator `+`',
+        'The bitwise AND operator `&`',
+        'The pipe operator `|`',
       ],
       correctIndex: 0,
-      explanation: 'On Windows, default newline translation would produce extra carriage returns (`\r\r\n`); passing `newline=""` prevents blank rows in CSV exports.',
+      explanation: '`pathlib.Path` overloads the `/` operator to construct paths cleanly regardless of whether the operating system uses forward slashes (Linux/macOS) or backslashes (Windows).',
+    },
+    {
+      id: 'io-detail-q4',
+      kind: 'mcq',
+      text: 'Why is deserializing untrusted `.pkl` or `.pt` files downloaded from the public internet considered a severe security hazard?',
+      options: [
+        'The `pickle` protocol can execute arbitrary malicious code upon deserialization via the `__reduce__` hook',
+        'It overwrites system RAM permanently',
+        'It deletes local Git commit histories',
+        'Pickle files can only be read on the exact same CPU core where they were generated',
+      ],
+      correctIndex: 0,
+      explanation: 'Pickle deserialization reconstructs objects by executing instructions that can invoke arbitrary system calls (e.g. `os.system("curl malicious.site")`), allowing remote code execution.',
     },
   ]}
 />
@@ -169,23 +308,55 @@ with open("dataset.csv", "r", encoding="utf-8") as f:
 
 <TeachThisCard
   topic="File I/O, JSON and CSV"
-  oneLiner="Use `with open(...)` with utf-8 encoding to guarantee leak-free file handling; use `json` for configs/metadata and `csv` for tabular records."
+  oneLiner="Always use `with open(...)` with explicit UTF-8 encoding; manipulate filesystem paths portably with pathlib.Path; use JSON for configs and beware of pickle security risks."
   takeaways={[
-    'Always use `with open(...)` so file streams close cleanly on completion or error.',
-    'Always specify encoding="utf-8" for universal cross-platform reproducibility.',
-    'json.dump/load operates on files; json.dumps/loads operates on in-memory strings.',
+    'Use `with open(..., encoding="utf-8")` to eliminate file descriptor leaks and cross-platform encoding bugs.',
+    'Use `pathlib.Path` instead of string concatenation to guarantee cross-platform compatibility between Windows and Linux.',
+    'Serialize model configurations into human-readable `.json` files to preserve exact experiment provenance.',
+    'Never use `pickle.load()` on untrusted model weight files from unknown internet sources — prefer Safetensors.',
   ]}
-  commonTrap="Forgetting `json.dump` vs `json.dumps`: `json.dump(data, file_handle)` writes to a file, while `json.dumps(data)` returns a string!"
+  commonTrap="Forgetting `newline=''` when creating `csv.writer` on Windows: Windows line terminators (`\r\n`) will cause empty blank rows between data lines!"
 />
 
 <ExplainInOwnWords
   subchapterSlug="file-io-json-csv"
   topicTitle="File I/O, JSON and CSV"
   referenceChecklist={[
-    'Explained the purpose of context managers with open().',
-    'Differentiated json.dump vs json.dumps.',
-    'Explained why encoding="utf-8" is essential for cross-platform data handling.',
-    'Demonstrated CSV reading with csv.reader or csv.DictReader.',
+    'Explained how the context manager protocol (__enter__ and __exit__) prevents file descriptor leaks.',
+    'Demonstrated path manipulation using pathlib.Path and the / operator.',
+    'Differentiated JSON file operations (dump/load) from string operations (dumps/loads).',
+    'Addressed the NumPy serialization pitfall in standard JSON encoders.',
+    'Explained the security dangers of Python pickle deserialization.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/python-fundamentals/file-io-json-csv"
+  items={[
+    {
+      title: "Python pathlib Documentation: Object-Oriented Filesystem Paths",
+      type: "article",
+      description: "Official guide to modern filesystem operations, path resolution, and globbing.",
+      url: "https://docs.python.org/3/library/pathlib.html"
+    },
+    {
+      title: "Hugging Face: What is Safetensors and Why Does It Matter?",
+      type: "article",
+      description: "Security and performance guide on moving away from pickle to memory-mapped, safe tensor serialization.",
+      url: "https://huggingface.co/docs/safetensors/"
+    },
+    {
+      title: "File I/O and JSON/CSV Serialization Notebook",
+      type: "cheatsheet",
+      description: "Interactive Jupyter notebook with custom context managers and JSON serialization recipes.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/python-fundamentals/file-io-json-csv"
+    }
   ]}
 />
 

@@ -4,31 +4,39 @@ import {
 } from '@/components/subchapter/SubchapterBlocks';
 import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
 import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'Lists, Dictionaries, Sets and Tuples',
-  description: 'The core built-in data structures of Python: mutability, indexing, hashing, and performance characteristics in machine learning pipelines.',
+  description: 'In-depth architecture of Python collections: memory layouts, Big-O algorithmic complexity, hash table internals, shallow vs deep copying, and collections module tools in machine learning pipelines.',
 };
 
 <Section label="What is it?">
 
-Python provides four fundamental built-in collection data structures:
-- **List (`[]`)**: An ordered, mutable sequence of heterogeneous elements.
-- **Tuple (`()`)**: An ordered, immutable sequence used for fixed records and constant shapes.
-- **Dictionary (`{}`)**: An associative key-value mapping backed by a high-speed hash table with $O(1)$ average lookup time.
-- **Set (`set()`, `{}`)**: An unordered collection of unique, hashable items supporting set-theoretic operations (union, intersection, difference).
+Python's built-in collection types are the architectural scaffolding of all data engineering and machine learning workflows:
+- **List (`[]`)**: A mutable, dynamic array of object references supporting index-based access, slicing, and dynamic resizing.
+- **Tuple (`()`)**: An immutable, fixed-length sequence ideal for static records, multidimensional coordinate pairs, and tensor shapes.
+- **Dictionary (`{}`)**: An associative mapping of unique, hashable keys to arbitrary values, implemented as a compact, cache-friendly hash table with $O(1)$ average-case lookup.
+- **Set (`set()`)**: An unordered collection of unique, hashable elements providing high-performance mathematical set operations (union, intersection, symmetric difference) in $O(1)$ time.
+
+### Algorithmic Complexity Comparison
+
+| Data Structure | Mutability | Index Access | Search / Membership (`in`) | Append / Add | Insert / Delete (Middle) |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **List** | Mutable | $O(1)$ | $O(n)$ | $O(1)$ amortized | $O(n)$ |
+| **Tuple** | Immutable | $O(1)$ | $O(n)$ | N/A | N/A |
+| **Dictionary** | Mutable | N/A | $O(1)$ avg / $O(n)$ worst | $O(1)$ avg | $O(1)$ avg |
+| **Set** | Mutable | N/A | $O(1)$ avg / $O(n)$ worst | $O(1)$ avg | $O(1)$ avg |
 
 </Section>
 
 <Section label="Why we need it">
 
-In machine learning and data engineering:
-- **Lists** store dynamic metrics, training histories, and batches of file paths: `losses.append(batch_loss)`.
-- **Tuples** represent fixed structural dimensions and tensor shapes: `shape = (batch_size, 3, 224, 224)`.
-- **Dictionaries** store hyperparameter configurations, metrics dictionaries, and JSON model weights: `config = {"lr": 1e-3, "epochs": 50}`.
-- **Sets** deduplicate vocabulary tokens, track visited states in reinforcement learning, and compute set overlaps: `vocab = set(tokens)`.
-
-Understanding their time complexities and memory trade-offs prevents computational bottlenecks when processing large datasets.
+In machine learning pipelines:
+- **Choosing the wrong collection ruins performance**: Checking `if token in token_list` inside a loop over a 100,000-word dataset takes minutes ($O(n^2)$), while converting to a `set` completes in milliseconds ($O(n)$).
+- **Silent data corruption via shared references**: Modifying a nested list or weight dictionary without understanding shallow vs deep copies will silently mutate training baselines.
+- **Tensor dimension safety**: PyTorch and TensorFlow use tuples (`(batch_size, channels, height, width)`) specifically because immutability guarantees dimensions cannot be accidentally mutated during forward computation.
+- **Efficient Feature Mapping**: Dictionaries and `collections.defaultdict` form the backbone of tokenizers, categorical encoders, and vocabulary frequency analyzers in Natural Language Processing.
 
 </Section>
 
@@ -36,72 +44,184 @@ Understanding their time complexities and memory trade-offs prevents computation
 
 <Section label="Explained in detail">
 
-### 1. Lists: Mutable Sequences
+### 1. Lists: CPython Memory Layout & Dynamic Resizing
 
-Lists are dynamic arrays. Appending to the end is $O(1)$ amortized, while inserting or deleting from the middle is $O(n)$ because remaining elements must shift in memory:
+In CPython, a Python `list` is **not a linked list** and **not a raw C array of values**. It is a **contiguous dynamic array of pointers** to Python objects:
 
-```python
-# List creation and operations
-features = ["area", "bedrooms", "age"]
-features.append("bathrooms")        # Add to end: O(1)
-features.insert(0, "zip_code")      # Insert at front: O(n)
-print("Slice [1:3]:", features[1:3]) # ['area', 'bedrooms']
+```text
+[ Python List Object ]
+   ├── size: 3
+   ├── allocated: 4 (over-allocated capacity)
+   └── ob_item ───► [ Pointer 0 ] ───► Integer Object (10)
+                    [ Pointer 1 ] ───► String Object ("loss")
+                    [ Pointer 2 ] ───► Float Object (0.42)
+                    [ Pointer 3 ] ───► (Unused capacity)
 ```
 
-### 2. Tuples: Immutable Records
-
-Once created, tuple elements cannot be modified, added, or removed. Because they are immutable and hashable (if their contents are hashable), tuples can serve as dictionary keys:
+#### Amortized $O(1)$ Appending
+When a list exceeds its current capacity, CPython allocates a larger contiguous memory buffer according to a geometric growth pattern:
+$$
+\text{new\_allocated} \approx \text{new\_size} + (\text{new\_size} \gg 3) + 6
+$$
+Because reallocations happen exponentially less frequently as the list grows, appending is **$O(1)$ amortized**. However, inserting or deleting from the beginning (`list.insert(0, val)`) forces every pointer in the array to shift right, costing $O(n)$ time.
 
 ```python
-# Fixed image coordinates and tensor shapes
-img_dims = (1920, 1080)
-spatial_weights = {(0, 1): 0.45, (1, 0): 0.55}
-
-# Unpacking tuples cleanly
-width, height = img_dims
-print(f"Width: {width}, Height: {height}")
+losses = []
+for epoch in range(100):
+    losses.append(0.5 / (epoch + 1))  # O(1) amortized append
 ```
 
-<Analogy>
-  Think of a list as a loose-leaf binder where you can add, remove, and reorder pages anytime. A tuple is a printed paperback book: once bound, the pages cannot be modified or re-indexed.
-</Analogy>
+---
 
-### 3. Dictionaries: Fast $O(1)$ Key-Value Hash Maps
+### 2. Slicing Mechanics & Shallow Copying
 
-Dictionaries map unique keys to values using hash tables. They preserve insertion order (in Python 3.7+):
-
-```python
-metrics = {
-    "train_loss": 0.24,
-    "val_loss": 0.31,
-    "accuracy": 0.945,
-}
-
-# Safe lookup with default fallback
-recall = metrics.get("recall", 0.0)
-
-# Iterating over key-value pairs
-for metric, score in metrics.items():
-    print(f"{metric}: {score:.3f}")
-```
-
-### 4. Sets: Unordered Unique Collections
-
-Sets enforce uniqueness and provide $O(1)$ average membership testing (`x in my_set`):
+Python slicing syntax follows `sequence[start:stop:step]`:
+- `start`: Inclusive starting index (defaults to `0`).
+- `stop`: Exclusive ending index (defaults to `len(seq)`).
+- `step`: Stride amount (can be negative for reverse traversal).
 
 ```python
-corpus_a = {"neural", "network", "gradient", "descent"}
-corpus_b = {"gradient", "boosting", "tree", "forest"}
+data = [10, 20, 30, 40, 50, 60]
 
-# Set theoretic operations
-common_words = corpus_a & corpus_b        # Intersection: {'gradient'}
-all_words = corpus_a | corpus_b           # Union
-unique_to_a = corpus_a - corpus_b         # Difference
+print(data[1:4])     # [20, 30, 40]
+print(data[::2])     # [10, 30, 50] (every 2nd element)
+print(data[::-1])    # [60, 50, 40, 30, 20, 10] (reversed copy)
 ```
 
 <Callout kind="warning">
-  **Dictionary & Set Keys Must Be Hashable:** You can use strings, numbers, and tuples as dictionary keys or set members. You **cannot** use mutable objects like lists or other dictionaries (`unhashable type: 'list'`).
+  **Slicing a List Creates a Shallow Copy:** Slicing `sub = data[1:4]` allocates a **new list of pointers**, but the objects pointed to are not duplicated! For nested structures, modifying an inner list inside a slice mutates the original list.
 </Callout>
+
+#### Shallow Copy vs Deep Copy
+```python
+import copy
+
+original = [[1, 2], [3, 4]]
+
+# Shallow copy: outer list is new, inner lists are shared pointers
+shallow = original.copy()  # or original[:]
+shallow[0].append(99)
+print(original)  # [[1, 2, 99], [3, 4]] — CORRUPTED!
+
+# Deep copy: recursively copies every nested object
+deep = copy.deepcopy(original)
+deep[0].append(100)
+print(original)  # [[1, 2, 99], [3, 4]] — UNTOUCHED!
+```
+
+---
+
+### 3. Tuples: Immutability & Structural Records
+
+A tuple cannot be altered after construction. This property makes tuples:
+1. **Memory-efficient**: Tuples do not over-allocate extra buffer slots like lists.
+2. **Thread-safe**: Read-only access prevents race conditions during multithreaded data loading.
+3. **Hashable**: A tuple containing only hashable elements can be used as a dictionary key or set element.
+
+```python
+# Fixed grid coordinates as dictionary keys
+heat_map = {
+    (0, 0): 0.12,
+    (0, 1): 0.85,
+    (1, 0): 0.44,
+}
+print(heat_map[(0, 1)])  # 0.85
+```
+
+#### Typed NamedTuples (`typing.NamedTuple`)
+For clean, self-documenting records without the overhead of full classes:
+
+```python
+from typing import NamedTuple
+
+class BatchRecord(NamedTuple):
+    batch_id: int
+    loss: float
+    accuracy: float
+
+batch = BatchRecord(batch_id=42, loss=0.28, accuracy=0.94)
+print(batch.batch_id, batch.accuracy)  # Access by name or index batch[0]
+```
+
+---
+
+### 4. Dictionaries: Hash Tables & Modern Compact Layout
+
+Since Python 3.6+, CPython uses a **compact hash table design** that reduces memory footprint by up to 25% and guarantees **insertion order preservation**:
+
+```text
+# Conceptual Compact Dict Layout:
+indices:  [None, 0, None, 1, None, None, 2, None]  # Sparse hash table
+entries:  [
+    {"hash": 1234, "key": "lr", "val": 0.01},      # Dense array
+    {"hash": 5678, "key": "epoch", "val": 50},
+    {"hash": 9012, "key": "decay", "val": 1e-4}
+]
+```
+
+#### The Hash Function & Key Requirements
+To place an item in a dictionary, Python calculates `hash(key)`. Keys **must be hashable**:
+- Immutable types (`int`, `float`, `str`, `tuple`, `frozenset`) implement `__hash__()` and are valid keys.
+- Mutable types (`list`, `dict`, `set`) do not implement `__hash__()` and raise `TypeError: unhashable type`.
+
+```python
+# Safe dictionary access patterns
+metrics = {"val_loss": 0.35, "train_loss": 0.22}
+
+# 1. get() with default fallback
+accuracy = metrics.get("accuracy", 0.0)
+
+# 2. setdefault() initializes missing keys safely
+token_counts = {}
+for word in ["loss", "epoch", "loss"]:
+    token_counts.setdefault(word, 0)
+    token_counts[word] += 1
+```
+
+---
+
+### 5. Sets & Mathematical Set Algebra
+
+Python sets are unordered collections of unique hashable elements. They excel at vocabulary extraction, categorical deduplication, and set operations:
+
+```python
+train_classes = {"cat", "dog", "bird", "horse"}
+val_classes = {"dog", "elephant", "cat"}
+
+# Set Theory Operators:
+print(train_classes & val_classes)  # Intersection: {'cat', 'dog'}
+print(train_classes | val_classes)  # Union: all classes
+print(train_classes - val_classes)  # Difference: {'bird', 'horse'}
+print(train_classes ^ val_classes)  # Symmetric Difference: unique to either
+```
+
+<Callout kind="tip">
+  **`frozenset`:** An immutable variant of `set`. Because it is immutable and hashable, you can store a `frozenset` inside another set or use it as a dictionary key!
+</Callout>
+
+---
+
+### 6. Specialized ML Containers (`collections` Module)
+
+Python's standard library provides high-performance specialized containers:
+
+```python
+from collections import defaultdict, Counter, deque
+
+# 1. defaultdict: Never raises KeyError
+adjacency = defaultdict(list)
+adjacency["node_0"].append("node_1")  # Initializes empty list automatically!
+
+# 2. Counter: Frequency analysis for NLP tokenizers
+corpus = ["gradient", "descent", "stochastic", "gradient", "descent", "gradient"]
+vocab_counter = Counter(corpus)
+print(vocab_counter.most_common(2))  # [('gradient', 3), ('descent', 2)]
+
+# 3. deque: Double-ended queue with O(1) appends and pops on BOTH ends
+# Essential for sliding window metrics and replay buffers in Reinforcement Learning
+replay_buffer = deque(maxlen=1000)
+replay_buffer.append({"state": 1, "reward": 5.0})
+```
 
 </Section>
 
@@ -112,43 +232,56 @@ unique_to_a = corpus_a - corpus_b         # Difference
 <Quiz
   questions={[
     {
-      id: 'ds-q1',
+      id: 'ds-detail-q1',
       kind: 'mcq',
-      text: 'Which of the following can be used as a key in a Python dictionary?',
+      text: 'Why does checking membership `item in my_collection` take O(1) average time in a set, but O(n) time in a standard list?',
       options: [
-        'A tuple: `(1, 2)`',
-        'A list: `[1, 2]`',
-        'A set: `{1, 2}`',
-        'A dictionary: `{"a": 1}`',
+        'Sets use hash tables to jump directly to the computed memory bucket, while lists must scan elements sequentially',
+        'Sets store elements sorted in ascending binary search trees',
+        'Lists compress elements into zip files on memory allocation',
+        'Sets run in parallel across CPU cores automatically',
       ],
       correctIndex: 0,
-      explanation: 'Dictionary keys must be hashable and immutable. Tuples are immutable and hashable (provided their elements are hashable), whereas lists, sets, and dictionaries are mutable and unhashable.',
+      explanation: 'Sets compute the hash of the target item and inspect the corresponding bucket directly in O(1) time. Lists are unsorted pointer arrays requiring linear O(n) traversal.',
     },
     {
-      id: 'ds-q2',
+      id: 'ds-detail-q2',
       kind: 'mcq',
-      text: 'What is the average time complexity for checking membership (`item in collection`) in a Python set of size n?',
+      text: 'What will be printed by the following code snippet?\n\na = [[0]] * 3\na[0].append(1)\nprint(a)',
       options: [
-        'O(1)',
-        'O(n)',
-        'O(log n)',
-        'O(n²)',
+        '[[0, 1], [0, 1], [0, 1]] because the multiplication operator repeats references to the exact same inner list',
+        '[[0, 1], [0], [0]] because only the first element was appended to',
+        '[[0], [0], [0]] because lists are immutable when multiplied',
+        'Raises an IndexError: list index out of range',
       ],
       correctIndex: 0,
-      explanation: 'Python sets are implemented as hash tables, providing average O(1) constant-time membership lookups, compared to O(n) for lists.',
+      explanation: 'Multiplying a list containing a mutable object (`[[0]] * 3`) copies the reference three times. Modifying one inner list modifies all of them because they all point to the same object in memory.',
     },
     {
-      id: 'ds-q3',
+      id: 'ds-detail-q3',
       kind: 'mcq',
-      text: 'What is the result of `list(set([3, 1, 3, 2, 1]))`?',
+      text: 'Which of the following types CANNOT be used as a key in a Python dictionary?',
       options: [
-        'A collection containing {1, 2, 3} with duplicates removed',
-        '[3, 1, 3, 2, 1] preserved in original order',
-        'An error because sets cannot be converted to lists',
-        '[3, 3, 1, 1, 2]',
+        '`[1, 2, 3]` (a list)',
+        '`(1, 2, 3)` (a tuple)',
+        '`"my_feature"` (a string)',
+        '`frozenset([1, 2])` (a frozen set)',
       ],
       correctIndex: 0,
-      explanation: 'Converting a list to a set strips duplicate elements, leaving distinct items 1, 2, and 3.',
+      explanation: 'Lists are mutable and do not implement `__hash__()`. Dictionary keys must be immutable and hashable.',
+    },
+    {
+      id: 'ds-detail-q4',
+      kind: 'mcq',
+      text: 'In Reinforcement Learning replay buffers and moving-average metric trackers, why is `collections.deque(maxlen=K)` preferred over a standard Python `list`?',
+      options: [
+        '`deque` provides O(1) appends and pops from both ends, while `list.pop(0)` takes O(n) time',
+        '`deque` converts floating point tensors into integers automatically',
+        '`list` cannot hold more than 100 elements in memory',
+        '`deque` compiles Python code into C++ binaries automatically',
+      ],
+      correctIndex: 0,
+      explanation: '`collections.deque` is a doubly linked list providing O(1) insertion and removal from both ends. Popping from the front of a standard list takes O(n) because all subsequent elements must shift.',
     },
   ]}
 />
@@ -161,24 +294,55 @@ unique_to_a = corpus_a - corpus_b         # Difference
 
 <TeachThisCard
   topic="Lists, Dictionaries, Sets and Tuples"
-  oneLiner="Lists are mutable sequences; tuples are immutable shapes/records; dictionaries are O(1) key-value hash maps; sets are deduplicated unique collections."
+  oneLiner="Lists are dynamic arrays of pointers; tuples provide immutable tensor shapes; dictionaries are compact O(1) hash maps; sets accelerate vocabulary lookups from O(n) to O(1)."
   takeaways={[
-    'Use lists for ordered, dynamic sequences (e.g. loss histories, training batches).',
-    'Use tuples for fixed multidimensional tensor shapes and immutable coordinates.',
-    'Use dictionaries for model configs, metric logs, and parameter lookups.',
-    'Sets provide O(1) membership checks and fast deduplication.',
+    'Never check membership inside loops using lists: converting a list to a `set` drops query time from O(n) to O(1).',
+    'Beware of shallow copies: `list.copy()` or slicing `[:]` duplicates only top-level pointers. Use `copy.deepcopy()` for nested weights or parameter dicts.',
+    'Use `collections.defaultdict` and `Counter` to eliminate boilerplate `KeyError` checks in NLP tokenizers.',
+    'Tuples and `NamedTuples` ensure that multi-dimensional tensor shapes remain immutable and tamper-proof throughout forward passes.',
   ]}
-  commonTrap="Using `list` for membership checking (`if token in token_list:`) inside a loop over a large corpus — this causes an O(n²) bottleneck. Always convert to a `set` first for O(1) lookups!"
+  commonTrap="Creating 2D matrices using `[[0] * cols] * rows`. This repeats the same list reference across all rows! Always construct 2D lists via list comprehension: `[[0] * cols for _ in range(rows)]`."
 />
 
 <ExplainInOwnWords
   subchapterSlug="python-data-structures"
   topicTitle="Lists, Dictionaries, Sets and Tuples"
   referenceChecklist={[
-    'Explained mutability vs immutability between lists and tuples.',
-    'Explained hash tables and O(1) lookup in dictionaries and sets.',
-    'Gave examples of why tensor shapes are tuples and metrics are dictionaries.',
-    'Mentioned why lists cannot be dictionary keys.',
+    'Explained the pointer array implementation of CPython lists.',
+    'Contrasted the O(1) lookup of sets/dictionaries with the O(n) scan of lists.',
+    'Explained shallow copying vs deep copying in nested machine learning configs.',
+    'Demonstrated why multiplying a nested list creates shared references.',
+    'Introduced collections.defaultdict, Counter, or deque for machine learning tasks.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/python-fundamentals/python-data-structures"
+  items={[
+    {
+      title: "CPython Internals: How Lists and Dictionaries Actually Work",
+      type: "article",
+      description: "In-depth guide by Anthony Shaw on dynamic array growth, hash table layout, and memory allocation in CPython.",
+      url: "https://realpython.com/cpython-internals/"
+    },
+    {
+      title: "Python Collections Module Documentation",
+      type: "cheatsheet",
+      description: "Official guide to high-performance containers: Counter, defaultdict, deque, and NamedTuple.",
+      url: "https://docs.python.org/3/library/collections.html"
+    },
+    {
+      title: "Python Data Structures Practice Notebook",
+      type: "cheatsheet",
+      description: "Hands-on Jupyter notebook covering slicing tricks, hash collision benchmarks, and deep copy demos.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/python-fundamentals/python-data-structures"
+    }
   ]}
 />
 
