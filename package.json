@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "sync:resources": "node scripts/sync-resources-manifest.mjs",
     "prune:android": "node scripts/prune-android-resources.mjs",
     "cap:sync": "next build && npx cap sync android && node scripts/prune-android-resources.mjs"
   },

@@ -122,5 +122,243 @@
         "extension": "tex"
       }
     ]
+  },
+  "model-evaluation-plots": {
+    "part": "programming-and-tools",
+    "chapter": "visualization",
+    "sub": "model-evaluation-plots",
+    "files": [
+      {
+        "name": "matplotlib_visualization_homework.ipynb",
+        "size": "319.7 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "seaborn-statistical-graphics": {
+    "part": "programming-and-tools",
+    "chapter": "visualization",
+    "sub": "seaborn-statistical-graphics",
+    "files": [
+      {
+        "name": "matplotlib_seaborn_case_study.ipynb",
+        "size": "1.2 MB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "matplotlib_seaborn_case_study_solutions.ipynb",
+        "size": "1.0 MB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "diagnostic-charts": {
+    "part": "programming-and-tools",
+    "chapter": "visualization",
+    "sub": "diagnostic-charts",
+    "files": [
+      {
+        "name": "04_matplotlib_exercise_2.ipynb",
+        "size": "18.5 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "05_matplotlib_exercise_2_solutions.ipynb",
+        "size": "36.7 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "matplotlib-fundamentals": {
+    "part": "programming-and-tools",
+    "chapter": "visualization",
+    "sub": "matplotlib-fundamentals",
+    "files": [
+      {
+        "name": "01_matplotlib_comprehensive_guide.ipynb",
+        "size": "120.0 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "02_matplotlib_exercise_1.ipynb",
+        "size": "14.1 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "03_matplotlib_exercise_1_solutions.ipynb",
+        "size": "29.4 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-indexing-and-slicing": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-indexing-and-slicing",
+    "files": [
+      {
+        "name": "numpy_data_manipulation_guide.ipynb",
+        "size": "202.3 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "numpy_data_manipulation_solutions.ipynb",
+        "size": "40.3 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-vectorization": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-vectorization",
+    "files": [
+      {
+        "name": "04_numpy_exercise_2.ipynb",
+        "size": "9.9 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "05_numpy_exercise_2_solutions.ipynb",
+        "size": "22.2 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-arrays-and-shapes": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-arrays-and-shapes",
+    "files": [
+      {
+        "name": "01_numpy_comprehensive_guide.ipynb",
+        "size": "89.0 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "02_numpy_exercise_1.ipynb",
+        "size": "9.8 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "03_numpy_exercise_1_solutions.ipynb",
+        "size": "20.0 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-linear-algebra": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-linear-algebra",
+    "files": [
+      {
+        "name": "04_numpy_exercise_2.ipynb",
+        "size": "9.9 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "05_numpy_exercise_2_solutions.ipynb",
+        "size": "22.2 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "numpy-broadcasting": {
+    "part": "programming-and-tools",
+    "chapter": "numpy",
+    "sub": "numpy-broadcasting",
+    "files": [
+      {
+        "name": "numpy_broadcasting_homework.ipynb",
+        "size": "314.8 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-series-and-dataframes": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-series-and-dataframes",
+    "files": [
+      {
+        "name": "01_pandas_easy_guide.ipynb",
+        "size": "226.4 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "02_pandas_exercise_1.ipynb",
+        "size": "13.0 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "03_pandas_exercise_1_solutions.ipynb",
+        "size": "54.9 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-joins-and-merges": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-joins-and-merges",
+    "files": [
+      {
+        "name": "04_pandas_exercise_2.ipynb",
+        "size": "15.7 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "05_pandas_exercise_2_solutions.ipynb",
+        "size": "54.3 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-filtering-and-sorting": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-filtering-and-sorting",
+    "files": [
+      {
+        "name": "04_pandas_exercise_2.ipynb",
+        "size": "15.7 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "05_pandas_exercise_2_solutions.ipynb",
+        "size": "54.3 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-data-ingestion": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-data-ingestion",
+    "files": [
+      {
+        "name": "pandas_data_cleaning_guide.ipynb",
+        "size": "643.3 KB",
+        "extension": "ipynb"
+      },
+      {
+        "name": "pandas_data_cleaning_solutions.ipynb",
+        "size": "106.2 KB",
+        "extension": "ipynb"
+      }
+    ]
+  },
+  "pandas-groupby-and-aggregations": {
+    "part": "programming-and-tools",
+    "chapter": "pandas",
+    "sub": "pandas-groupby-and-aggregations",
+    "files": [
+      {
+        "name": "pandas_groupby_homework.ipynb",
+        "size": "319.2 KB",
+        "extension": "ipynb"
+      }
+    ]
   }
 }
