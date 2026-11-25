@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useMobileNav } from '@/components/layout/MobileNavContext';
 
 export function SiteHeader() {
@@ -26,10 +27,14 @@ export function SiteHeader() {
       </button>
 
       {/* Logo */}
-      <Link href="/" className="flex items-center gap-2 font-bold text-stone-900 mr-8">
-        <span className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-white text-sm font-black shadow-sm">
-          M
-        </span>
+      <Link href="/" className="flex items-center gap-2.5 font-bold text-stone-900 mr-8 group">
+        <Image
+          src="/logo.png"
+          alt="MLTheta Logo"
+          width={28}
+          height={28}
+          className="w-7 h-7 object-contain drop-shadow-xs transition-transform group-hover:scale-105"
+        />
         <span className="text-lg tracking-tight">
           ML<span className="text-brand-600">Theta</span>
         </span>

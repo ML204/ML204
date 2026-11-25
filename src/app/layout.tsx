@@ -28,6 +28,17 @@ export const metadata: Metadata = {
   description:
     'A free, visual, interactive machine learning textbook for college and undergraduate students.',
   keywords: ['machine learning', 'interactive', 'education', 'AI', 'deep learning'],
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/favicon.png', type: 'image/png' },
+      { url: '/logo-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/manifest.json',
 };
 
 export default function RootLayout({

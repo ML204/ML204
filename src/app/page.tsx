@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { toc } from '@/lib/toc';
 import { HomeHeroActions } from '@/components/home/HomeHeroActions';
 import { HomeDownloadBanner } from '@/components/home/HomeDownloadBanner';
@@ -10,6 +11,16 @@ export default function HomePage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       {/* Hero */}
       <div className="text-center mb-12 sm:mb-16">
+        <div className="flex justify-center mb-4">
+          <Image
+            src="/logo.png"
+            alt="MLTheta Logo"
+            width={84}
+            height={84}
+            className="w-20 h-20 sm:w-22 sm:h-22 object-contain drop-shadow-sm transition-transform hover:scale-105 duration-300"
+            priority
+          />
+        </div>
         <span className="inline-block px-3 py-1 text-xs font-semibold text-brand-600 bg-brand-50 rounded-full border border-brand-200 mb-4">
           Free · Visual · Interactive
         </span>
