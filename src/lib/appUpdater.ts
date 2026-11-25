@@ -203,7 +203,7 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
  * On web: opens the APK download link.
  */
 export async function downloadAppUpdate(apkUrl: string, latestVersion: string = 'latest'): Promise<boolean> {
-  const filename = `ml204-v${latestVersion}.apk`;
+  const filename = `mltheta-v${latestVersion}.apk`;
 
   if (Capacitor.isNativePlatform()) {
     if (

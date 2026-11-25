@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Pre-release validation script for ML204 resources.
+ * Pre-release validation script for MLTheta resources.
  * - Confirms that all topics in resourcesManifest.json are well-formed
  * - Confirms that resources.json catalog entries are valid
  */
@@ -20,7 +20,7 @@ const resourcesPath = path.join(rootDir, 'src', 'data', 'resources.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 const resources = JSON.parse(fs.readFileSync(resourcesPath, 'utf8'));
 
-console.log(`\n🔍 Verifying ML204 resources manifest and attribution catalog...\n`);
+console.log(`\n🔍 Verifying MLTheta resources manifest and attribution catalog...\n`);
 
 let manifestTopicCount = Object.keys(manifest).length;
 let totalManifestFiles = 0;
