@@ -1,0 +1,122 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import { Section, Callout, Analogy, Divider } from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = { title: 'groupby and Aggregations', description: 'Learn split-apply-combine with groupby, named aggregations, transform, and pivot tables.' };
+
+<Section label="What is it?">
+
+**groupby** splits rows by key values, applies a function to each group, and combines the results.
+
+```python
+summary = sales.groupby('region')['amount'].agg(['sum', 'mean', 'count'])
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+Summaries often require per-group calculations: average loss by product category, accuracy by customer segment, or feature averages for each label.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### Split, apply, combine
+
+```python
+sales = pd.DataFrame({
+    'region': ['East', 'East', 'West', 'West'],
+    'amount': [20, 30, 15, 45],
+})
+
+print(sales.groupby('region')['amount'].sum())
+print(sales.groupby('region')['amount'].agg(['sum', 'mean', 'count']))
+```
+
+Built-in aggregations include `sum`, `mean`, `std`, `count`, `median`, `min`, and `max`.
+
+### Named aggregations
+
+```python
+summary = sales.groupby('region').agg(
+    revenue=('amount', 'sum'),
+    average_order=('amount', 'mean'),
+    order_count=('amount', 'count'),
+)
+```
+
+Named aggregation gives each output column a clear name and allows several calculations in one operation.
+
+### Transforming within groups
+
+`transform` returns one output value per original row, aligned to the original index.
+
+```python
+sales['region_mean'] = sales.groupby('region')['amount'].transform('mean')
+sales['amount_minus_region_mean'] = (
+    sales['amount'] - sales['region_mean']
+)
+```
+
+Use `transform` for group-standardization or group-relative features. Use `agg` when one result per group is desired.
+
+### Pivot tables
+
+```python
+sales['category'] = ['A', 'B', 'A', 'B']
+pivot = sales.pivot_table(
+    values='amount',
+    index='region',
+    columns='category',
+    aggfunc='sum',
+    fill_value=0,
+)
+```
+
+<Analogy>
+  groupby is a team organizer. It sorts rows into teams, gives each team a calculation, and reports one result per team. transform gives every player a team statistic while retaining one result per player.
+</Analogy>
+
+<Callout kind="warning">
+  `count` counts non-missing values, while `size` counts every row in a group. Choose correctly when missing values are present.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    { id: 'pandas-groupby-q1', kind: 'mcq', text: 'What are the three phases of groupby?', options: ['Load, clean, export', 'Split, apply, combine', 'Index, filter, sort', 'Merge, concat, join'], correctIndex: 1, explanation: 'groupby splits rows into groups, applies a function, and combines the outputs.' },
+    { id: 'pandas-groupby-q2', kind: 'mcq', text: 'When should transform be used instead of agg?', options: ['When a result is needed for every original row', 'When exporting CSV', 'When joining tables', 'When selecting columns'], correctIndex: 0, explanation: 'transform returns an aligned result with the same row count as the input.' },
+    { id: 'pandas-groupby-q3', kind: 'mcq', text: 'What does agg(revenue=("amount", "sum")) define?', options: ['An index named revenue', 'An output column named revenue calculated with sum', 'A join key', 'A time zone'], correctIndex: 1, explanation: 'Named aggregation uses output_name=(input_column, aggregation_function).' },
+    { id: 'pandas-groupby-q4', kind: 'mcq', text: 'Which pivot_table argument chooses the calculation in each cell?', options: ['fill_value', 'aggfunc', 'index', 'columns'], correctIndex: 1, explanation: 'aggfunc selects the reduction, such as sum or mean.' }
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard title="groupby in one minute" oneLiner="Split rows by keys, apply an aggregation or transformation, and combine the result with clear output names." takeaways={['agg returns one result per group.', 'transform returns one result per original row.', 'Named aggregation makes output names explicit.', 'pivot_table reshapes group keys into rows and columns.']} commonTrap="count counts non-missing values; size counts every row. Do not swap them when missing data can occur." />
+
+<ExplainInOwnWords prompt="Explain the difference between an aggregate result and a group-relative feature created with transform." hint="Compare output size: one row per group versus one value per original row." />
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection title="Continue learning groupby" resources={[{ label: 'pandas: Group by operations', url: 'https://pandas.pydata.org/docs/user_guide/groupby.html' }, { label: 'pandas: Pivot tables', url: 'https://pandas.pydata.org/docs/user_guide/reshaping.html#pivot-tables' }]} />
+
+</Section>

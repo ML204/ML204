@@ -1,0 +1,104 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import { Section, Callout, Analogy, Divider } from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = { title: 'Selecting, Filtering and Sorting', description: 'Use loc, iloc, Boolean masks, isin, string accessors, sort_values, and sort_index safely.' };
+
+<Section label="What is it?">
+
+Selecting chooses columns or rows. Filtering keeps rows that satisfy conditions. Sorting reorders rows according to column values or index labels.
+
+```python
+rows = df.loc[df['score'] >= 80, ['name', 'score']]
+rows = rows.sort_values('score', ascending=False)
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+Cleaning and model preparation repeatedly require subsets: remove invalid rows, isolate a class, find missing values, rank observations, or test a model on a named slice.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### `.loc` versus `.iloc`
+
+`.loc` uses labels. `.iloc` uses integer positions.
+
+```python
+frame = df.set_index('name')
+print(frame.loc['Asha', 'score'])
+print(frame.iloc[0, 1])
+print(frame.loc['Asha':'Chen', ['score']])
+```
+
+<Callout kind="warning">
+  `.loc` slicing includes the end label. `.iloc` slicing excludes the end position.
+</Callout>
+
+### Boolean masks
+
+```python
+mask = (df['score'] >= 80) & (df['passed'] == True)
+selected = df.loc[mask, ['name', 'score']]
+
+other = df.loc[
+    df['country'].isin(['BD', 'US']) & ~df['score'].isna(),
+    ['name', 'country', 'score'],
+]
+```
+
+Use parentheses around conditions and `&`, `|`, `~` instead of Python `and`, `or`, `not` for elementwise pandas operations.
+
+### String accessors and sorting
+
+```python
+emails = df.loc[df['email'].str.contains(r'@example\.com$', na=False)]
+ranked = df.sort_values(['country', 'score'], ascending=[True, False])
+ranked_by_name = df.sort_index()
+```
+
+<Analogy>
+  A Boolean mask is a check mark for every row. Combining masks with `&` and `|` is like stacking filters on a spreadsheet.
+</Analogy>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    { id: 'pandas-filter-q1', kind: 'mcq', text: 'Which selector is label-based?', options: ['.iloc', '.loc', '.str', '.to_numpy'], correctIndex: 1, explanation: '.loc selects rows and columns using index and column labels.' },
+    { id: 'pandas-filter-q2', kind: 'mcq', text: 'Which expression combines two Boolean Series elementwise?', options: ['(a and b)', '(a & b)', '(a || b)', '(a + b)'], correctIndex: 1, explanation: '& combines matching elements. Parentheses control precedence.' },
+    { id: 'pandas-filter-q3', kind: 'mcq', text: 'What is df.iloc[0:3]?', options: ['Rows 0 through 3', 'The first three rows at positions 0, 1, and 2', 'Only the first row', 'Columns 0 through 3'], correctIndex: 1, explanation: 'Integer-position slicing excludes the stop position.' },
+    { id: 'pandas-filter-q4', kind: 'mcq', text: 'Which method sorts by index labels?', options: ['sort_values', 'sort_index', 'nlargest', 'isin'], correctIndex: 1, explanation: 'sort_index uses row labels; sort_values uses column values.' }
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard title="Filtering and sorting in one minute" oneLiner="Use loc for labels, iloc for positions, Boolean masks for conditions, and sort methods for order." takeaways={['Parenthesize every mask condition.', 'Use &, |, and ~ for pandas Boolean operations.', 'Use isin for membership and str.contains for text patterns.', 'Choose sort_values for columns and sort_index for labels.']} commonTrap="Python and/or/not do not apply elementwise to pandas masks; use &/|/~ and explicit parentheses." />
+
+<ExplainInOwnWords prompt="Describe one ML preprocessing filter and explain whether loc or iloc is more appropriate." hint="Consider invalid rows, named index slices, or position-based row selection." />
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection title="Continue learning selection" resources={[{ label: 'pandas: Indexing and selecting data', url: 'https://pandas.pydata.org/docs/user_guide/indexing.html' }, { label: 'pandas: Sorting', url: 'https://pandas.pydata.org/docs/user_guide/basics.html#sorting' }]} />
+
+</Section>

@@ -47,6 +47,20 @@ export const contentRegistry: Record<string, Loader> = {
   'programming-and-tools/numpy/numpy-linear-algebra': () =>
     import('@/content/programming-and-tools/numpy/numpy-linear-algebra.mdx'),
 
+  // Part 0: pandas
+  'programming-and-tools/pandas/pandas-series-and-dataframes': () =>
+    import('@/content/programming-and-tools/pandas/pandas-series-and-dataframes.mdx'),
+  'programming-and-tools/pandas/pandas-data-ingestion': () =>
+    import('@/content/programming-and-tools/pandas/pandas-data-ingestion.mdx'),
+  'programming-and-tools/pandas/pandas-filtering-and-sorting': () =>
+    import('@/content/programming-and-tools/pandas/pandas-filtering-and-sorting.mdx'),
+  'programming-and-tools/pandas/pandas-groupby-and-aggregations': () =>
+    import('@/content/programming-and-tools/pandas/pandas-groupby-and-aggregations.mdx'),
+  'programming-and-tools/pandas/pandas-joins-and-merges': () =>
+    import('@/content/programming-and-tools/pandas/pandas-joins-and-merges.mdx'),
+  'programming-and-tools/pandas/pandas-time-series': () =>
+    import('@/content/programming-and-tools/pandas/pandas-time-series.mdx'),
+
   // Part 1: Math Foundations
   'math-foundations/linear-algebra/vectors-and-matrices': () =>
     import('@/content/math-foundations/linear-algebra/vectors-and-matrices.mdx'),

@@ -58,12 +58,12 @@ export const toc: Part[] = [
         slug: 'pandas',
         title: 'Data Analysis with pandas',
         subchapters: [
-          { slug: 'pandas-series-and-dataframes',  title: 'Series and DataFrames',                     estimatedMinutes: 7 },
-          { slug: 'pandas-data-ingestion',         title: 'Loading CSV, Excel and JSON',               estimatedMinutes: 6 },
-          { slug: 'pandas-filtering-and-sorting',  title: 'Selecting, Filtering and Sorting',          estimatedMinutes: 7 },
-          { slug: 'pandas-groupby-and-aggregations', title: 'groupby and Aggregations',                estimatedMinutes: 7 },
-          { slug: 'pandas-joins-and-merges',       title: 'Merging, Joining and Concatenating',        estimatedMinutes: 7 },
-          { slug: 'pandas-time-series',            title: 'Handling Dates and Time Series',            estimatedMinutes: 7 },
+          { slug: 'pandas-series-and-dataframes',  title: 'Series and DataFrames',                     estimatedMinutes: 7, done: true },
+          { slug: 'pandas-data-ingestion',         title: 'Loading CSV, Excel and JSON',               estimatedMinutes: 6, done: true },
+          { slug: 'pandas-filtering-and-sorting',  title: 'Selecting, Filtering and Sorting',          estimatedMinutes: 7, done: true },
+          { slug: 'pandas-groupby-and-aggregations', title: 'groupby and Aggregations',                estimatedMinutes: 7, done: true },
+          { slug: 'pandas-joins-and-merges',       title: 'Merging, Joining and Concatenating',        estimatedMinutes: 7, done: true },
+          { slug: 'pandas-time-series',            title: 'Handling Dates and Time Series',            estimatedMinutes: 7, done: true },
         ],
       },
       {
