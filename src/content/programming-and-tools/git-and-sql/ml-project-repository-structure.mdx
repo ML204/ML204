@@ -8,31 +8,29 @@ import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
 
 export const metadata = {
   title: 'Structuring ML Project Repositories',
-  description: 'Design robust, modular, and reproducible machine learning codebases: industry project layout standards, data and model separation, .gitignore hygiene, dependency management, and pipeline decoupling.',
+  description: 'Design robust, modular, and reproducible machine learning codebases: enterprise project layout standards, Medallion data architecture, .gitignore hygiene, dependency isolation, type-safe configs, and production deployment containers.',
 };
 
 <Section label="What is it?">
 
-**Machine Learning Project Structuring** is the software engineering discipline of organizing code, data, configuration, models, and experimentation artifacts into a modular, clean, and reproducible codebase.
+**Machine Learning Project Structuring** is the software engineering discipline of organizing source code, raw data pipelines, hyperparameter configurations, trained model artifacts, and evaluation metrics into a modular, standardized, and auditable repository.
 
-Unlike traditional software engineering where only source code is tracked, machine learning systems depend on a three-way coupling:
-1. **Source Code**: Preprocessing logic, model architectures, training routines, and evaluation metrics.
-2. **Data Assets**: Raw observations, cleaned tables, feature matrices, and training splits.
-3. **Model Artifacts**: Serialized weights (`.pt`, `.onnx`, `.joblib`), tokenizer files, and hyperparameter configuration logs.
+Unlike standard web applications where the software behavior is entirely determined by lines of code, machine learning systems exhibit **joint dependency** across three distinct dimensions:
+1. **Codebase Logic**: Preprocessing routines, data transformers, neural network backbones, and loss functions.
+2. **Data Pipeline Assets**: Raw observations, intermediate features, train/val/test splits, and data schemas.
+3. **Model Artifacts & Checkpoints**: Serialized weights (`.pt`, `.safetensors`, `.onnx`), tokenizer states, scalers, and evaluation metric logs.
 
-A disciplined repository layout separates these concerns cleanly, preventing code bloat, data corruption, and "works on my machine" failures.
+Without a rigorous repository structure, ML projects quickly devolve into what Google researchers famously described as the *"Hidden Technical Debt in Machine Learning Systems"*: messy directories of unversioned notebooks, hardcoded local file paths, irreproducible hyperparameters, and silent data leakage.
 
 </Section>
 
 <Section label="Why we need it">
 
-In amateur data science projects, researchers often work in a single messy directory containing 20 untitled notebooks, hardcoded file paths (`/Users/alice/Desktop/data.csv`), mixed dependencies, and untracked scripts. 
-
-Adopting a standardized repository structure provides:
-- **Flawless Reproducibility**: Any team member or automated CI pipeline can clone the repository, install dependencies in one command, and reproduce the exact model metrics.
-- **Clear Code vs. Data Boundaries**: Prevents accidentally committing confidential customer data or multi-gigabyte weight files into Git history.
-- **Notebook-to-Production Transition**: Keeps exploratory notebooks for prototyping while moving tested, reusable logic into clean Python modules (`src/`) that can be packaged and deployed as microservices.
-- **Decoupled Hyperparameters**: Decouples model definitions from training configurations (learning rates, batch sizes, epochs), allowing sweeping experiments without touching codebase logic.
+In research and industrial environments:
+- **Instant Developer Onboarding**: When a new data scientist joins a team, a standard directory hierarchy means they immediately know where data is loaded (`src/data/`), where features are calculated (`src/features/`), and where configurations are defined (`configs/`).
+- **Eliminating "Works On My Machine" Failures**: Disentangling code from local paths (`/Users/bob/data.csv`) and pinning dependencies guarantees that training scripts run identically on a local MacBook, a cloud GPU cluster (AWS EC2 / GCP Compute Engine), or an automated CI/CD container.
+- **Clean Transition from Prototyping to Production**: Data scientists prototype freely inside numbered Jupyter notebooks (`01_eda.ipynb`), while reusable classes and training logic are extracted into testable, packaged Python modules (`src/`).
+- **Data Governance and Security**: Raw customer datasets, PII (Personally Identifiable Information), and secret API tokens are strictly quarantined from entering version control.
 
 </Section>
 
@@ -40,172 +38,230 @@ Adopting a standardized repository structure provides:
 
 <Section label="Explained in detail">
 
-### 1. The Industry Standard ML Repository Layout
+### 1. Enterprise Directory Hierarchy: The Cookiecutter ML Pattern
 
-The most widely adopted architecture in industry is the **Cookiecutter Data Science** pattern:
+The most widely adopted standard across top tech teams is an evolved version of the **Cookiecutter Data Science** pattern:
 
 ```
 ml-project/
-├── data/
-│   ├── raw/             # Immutable original data (read-only!)
-│   ├── interim/         # Intermediate transformed features
-│   └── processed/       # Final training-ready splits (train.parquet, test.parquet)
-├── notebooks/           # Exploratory Jupyter notebooks (numbered sequentially)
-│   ├── 01_data_exploration.ipynb
-│   └── 02_model_baseline.ipynb
-├── src/                 # Reusable, testable source code modules
+├── data/                            # Hierarchical Medallion data store
+│   ├── raw/                         # Bronze tier: Immutable original data dumps
+│   ├── interim/                     # Silver tier: Cleansed, joined, validated tables
+│   └── processed/                   # Gold tier: Final feature matrices & splits
+├── notebooks/                       # Exploratory analysis & scratchpads
+│   ├── 01_exploratory_data_analysis.ipynb
+│   ├── 02_feature_selection.ipynb
+│   └── 03_baseline_model_evaluation.ipynb
+├── src/                             # Reusable production package
 │   ├── __init__.py
-│   ├── data/            # Ingestion and cleaning scripts
-│   ├── features/        # Feature transformers and encoders
-│   ├── models/          # Model architecture, training, and inference logic
-│   └── visualization/   # Diagnostic plots and reporting charts
-├── configs/             # Declarative configuration files (YAML, JSON)
-│   ├── base_config.yaml
-│   └── resnet_experiment.yaml
-├── models/              # Serialized model checkpoints and artifacts (local only)
-├── tests/               # Unit and integration tests (pytest)
-├── .gitignore           # Explicit exclusion rules for data, caches, and weights
-├── requirements.txt     # Pinned Python package dependencies
-├── pyproject.toml       # Modern package metadata and build configuration
-└── README.md            # Project overview, setup steps, and execution instructions
+│   ├── data/                        # Ingestion, validation, and split utilities
+│   │   ├── make_dataset.py
+│   │   └── data_validation.py
+│   ├── features/                    # Feature transformations & scalers
+│   │   └── build_features.py
+│   ├── models/                      # Model architectures & training routines
+│   │   ├── architectures.py
+│   │   ├── train.py
+│   │   └── predict.py
+│   └── utils/                       # Logging, seed fixing, and I/O helpers
+│       └── helpers.py
+├── configs/                         # Declarative hyperparameter configurations
+│   ├── config.yaml
+│   └── experiment/
+│       ├── exp1_resnet.yaml
+│       └── exp2_vit.yaml
+├── models/                          # Serialized weights & checkpoints (local only)
+│   └── checkpoints/
+├── tests/                           # Automated unit and integration tests (pytest)
+│   ├── test_data_pipeline.py
+│   └── test_model_inference.py
+├── Dockerfile                       # Multi-stage production container definition
+├── .dockerignore                    # Prevents bloated images
+├── .gitignore                       # Explicit exclusion rules for data and weights
+├── requirements.txt                 # Classical pip dependency specification
+├── pyproject.toml                   # Modern Python build specification (Poetry/UV)
+└── README.md                        # Documentation: setup, training, and API usage
 ```
 
 <Analogy>
-  Think of a machine learning repository like a Michelin-starred commercial kitchen. The **`data/raw/`** is the cold storage pantry where fresh ingredients sit untouched in their original state. The **`src/`** is the set of standardized chef knives and cookware (reusable code). The **`notebooks/`** is the chef's scratchpad for testing experimental flavor combinations. And the **`configs/`** is the exact printed recipe card detailing oven temperature and cooking time.
+  Think of an enterprise ML repository like an automated pharmaceutical laboratory:
+  - **`data/raw/` (Bronze)** is the sealed biological sample cold storage. Nobody alters raw samples directly.
+  - **`data/processed/` (Gold)** is the purified, sterilized compound ready for testing.
+  - **`src/`** is the sterile robotic equipment calibrated to handle, measure, and analyze compounds identically every time.
+  - **`notebooks/`** is the researcher’s personal lab journal for quick brainstorming.
+  - **`configs/`** is the exact printed formula specifying chemical proportions, incubation temperatures, and duration.
 </Analogy>
 
 ---
 
-### 2. The Golden Rules of Data and Model Hygiene
+### 2. The Medallion Data Tier Architecture
 
-1. **`data/raw/` is Strictly Read-Only**: Never edit raw data files in place. If data requires cleaning or missing value imputation, write a script that reads from `data/raw/` and outputs new files into `data/interim/` or `data/processed/`.
-2. **Never Hardcode File Paths**: Use Python's `pathlib.Path` or project-relative anchors rather than absolute OS paths:
+Modern ML data pipelines adopt the **Medallion Data Architecture**:
 
-```python
-# ❌ Dangerous and unportable:
-data_path = "/Users/developer/Desktop/projects/ml-app/data/raw/train.csv"
+| Tier | Folder | Format | Immutability | Purpose |
+| :--- | :--- | :--- | :--- | :--- |
+| **Bronze** | `data/raw/` | Raw JSON / CSV / Parquet | Strictly Read-Only | Pristine original source of truth from database dumps or APIs. |
+| **Silver** | `data/interim/` | Partitioned Parquet | Reproducible | Cleansed data: nulls handled, dates parsed, tables joined. |
+| **Gold** | `data/processed/` | Scaled Parquet / NumPy | Reproducible | Final feature matrices, normalized tensors, train/val/test splits. |
 
-# ✅ Portable across macOS, Linux, and Windows:
-from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent.parent
-data_path = BASE_DIR / "data" / "raw" / "train.csv"
-```
-
----
-
-### 3. Mastering `.gitignore` for Machine Learning
-
-Git is designed for tracking lightweight, text-based code diffs. Committing large binary files (like datasets or neural network checkpoints) permanently bloats the `.git` directory, causing clone operations to crawl or fail.
-
-Every ML repository should feature an explicit `.gitignore`:
-
-```gitignore
-# Byte-compiled / optimized Python files
-__pycache__/
-*.py[cod]
-*$py.class
-
-# Virtual environments
-.venv/
-venv/
-env/
-
-# Environment variables and API keys
-.env
-*.pem
-credentials.json
-
-# Raw and processed datasets (Use DVC or cloud storage instead)
-data/raw/*
-data/interim/*
-data/processed/*
-!data/raw/.gitkeep
-
-# Model weights and serialized checkpoints
-models/*.pt
-models/*.pth
-models/*.bin
-models/*.onnx
-models/*.joblib
-
-# Jupyter Notebook checkpoints and caches
-.ipynb_checkpoints/
-.pytest_cache/
-.coverage
-```
-
-<Callout kind="tip">
-  To version large datasets (e.g. 50GB images) and model checkpoints, use dedicated tools like **DVC (Data Version Control)** or store them in S3/GCS buckets with cryptographic checksums, committing only small pointer files into Git.
+<Callout kind="warning">
+  **The Immutability Law of Raw Data**: Never edit raw data files in place. If an anomaly is discovered in `data/raw/sales.csv`, write code in `src/data/make_dataset.py` to filter or repair the record into `data/interim/`. If your raw data is altered manually, all downstream feature engineering loses its reproducibility.
 </Callout>
 
 ---
 
-### 4. Dependency Management: `requirements.txt` vs. `pyproject.toml`
+### 3. Path Management: Eliminating Hardcoded Absolute Paths
 
-To ensure deterministic reproduction across team members and deployment containers:
+Hardcoded absolute paths (`/Users/hamim/Desktop/data.csv`) break when executed on another machine, inside a Docker container, or in CI/CD pipelines.
 
-```bash
-# 1. Classical approach: Pinning exact package versions
-# requirements.txt
-torch==2.4.0
-scikit-learn==1.5.1
-pandas==2.2.2
-pydantic==2.8.2
-pytest==8.3.2
+Always resolve paths dynamically relative to the repository root using Python's modern `pathlib`:
 
-# Install exactly matching environments
-pip install -r requirements.txt
+```python
+# src/utils/paths.py
+from pathlib import Path
+
+# Anchor to the project root directory (two levels up from src/utils/)
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+DATA_DIR = PROJECT_ROOT / "data"
+RAW_DATA_DIR = DATA_DIR / "raw"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+CONFIGS_DIR = PROJECT_ROOT / "configs"
+MODELS_DIR = PROJECT_ROOT / "models"
+
+# Safe usage in your pipeline:
+def load_training_features():
+    feature_path = PROCESSED_DATA_DIR / "train_features.parquet"
+    if not feature_path.exists():
+        raise FileNotFoundError(f"Feature matrix missing at {feature_path}. Run build_features.py first.")
+    return pd.read_parquet(feature_path)
 ```
-
-In modern Python engineering, tools like **Poetry**, **UV**, or **Hatch** use `pyproject.toml` combined with a cryptographic lockfile (`poetry.lock` or `uv.lock`) to resolve transitive dependency trees deterministically.
 
 ---
 
-### 5. Decoupling Pipelines: Configs and Scripts
+### 4. Model Artifact Formats: Choosing the Right Serialization
 
-Do not embed hyperparameters directly into training routines. Use declarative configuration files:
+Serializing trained models correctly is vital for cross-platform portability and security:
 
-```yaml
-# configs/train_config.yaml
-dataset:
-  train_path: "data/processed/train.parquet"
-  batch_size: 64
-  num_workers: 4
-
-training:
-  epochs: 50
-  learning_rate: 0.001
-  weight_decay: 0.01
-  model_type: "resnet50"
-```
-
-Then load the configuration inside a modular `train.py`:
+| Format | Extension | Library | Security / Pros & Cons |
+| :--- | :---: | :--- | :--- |
+| **PyTorch State Dict** | `.pt` / `.pth` | PyTorch | Native Python dictionary of layer tensors. Requires model class code to reload. Uses Python `pickle` (security vulnerability if untrusted). |
+| **SafeTensors** | `.safetensors` | Hugging Face | Zero-copy deserialization, lightning fast, and **immune to arbitrary code execution attacks** (no `pickle`). Current industry standard for LLMs and Diffusion models. |
+| **ONNX** | `.onnx` | ONNX Runtime | Open Neural Network Exchange. Cross-language (Python, C++, Java, Rust). Runs blazingly fast on CPUs and GPUs with zero Python dependency in production! |
+| **Joblib / Pickle** | `.joblib` | Scikit-learn | Standard for classical tabular models (Random Forests, Gradient Boosting, Scalers). Caution: never load untrusted `.pkl` files. |
 
 ```python
-# train.py
-import yaml
-import argparse
-from pathlib import Path
+# Example: Saving weights securely with SafeTensors
+from safetensors.torch import save_file, load_file
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Train ML Model")
-    parser.add_argument("--config", type=str, default="configs/train_config.yaml")
-    return parser.parse_args()
+# Saving model weights:
+tensors = {k: v.cpu() for k, v in model.state_dict().items()}
+save_file(tensors, "models/checkpoints/resnet50_epoch20.safetensors")
 
-def main():
-    args = parse_args()
-    with open(args.config, "r") as f:
-        config = yaml.safe_load(f)
-
-    print(f"Loading data from: {config['dataset']['train_path']}")
-    print(f"Training for {config['training']['epochs']} epochs at LR={config['training']['learning_rate']}")
-
-if __name__ == "__main__":
-    main()
+# Loading securely:
+loaded_tensors = load_file("models/checkpoints/resnet50_epoch20.safetensors")
+model.load_state_dict(loaded_tensors)
 ```
 
-This decoupled pattern enables running distributed hyperparameter sweeps across different config files (`python train.py --config configs/exp1.yaml`) without modifying a single line of application source code.
+---
+
+### 5. Type-Safe Configuration Management with Pydantic and YAML
+
+Hardcoding hyperparameters inside Python code makes sweeping experiments difficult. However, reading plain raw YAML dictionaries often causes silent bugs if a key is misspelled (e.g., `cfg["learning_ratee"]` returns `None` instead of throwing an error).
+
+Best practice: Parse YAML configurations through a strict, type-safe **Pydantic schema**:
+
+```yaml
+# configs/experiment_baseline.yaml
+experiment_name: "resnet50_cifar100"
+seed: 42
+
+data:
+  batch_size: 64
+  num_workers: 4
+  val_split: 0.2
+
+model:
+  architecture: "resnet50"
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  epochs: 50
+```
+
+```python
+# src/config_schema.py
+from pydantic import BaseModel, PositiveInt, PositiveFloat, Field
+import yaml
+
+class DataConfig(BaseModel):
+    batch_size: PositiveInt = Field(default=32)
+    num_workers: int = Field(default=2, ge=0)
+    val_split: float = Field(default=0.2, gt=0.0, lt=1.0)
+
+class ModelConfig(BaseModel):
+    architecture: str
+    learning_rate: PositiveFloat
+    weight_decay: float = Field(default=0.0, ge=0.0)
+    epochs: PositiveInt
+
+class ExperimentConfig(BaseModel):
+    experiment_name: str
+    seed: int = 42
+    data: DataConfig
+    model: ModelConfig
+
+def load_config(config_path: str) -> ExperimentConfig:
+    with open(config_path, "r") as f:
+        raw_dict = yaml.safe_load(f)
+    # Pydantic validates types and value ranges immediately:
+    return ExperimentConfig(**raw_dict)
+```
+
+If an engineer accidentally inputs `learning_rate: -0.01` or `epochs: 0`, Pydantic halts execution with an explicit error before any expensive training cluster resources are wasted!
+
+---
+
+### 6. Production Containerization: Multi-Stage Dockerfile for ML
+
+To eliminate OS-level dependency mismatches between local macOS development and cloud Linux GPU instances, encapsulate your application in a **Multi-Stage Dockerfile**:
+
+```dockerfile
+# Stage 1: Build & compilation environment
+FROM python:3.11-slim AS builder
+
+WORKDIR /build
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Stage 2: Minimal, lean production runtime
+FROM python:3.11-slim AS runner
+
+WORKDIR /app
+
+# Create a non-root security user
+RUN groupadd -r mluser && useradd -r -g mluser mluser
+
+# Copy installed Python packages from builder stage
+COPY --from=builder /root/.local /home/mluser/.local
+ENV PATH=/home/mluser/.local/bin:$PATH
+
+# Copy application code
+COPY src/ /app/src/
+COPY configs/ /app/configs/
+
+USER mluser
+EXPOSE 8000
+
+# Run production inference API
+CMD ["uvicorn", "src.api:app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+Multi-stage builds reduce final Docker image sizes by up to 70%, eliminating C++ build tools, speeding up Kubernetes deployment rollouts, and closing security attack vectors.
 
 </Section>
 
@@ -218,54 +274,54 @@ This decoupled pattern enables running distributed hyperparameter sweeps across 
     {
       id: 'repo-q1',
       kind: 'mcq',
-      text: 'Why should raw datasets (e.g., inside data/raw/) be treated as strictly immutable and read-only?',
+      text: 'In the Medallion Data Architecture (Bronze, Silver, Gold), what is the defining operational rule of the Bronze (raw/) layer?',
       options: [
-        'To prevent data corruption and ensure that feature engineering pipelines can always be rerun from an uncontaminated source of truth',
-        'Because operating systems prevent writing to directories named "raw"',
-        'Because Git will delete raw files automatically if they are edited',
-        'To reduce RAM usage when importing libraries like NumPy',
+        'It is strictly immutable and read-only; all data cleaning must be written as code producing new files in downstream layers',
+        'It is wiped and refreshed every 24 hours to save cloud storage space',
+        'It must only contain data that has been standardized and one-hot encoded',
+        'It can only be read by C++ binaries and is inaccessible to Python',
       ],
       correctIndex: 0,
-      explanation: 'Treating raw data as immutable preserves the pristine source of truth. All cleaning and transformations are captured as reproducible code producing derivative files in interim or processed folders.',
+      explanation: 'Raw data is an immutable baseline. Treating raw data as read-only guarantees that any bugs discovered in feature engineering can be corrected by rerunning reproducible scripts against clean original source data.',
     },
     {
       id: 'repo-q2',
       kind: 'mcq',
-      text: 'What is the primary risk of committing large model checkpoints (*.pt, *.onnx) and datasets (*.csv) directly to a Git repository?',
+      text: 'Why has Hugging Face’s SafeTensors format become the preferred standard over legacy Python pickle (.pkl / .pt) for model serialization?',
       options: [
-        'Git permanently stores every version in its object database, causing the repository size to bloat irreversibly and slowing down all clone and fetch operations',
-        'Large files cause Python syntax errors during runtime imports',
-        'GitHub automatically deletes repositories that contain files over 50 KB',
-        'Git encrypts model weights so they can no longer be loaded by PyTorch',
+        'SafeTensors provides zero-copy deserialization and is immune to arbitrary code execution security exploits inherent in pickle',
+        'SafeTensors can only store quantized 1-bit neural networks',
+        'SafeTensors automatically compresses all models to under 1 Megabyte',
+        'SafeTensors converts PyTorch models into SQL queries automatically',
       ],
       correctIndex: 0,
-      explanation: 'Git is designed to compute text diffs. Committing large binary files permanently bloats the hidden .git directory, making cloning painfully slow for all collaborators.',
+      explanation: 'Python’s `pickle` module can execute arbitrary code during unpickling, posing a massive security risk when downloading weights from the web. SafeTensors is a secure, zero-copy tensor storage format.',
     },
     {
       id: 'repo-q3',
       kind: 'mcq',
-      text: 'What is the key benefit of externalizing hyperparameters into a configuration file (such as configs/config.yaml)?',
+      text: 'What major issue arises from using hardcoded absolute paths like "/Users/alice/data/train.csv" in machine learning scripts?',
       options: [
-        'It allows researchers to tune hyperparameters and run experiment sweeps without editing core training logic',
-        'It converts Python code into faster C++ binaries automatically',
-        'It bypasses the need to install dependencies via requirements.txt',
-        'It makes the model immune to overfitting',
+        'The code immediately crashes when run on different developer machines, inside Docker containers, or in cloud CI/CD runners',
+        'Absolute paths cause neural network weights to underflow to zero',
+        'Operating systems charge bandwidth fees whenever absolute paths are opened',
+        'Git refuses to commit any file that contains the word "Users"',
       ],
       correctIndex: 0,
-      explanation: 'Decoupling configurations allows you to change batch sizes, learning rates, or model architectures cleanly via config files or command-line arguments without modifying the underlying Python codebase.',
+      explanation: 'Absolute paths are tied to a specific local file system. Using `pathlib.Path` anchors paths dynamically relative to the project root, ensuring seamless cross-platform execution.',
     },
     {
       id: 'repo-q4',
       kind: 'mcq',
-      text: 'Why should hardcoded file paths like "C:\\Users\\Bob\\data.csv" be avoided in production ML codebases?',
+      text: 'What is the primary architectural purpose of a Multi-Stage Dockerfile in machine learning deployment?',
       options: [
-        'They break portability across different operating systems (Linux/macOS/Windows) and fail inside Docker containers or team members’ machines',
-        'Python cannot read paths that contain backslashes under any circumstances',
-        'File paths are limited to a maximum of 12 characters in Python',
-        'Pandas only accepts web URLs as input arguments',
+        'To compile build tools and install dependencies in an early stage, then copy only runtime binaries into a lean, secure final image',
+        'To train neural networks simultaneously across multiple GPUs',
+        'To convert Python code into native CUDA assembly code',
+        'To bypass all Docker security permissions during inference',
       ],
       correctIndex: 0,
-      explanation: 'Hardcoded absolute paths make code unportable across different computers, CI/CD runners, and Docker deployment containers. Relative paths using `pathlib.Path` resolve dynamically.',
+      explanation: 'Multi-stage Docker builds separate build dependencies (compilers, wheel caches) from the final runtime image, resulting in substantially smaller, faster-to-deploy, and more secure production containers.',
     },
   ]}
 />
@@ -278,25 +334,26 @@ This decoupled pattern enables running distributed hyperparameter sweeps across 
 
 <TeachThisCard
   topic="Structuring ML Project Repositories"
-  oneLiner="A production ML repository decouples reproducible code (src/), immutable datasets (data/), and declarative parameters (configs/), while strictly excluding large binaries and credentials via .gitignore."
+  oneLiner="A production ML repository isolates immutable raw datasets (Bronze), modular testable code (src/), type-safe declarative configs (configs/), and lean deployment containers (Docker), avoiding notebook spaghetti."
   takeaways={[
     'Organize repositories around the Cookiecutter Data Science pattern: separate data, notebooks, src, configs, and models.',
-    'Treat `data/raw/` as an immutable, read-only baseline; all transformations must be reproducible via code scripts.',
-    'Strictly exclude datasets, checkpoints, `.env` secrets, and virtual environments using `.gitignore`.',
-    'Decouple hyperparameters into YAML or JSON configs so experiment sweeps can be executed without code modifications.',
+    'Treat `data/raw/` as an immutable source of truth; never overwrite raw data in place.',
+    'Anchor all file paths dynamically using `pathlib.Path` relative to the repository root.',
+    'Prefer modern secure model formats (`.safetensors`, `.onnx`) over vulnerable Python `pickle` objects.',
+    'Validate YAML configuration files using type-safe Pydantic schemas to catch hyperparameter errors before training.',
   ]}
-  commonTrap="Leaving critical production logic inside messy Jupyter notebooks (`Untitled3.ipynb`). Notebooks are excellent for exploratory discovery; but once validated, clean functions should be refactored into `src/` modules."
+  commonTrap="Leaving machine learning codebases entirely as monolithic 2,000-line Jupyter notebooks. Notebooks are designed for experimentation and visualization; production training, feature engineering, and inference logic must be refactored into modular `src/` packages."
 />
 
 <ExplainInOwnWords
   subchapterSlug="ml-project-repository-structure"
   topicTitle="Structuring ML Project Repositories"
   referenceChecklist={[
-    'Explained the Cookiecutter Data Science directory layout (data, notebooks, src, configs).',
-    'Discussed why data/raw must remain immutable and read-only.',
-    'Identified items that must be excluded in .gitignore (datasets, weights, secrets, virtualenvs).',
-    'Demonstrated using pathlib for OS-agnostic relative paths instead of hardcoded paths.',
-    'Explained how externalizing configs enables frictionless experiment tracking and parameter tuning.',
+    'Described the Cookiecutter Data Science directory layout and responsibility of each folder.',
+    'Explained the Medallion Data Architecture (Bronze, Silver, Gold tiers).',
+    'Demonstrated dynamic path resolution using pathlib.Path instead of absolute paths.',
+    'Compared model serialization formats (.pt, .safetensors, .onnx).',
+    'Explained how Pydantic config validation and multi-stage Dockerfiles prevent production failures.',
   ]}
 />
 
@@ -310,21 +367,21 @@ This decoupled pattern enables running distributed hyperparameter sweeps across 
   githubPath="ML204/resources/programming-and-tools/git-and-sql/ml-project-repository-structure"
   items={[
     {
-      title: "Cookiecutter Data Science Official Documentation",
+      title: "Cookiecutter Data Science (v2 Architecture Guide)",
       type: "article",
-      description: "The gold standard for structuring logical, reasonably standardized, and flexible machine learning repositories.",
+      description: "A logical, reasonably standardized, and flexible project structure for doing and sharing data science work.",
       url: "https://cookiecutter-data-science.drivendata.org/"
     },
     {
-      title: "Data Version Control (DVC) Guide",
+      title: "Hugging Face: SafeTensors Security & Speed Guide",
       type: "article",
-      description: "Managing datasets, models, and machine learning pipelines alongside Git without repository bloat.",
-      url: "https://dvc.org/doc/start"
+      description: "Understanding the security vulnerabilities of pickle and how SafeTensors provides secure, zero-copy serialization.",
+      url: "https://huggingface.co/docs/safetensors"
     },
     {
-      title: "ML Project Repository Template & Config Samples",
+      title: "ML Project Scaffolding Script & Configuration Templates",
       type: "cheatsheet",
-      description: "Boilerplate project structure, .gitignore rules, and YAML configuration templates for ML pipelines.",
+      description: "Ready-to-use Python scaffolding script, Pydantic configuration schemas, and multi-stage Dockerfile boilerplates.",
       url: "https://github.com/ML204/resources/tree/main/programming-and-tools/git-and-sql/ml-project-repository-structure"
     }
   ]}
