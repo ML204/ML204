@@ -86,6 +86,49 @@ pivot = sales.pivot_table(
   `count` counts non-missing values, while `size` counts every row in a group. Choose correctly when missing values are present.
 </Callout>
 
+### Choosing the right operation
+
+The output shape determines which operation to use:
+
+| Operation | Output shape | Example use |
+| :--- | :--- | :--- |
+| `agg` | One row per group or one scalar | Region totals and averages |
+| `transform` | One value for every original row | Region mean as a new feature |
+| `pivot_table` | Group keys on rows and columns | Cross-tabulated summary |
+
+```python
+sales['region_avg'] = sales.groupby('region')['amount'].transform('mean')
+region_totals = sales.groupby('region')['amount'].agg(total='sum')
+```
+
+The first table retains all original sales rows. The second retains one row for East and one row for West.
+
+### Grouping by several columns
+
+```python
+summary = sales.groupby(['region', 'category'], dropna=False).agg(
+    total=('amount', 'sum'),
+    average=('amount', 'mean'),
+    transactions=('amount', 'count'),
+).reset_index()
+```
+
+Every unique combination of region and category becomes a separate group. `dropna=False` includes missing grouping values instead of silently excluding them.
+
+<Callout kind="tip">
+  Use `observed=True` with categorical grouping keys when unobserved categories should not appear in the result.
+</Callout>
+
+### A common machine learning feature example
+
+```python
+# Replace a raw value with how far it is from its region mean
+sales['region_mean'] = sales.groupby('region')['amount'].transform('mean')
+sales['amount_from_region'] = sales['amount'] - sales['region_mean']
+```
+
+This transform uses only the grouped region statistic. It creates a feature for each original row instead of collapsing the table to one row per region.
+
 </Section>
 
 <Divider />

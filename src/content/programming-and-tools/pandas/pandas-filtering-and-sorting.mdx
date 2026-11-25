@@ -68,6 +68,60 @@ ranked_by_name = df.sort_index()
   A Boolean mask is a check mark for every row. Combining masks with `&` and `|` is like stacking filters on a spreadsheet.
 </Analogy>
 
+### Reading each selection expression
+
+A useful selection has the form:
+
+```python
+rows = df.loc[row_mask, [column_names]]
+```
+
+The first position describes which rows survive. The second position describes which columns remain:
+
+```python
+high_scores = df.loc[
+    (df['score'] >= 80) & (df['country'].isin(['BD', 'US'])),
+    ['name', 'score', 'country'],
+]
+```
+
+| Expression | Meaning |
+| :--- | :--- |
+| `df['score'] >= 80` | Compare every score and create a Boolean Series. |
+| `&` | Keep rows true in both masks. |
+| `|` | Keep rows true in either mask. |
+| `~` | Reverse true and false values. |
+| `.isin(values)` | Test whether each value belongs to a list. |
+| `.isna()` | Test whether each value is missing. |
+
+### Avoiding chained assignment surprises
+
+Selecting a DataFrame and changing it in two separate steps can change a temporary copy instead of the original:
+
+```python
+# Risky: chained assignment
+# df[df['score'] < 0]['score'] = 0
+
+# Safer: build a mask, then assign with loc
+invalid_score = df['score'] < 0
+df.loc[invalid_score, 'score'] = 0
+```
+
+`.loc` keeps selection and assignment in one operation, making the intended target explicit.
+
+<Callout kind="warning">
+  Sorting and filtering return a new view or copy depending on the operation. Do not assume the original DataFrame changed. Reassign it or use `.loc` assignment when the change should persist.
+</Callout>
+
+When building a ranked report, sort only after selecting the needed rows and columns:
+
+```python
+report = (
+    df.loc[df['score'].notna(), ['name', 'score', 'country']]
+      .sort_values(['country', 'score'], ascending=[True, False])
+)
+```
+
 </Section>
 
 <Divider />

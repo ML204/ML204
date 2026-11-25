@@ -95,6 +95,51 @@ orders.to_parquet('clean_orders.parquet', index=False)
   Data ingestion is like moving boxes from different warehouses. CSV is a flat text manifest, Excel is a labeled workbook, JSON is a nested package, and Parquet is compact analytical storage.
 </Analogy>
 
+### Why ingestion choices matter
+
+Different readers may infer different types from the same source. Always verify the resulting dtypes and test the result with representative edge cases:
+
+```python
+frame = pd.read_csv(
+    'model_data.csv',
+    dtype={'zip_code': 'string', 'customer_id': 'string'},
+    parse_dates=['signup_date'],
+)
+
+print(frame[['zip_code', 'signup_date']].head())
+print(frame.dtypes)
+```
+
+Identifier columns such as ZIP codes and customer IDs should often remain strings. Reading `00123` as an integer would silently turn it into `123` and lose leading zeros.
+
+### Chunk processing safely
+
+A CSV chunk reader does not reduce the final memory required if all chunks are concatenated. Chunking helps when you filter or aggregate as you read:
+
+```python
+accepted = []
+
+for chunk in pd.read_csv('events.csv', chunksize=50_000):
+    approved = chunk.loc[chunk['status'] == 'approved']
+    accepted.append(approved[['event_id', 'value']])
+
+approved_events = pd.concat(accepted, ignore_index=True)
+print(approved_events.shape)
+```
+
+Chunking is also useful for computing totals because pandas can update an accumulator each iteration. Avoid appending full-sized chunks when only an aggregate or filtered result is needed.
+
+| Format | Strength | Main beginner concern |
+| :--- | :--- | :--- |
+| CSV | Simple and widely supported | Encoding and inferred dtypes |
+| Excel | Human-readable sheets and tabs | Sheet names and merged/header rows |
+| JSON | Nested records and web/API data | Orient and nested shape |
+| Parquet | Efficient, typed analytical storage | Requires a Parquet engine |
+
+<Callout kind="tip">
+  After any read, run `head()`, `dtypes`, and `isna().sum()`. A successful read only means the file was parsed; it does not prove the parsed schema is correct.
+</Callout>
+
 </Section>
 
 <Divider />

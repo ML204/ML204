@@ -112,6 +112,54 @@ students = pd.read_csv(
   Do not convert every text column to `category`. Free-form text such as reviews or comments may contain nearly one unique string per row, which provides little memory benefit.
 </Callout>
 
+### Reading a DataFrame without guessing
+
+A beginner can use this four-step inspection routine every time a new DataFrame arrives:
+
+```python
+print(df.shape)
+print(df.columns)
+print(df.dtypes)
+print(df.isna().sum().sort_values(ascending=False).head())
+```
+
+| Check | Question it answers | Typical next action |
+| :--- | :--- | :--- |
+| `shape` | How many rows and columns exist? | Confirm the table is not accidentally empty or duplicated. |
+| `dtypes` | Is each column numeric, text, Boolean, or datetime? | Convert parsed or numeric-looking text before calculations. |
+| `head()` | Do the first values look realistic? | Catch wrong delimiters, shifted columns, or header problems. |
+| `isna().sum()` | Which columns contain missing values? | Decide whether to drop, fill, or investigate them. |
+
+For machine learning, the DataFrame is not just a display table. It is the source of tensors used later by NumPy and scikit-learn. A column's dtype determines whether it can participate in a calculation:
+
+```python
+# Convert a numeric-looking text column before using it in ML
+students['score'] = pd.to_numeric(students['score'], errors='coerce')
+
+# Keep missing values visible instead of silently treating 'missing' as text
+print(students['score'].isna().sum())
+```
+
+<Callout kind="tip">
+  `errors='coerce'` is useful for discovering source problems, but it can hide invalid data. After conversion, inspect which values became missing and verify their meaning before filling or dropping them.
+</Callout>
+
+### Indexes and copies
+
+The index is a row label, not a score or a feature column. It can be integers, strings, timestamps, or another unique identifier:
+
+```python
+customers = pd.DataFrame(
+    {'plan': ['free', 'pro', 'pro']},
+    index=pd.Index(['C-100', 'C-101', 'C-102'], name='customer_id'),
+)
+
+print(customers.loc['C-101'])
+print(customers.iloc[1])
+```
+
+Both statements select the second row, but `.loc` uses the label `C-101` while `.iloc` uses position `1`. Do not mix the two when reasoning about row selection.
+
 </Section>
 
 <Divider />

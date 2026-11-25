@@ -89,6 +89,70 @@ safe = customers.merge(
   A many-to-many merge can multiply row count. Check row counts and use `validate` when the intended relationship is known.
 </Callout>
 
+### A merge checklist
+
+Before a merge, inspect both tables and describe the relationship:
+
+```python
+print(customers.columns)
+print(orders.columns)
+print(customers['customer_id'].is_unique)
+print(orders['customer_id'].is_unique)
+```
+
+| Validation | Meaning | Merge option |
+| :--- | :--- | :--- |
+| `one_to_one` | A key appears once in each table | `validate='1:1'` |
+| `one_to_many` | One left key matches several right rows | `validate='1:m'` |
+| `many_to_one` | Several left rows match one right key | `validate='m:1'` |
+| `many_to_many` | Several keys match on both sides | Usually avoid or aggregate first |
+
+```python
+customer_orders = customers.merge(
+    orders,
+    on='customer_id',
+    how='left',
+    validate='1:m',
+    indicator=True,
+)
+
+print(customer_orders['_merge'].value_counts())
+```
+
+The indicator column reveals whether each row matched both tables or came from only the left or right table.
+
+### Prefixes, suffixes, and duplicate key names
+
+If overlapping columns exist, suffixes prevent ambiguous output names:
+
+```python
+left = pd.DataFrame({'id':[1,2], 'name':['A','B'], 'status':['active','old']})
+right = pd.DataFrame({'id':[1,2], 'status':['paid','late']})
+
+combined = left.merge(right, on='id', suffixes=('_left', '_right'))
+print(combined.columns)
+```
+
+Do not merge with a column that has different meanings or incompatible types. Matching integer `1` to string `'1'` will usually produce no matches.
+
+<Callout kind="tip">
+  Inspect the count before and after a merge: `left_rows`, `right_rows`, and `merged_rows`. A merged table should not grow unless your intended relationship permits multiple matches.
+</Callout>
+
+### Merge versus concat
+
+Use `merge` when rows are connected by keys. Use `concat` when each table contributes more rows or columns without key matching:
+
+```python
+# Add rows from monthly snapshots
+history = pd.concat([january, february], axis=0, ignore_index=True)
+
+# Place independent feature tables beside each other
+features = pd.concat([demographics, spending], axis=1)
+```
+
+If both DataFrames have the same row index, axis-1 concatenation aligns by index. If one index differs, the result may include extra rows filled with missing values.
+
 </Section>
 
 <Divider />

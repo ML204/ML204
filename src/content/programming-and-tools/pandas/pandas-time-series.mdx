@@ -85,6 +85,65 @@ Localize attaches a zone to naive timestamps. Convert changes an aware timestamp
   A DatetimeIndex is a calendar ruler. Resampling gathers observations between ruler marks, rolling windows slide across the ruler, and shift copies earlier marks to the current position.
 </Analogy>
 
+### The timestamp checklist
+
+A beginner should verify four things before forecasting or grouping:
+
+```python
+series = series.sort_index()
+print(series.index.dtype)
+print(series.index.is_monotonic_increasing)
+print(series.index.is_unique)
+print(series.index.freq)
+```
+
+| Check | Why it matters |
+| :--- | :--- |
+| Datetime dtype/index | String dates sort and slice differently. |
+| Monotonic index | Rolling and lag operations assume chronological order. |
+| Unique index | Duplicate timestamps make joins and resampling ambiguous. |
+| Expected frequency | Missing periods may hide irregular observations. |
+
+### Resample versus rolling
+
+`resample` changes a time grid, while `rolling` keeps the current grid and summarizes nearby observations:
+
+```python
+# Change daily observations into monthly observations
+monthly_mean = daily.resample('ME')['value'].mean()
+
+# Keep daily observations and calculate a trailing 7-day mean
+rolling_mean = daily['value'].rolling('7D', min_periods=1).mean()
+```
+
+The first result has one row per month. The second result has a value for every day and uses observations in the preceding 7-day window.
+
+### Creating safe lag features
+
+```python
+forecast = daily[['value']].copy()
+forecast['lag_1'] = forecast['value'].shift(1)
+forecast['lag_7'] = forecast['value'].shift(7)
+forecast['target_next_day'] = forecast['value'].shift(-1)
+
+features = forecast.dropna()
+X = features[['lag_1', 'lag_7']]
+y = features['target_next_day']
+```
+
+<Callout kind="warning">
+  Never use future values as model features. `shift(-1)` creates a target for training, but it must not be included in `X`. In real evaluation, test rows also need to follow the same historical cutoff.
+</Callout>
+
+### Frequency conversion and missing periods
+
+```python
+print(daily.asfreq('D'))
+print(daily.asfreq('D').interpolate(method='time'))
+```
+
+`asfreq` changes or exposes the expected grid. `interpolate(method='time')` estimates missing values from neighboring timestamps. Interpolation can be useful for continuous signals, but it is not appropriate for sparse events or after a data leakage boundary.
+
 </Section>
 
 <Divider />
