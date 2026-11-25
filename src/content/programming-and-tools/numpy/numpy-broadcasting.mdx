@@ -1,0 +1,294 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Array Broadcasting Rules',
+  description: 'Understand the mechanics of NumPy broadcasting: trailing dimension matching, virtual memory stretching with stride 0, axis expansion with np.newaxis, and feature normalization in ML.',
+};
+
+<Section label="What is it?">
+
+**Broadcasting** is NumPy's superpower for performing arithmetic operations between arrays of **different shapes and dimensions** without making unnecessary memory copies.
+
+In naive linear algebra, you can only add two matrices if their shapes match identically (e.g., $(3 \times 4) + (3 \times 4)$). But in data science, you frequently want to perform operations like adding a single scalar number to an entire matrix, or subtracting a row of feature averages from every row in a table.
+
+```
+Array A (3 x 3):              Array B (1 x 3):              Broadcast Addition (A + B):
+┌────┬────┬────┐              ┌────┬────┬────┐              ┌────┬────┬────┐
+│  1 │  2 │  3 │              │ 10 │ 20 │ 30 │              │ 11 │ 22 │ 33 │
+├────┼────┼────┤      +       └────┴────┴────┘      =       ├────┼────┼────┤
+│  4 │  5 │  6 │                     │                      │ 14 │ 25 │ 36 │
+├────┼────┼────┤          (Virtually stretched              ├────┼────┼────┤
+│  7 │  8 │  9 │             across 3 rows)                 │ 17 │ 28 │ 39 │
+└────┴────┴────┘                                            └────┴────┴────┘
+```
+
+Instead of duplicating the smaller array in RAM, NumPy sets its memory stride along the stretched dimension to **0 bytes**, enabling instant computation with zero additional memory usage.
+
+</Section>
+
+<Section label="Why we need it">
+
+Broadcasting is the mathematical engine behind nearly every data preprocessing and modeling step in Machine Learning:
+
+1. **Feature Normalization (Z-Score Standardization)**:
+   Given a feature matrix $X$ of shape $(10000, 50)$ (10,000 samples, 50 features), you calculate the feature mean vector $\mu$ of shape $(50,)$ and standard deviation $\sigma$ of shape $(50,)$.
+   Through broadcasting, you normalize the entire dataset in a single elegant expression:
+   $$Z = \frac{X - \mu}{\sigma}$$
+   NumPy automatically broadcasts $\mu$ and $\sigma$ down all 10,000 rows.
+2. **Adding Biases to Neural Network Layers**:
+   When computing $Y = XW + b$, the batch matrix product $XW$ has shape `(batch_size, num_neurons)`, while the bias $b$ has shape `(num_neurons,)`. Broadcasting automatically stretches the bias across every sample in the batch.
+3. **Pairwise Distance Computation**:
+   In K-Nearest Neighbors (KNN) or clustering algorithms, you calculate distances between $N$ data points and $K$ cluster centroids using shape expansion `(N, 1, D) - (1, K, D)`.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Two Golden Rules of Broadcasting
+
+When NumPy compares two arrays to see if they can be broadcast together, it inspects their shapes **from right to left** (trailing dimensions first):
+
+1. **Rule 1: Dimension Matching**:
+   If the two arrays do not have the same number of dimensions, prepend `1`s to the shape of the smaller array on the left until both shapes have equal length.
+2. **Rule 2: Compatibility Check**:
+   Two dimensions are compatible if:
+   - They are **equal**, OR
+   - One of them is **1**.
+
+If both dimensions satisfy Rule 2 for every axis from right to left, the operation succeeds. If any dimension fails, NumPy halts and throws a `ValueError: operands could not be broadcast together`.
+
+---
+
+### 2. Broadcasting Compatibility Table
+
+Let us walk through concrete examples:
+
+| Array A Shape | Array B Shape | Alignment (Right to Left) | Compatible? | Result Shape |
+| :--- | :--- | :--- | :---: | :--- |
+| `(4, 3)` | `(3,)` | Pad B to `(1, 3)` &rarr; `(4, 3)` vs `(1, 3)` | **Yes** | `(4, 3)` |
+| `(8, 1, 6, 1)` | `(7, 1, 5)` | Pad B to `(1, 7, 1, 5)` | **Yes** | `(8, 7, 6, 5)` |
+| `(5, 4)` | `(4, 5)` | Compare trailing: 4 vs 5 (neither is 1) | **No** (Error) | *Fails* |
+| `(3, 1)` | `(1, 4)` | Rows: 3 vs 1 &rarr; 3; Cols: 1 vs 4 &rarr; 4 | **Yes** | `(3, 4)` (Outer grid!) |
+
+```python
+import numpy as np
+
+# Example 1: Matrix + Row Vector
+A = np.array([
+    [1, 2, 3],
+    [4, 5, 6]
+])  # Shape: (2, 3)
+
+B = np.array([10, 20, 30])  # Shape: (3,)
+
+# Shape alignment:
+# A: (2, 3)
+# B: (1, 3) (prepended 1 on the left)
+# Result: (2, 3)
+result = A + B
+print("Matrix + Row Vector:\n", result)
+# [[11 22 33]
+#  [14 25 36]]
+
+# Example 2: Column Vector + Row Vector -> 2D Matrix Grid
+col = np.array([[1], [2], [3]])  # Shape: (3, 1)
+row = np.array([10, 20, 30, 40])  # Shape: (4,) -> padded to (1, 4)
+
+grid = col + row  # (3, 1) + (1, 4) -> (3, 4)
+print("Outer Grid Addition:\n", grid)
+# [[11 21 31 41]
+#  [12 22 32 42]
+#  [13 23 33 43]]
+```
+
+<Analogy>
+  Imagine an overhead projector.
+  If you have a sheet with 5 columns written on it, you can shine a light through it onto a blackboard that has 100 rows. The 5 columns are seamlessly projected downwards across every single row simultaneously without needing to photocopy the sheet 100 times.
+</Analogy>
+
+---
+
+### 3. Expanding Dimensions with `np.newaxis` and `None`
+
+Often, a 1D vector of shape `(N,)` needs to become an explicit 2D column vector `(N, 1)` to trigger the desired broadcasting direction.
+
+You can insert new axes of size 1 using `np.newaxis` (which is an alias for `None`):
+
+```python
+features = np.array([10.0, 20.0, 30.0])  # Shape: (3,)
+
+# Convert 1D vector to a 2D column vector
+col_vector = features[:, np.newaxis]
+print(col_vector.shape)  # (3, 1)
+
+# Equivalent using None:
+col_vector_none = features[:, None]
+print(col_vector_none.shape)  # (3, 1)
+
+# Convert 1D vector to a 2D row vector
+row_vector = features[np.newaxis, :]
+print(row_vector.shape)  # (1, 3)
+```
+
+---
+
+### 4. Real-World ML Pipeline: Z-Score Standardization
+
+Let us implement real-world feature scaling on a batch of student records (Math Score, English Score, Attendance %):
+
+```python
+# 4 samples, 3 features
+data = np.array([
+    [85.0, 92.0, 95.0],
+    [70.0, 65.0, 80.0],
+    [90.0, 88.0, 90.0],
+    [60.0, 75.0, 70.0]
+])
+
+# Step 1: Compute mean across axis 0 (down each feature column)
+mean = np.mean(data, axis=0)  # Shape: (3,)
+print("Feature Means:", mean)  # [76.25, 80.0, 83.75]
+
+# Step 2: Compute standard deviation across axis 0
+std = np.std(data, axis=0)    # Shape: (3,)
+print("Feature Stds:", std)
+
+# Step 3: Standardize using Broadcasting!
+# data: (4, 3)
+# mean: (3,) -> padded to (1, 3) -> broadcast to (4, 3)
+# std:  (3,) -> padded to (1, 3) -> broadcast to (4, 3)
+standardized_data = (data - mean) / std
+
+print("Standardized Data (Zero Mean, Unit Variance):\n", standardized_data)
+print("New Mean (near zero):", np.round(np.mean(standardized_data, axis=0), 5))
+```
+
+<Callout kind="tip">
+  Notice that not a single `for` loop was written to process each student row! Broadcasting handles the subtraction and division simultaneously across all 4 samples and 3 features at compiled C speeds.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'numpy-broadcast-q1',
+      kind: 'mcq',
+      text: 'What will be the shape of the result when adding an array of shape (5, 1) to an array of shape (1, 6)?',
+      options: [
+        '(5, 6)',
+        '(6, 5)',
+        '(5, 1, 6)',
+        'An error is raised because the shapes do not match',
+      ],
+      correctIndex: 0,
+      explanation: 'Both dimensions have a size of 1 along opposite axes: (5, 1) stretches along columns to size 6, and (1, 6) stretches along rows to size 5. The resulting broadcast shape is (5, 6).',
+    },
+    {
+      id: 'numpy-broadcast-q2',
+      kind: 'mcq',
+      text: 'Which of the following array shape pairs will FAIL to broadcast and throw a ValueError?',
+      options: [
+        '(3, 4) and (4, 3)',
+        '(8, 1, 6) and (7, 1)',
+        '(10, 5) and (5,)',
+        '(256, 256, 3) and (3,)',
+      ],
+      correctIndex: 0,
+      explanation: 'Comparing trailing dimensions for (3, 4) and (4, 3): the last axis compares 4 with 3. Because neither is equal to the other and neither is 1, broadcasting cannot occur.',
+    },
+    {
+      id: 'numpy-broadcast-q3',
+      kind: 'mcq',
+      text: 'How does NumPy implement broadcasting under the hood without blowing up memory?',
+      options: [
+        'It sets the memory stride along the broadcasted axis to 0 bytes, repeatedly reading the same memory location',
+        'It compresses the duplicate data into a hidden zip file inside the CPU cache',
+        'It temporarily allocates virtual swap space on the physical SSD drive',
+        'It spawns asynchronous background worker processes to copy the values on demand',
+      ],
+      correctIndex: 0,
+      explanation: 'NumPy uses strides. By giving the stretched dimension a stride of 0 bytes, any step along that axis reads the exact same memory address repeatedly, requiring 0 extra memory allocation.',
+    },
+    {
+      id: 'numpy-broadcast-q4',
+      kind: 'mcq',
+      text: 'What is the effect of arr[:, np.newaxis] on a 1D array of shape (N,)?',
+      options: [
+        'It transforms the shape from (N,) to a 2D column vector of shape (N, 1)',
+        'It appends an empty row at the bottom of the array',
+        'It transposes the array in place without changing dimensions',
+        'It converts the array into a Python dictionary',
+      ],
+      correctIndex: 0,
+      explanation: 'np.newaxis (or None) inserts an axis of length 1 at the specified position. Placed after the comma, it converts an (N,) vector into an (N, 1) 2D column matrix.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="NumPy Array Broadcasting"
+  oneLiner="Broadcasting aligns multidimensional arrays from right to left, virtually stretching dimensions of size 1 with zero-byte strides to enable loop-free arithmetic."
+  takeaways={[
+    'Compare shapes starting from the rightmost (trailing) dimension moving left.',
+    'Two dimensions are compatible if they are identical or if at least one of them equals 1.',
+    'Broadcasting does not copy data; it manipulates internal pointer strides for zero-overhead computation.',
+    'Use `x[:, np.newaxis]` or `x[:, None]` to turn 1D vectors into column vectors for matrix arithmetic.',
+  ]}
+  commonTrap="Trying to broadcast (N, M) with (N,). A 1D array of shape (N,) aligns with the trailing dimension M. To broadcast along rows, reshape the vector to (N, 1)."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="numpy-broadcasting"
+  topicTitle="NumPy Array Broadcasting Rules"
+  referenceChecklist={[
+    'Described the two core broadcasting rules (right-to-left alignment, equality or 1).',
+    'Demonstrated why zero-byte memory strides make broadcasting memory-free.',
+    'Explained how np.newaxis transforms array shapes to unlock multi-axis broadcasting.',
+    'Showed how feature standardisation ((X - mean) / std) leverages broadcasting in ML pipelines.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/programming-and-tools/numpy/numpy-broadcasting"
+  items={[
+    {
+      title: "NumPy Official Documentation: Broadcasting Guide",
+      type: "documentation",
+      description: "Comprehensive visual documentation on broadcasting theory, memory strides, and examples.",
+      url: "https://numpy.org/doc/stable/user/basics.broadcasting.html"
+    },
+    {
+      title: "Broadcasting Visualizer & Coding Exercises",
+      type: "cheatsheet",
+      description: "Interactive Python scripts demonstrating shape expansion, matrix standardisation, and pairwise distances.",
+      url: "https://github.com/mltheta/resources/tree/main/programming-and-tools/numpy/numpy-broadcasting"
+    }
+  ]}
+/>
+
+</Section>

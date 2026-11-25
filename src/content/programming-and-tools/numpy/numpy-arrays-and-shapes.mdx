@@ -1,0 +1,304 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Arrays, Shapes and Data Types',
+  description: 'Understand NumPy ndarrays from the ground up: contiguous memory layout, CPU cache efficiency, shape dimensions, strides, numerical dtypes, and array initialization routines.',
+};
+
+<Section label="What is it?">
+
+A **NumPy Array** (officially called an `ndarray`, short for *N-dimensional array*) is a fast, memory-efficient data structure for storing collections of numbers in Python.
+
+If you have used Python lists before, you might wonder why we need another container. A standard Python list:
+```python
+python_list = [10, 20, 30, 40]
+```
+is a flexible container that can hold anything: integers, strings, floating-point numbers, or even other lists. But this flexibility comes with a massive hidden cost: Python lists store *pointers* (memory addresses) scattered randomly across your computer's RAM.
+
+A **NumPy Array**, by contrast, stores numbers of the exact same data type in one **unbroken, contiguous block of physical computer memory**:
+
+```
+Python List of 4 Integers (Scattered Pointers):
+[Pointer 0] ──> Object(10) [28 bytes metadata + value]
+[Pointer 1] ──> Object(20) [28 bytes metadata + value]
+[Pointer 2] ──> Object(30) [28 bytes metadata + value]
+[Pointer 3] ──> Object(40) [28 bytes metadata + value]
+
+NumPy ndarray (Contiguous Memory Buffer):
+┌──────────┬──────────┬──────────┬──────────┐
+│ 10 (int) │ 20 (int) │ 30 (int) │ 40 (int) │  <── Packed side-by-side (32 bytes total)
+└──────────┴──────────┴──────────┴──────────┘
+```
+
+Because every number sits directly adjacent to its neighbor, the CPU can read entire blocks of numbers in a single clock cycle through high-speed CPU L1/L2 caches, making computations **50 to 100 times faster** than standard Python loops.
+
+</Section>
+
+<Section label="Why we need it">
+
+In Machine Learning, almost everything is represented as a multidimensional grid of numbers:
+
+1. **Tabular Datasets (2D Arrays / Matrices)**:
+   Rows represent individual samples (e.g., 10,000 house sales), while columns represent measured features (e.g., square footage, number of bedrooms, price).
+2. **Grayscale and Color Images (2D & 3D Arrays)**:
+   A black-and-white image is a 2D grid of pixel intensities (0 to 255). A color photo is a 3D array of shape `(height, width, 3)`, where each layer corresponds to Red, Green, and Blue channels.
+3. **Audio Clips (1D & 2D Arrays)**:
+   Recorded sound is a 1D sequence of air-pressure amplitude measurements sampled 44,100 times per second.
+4. **Batches of Sensor or Video Data (4D & 5D Arrays)**:
+   Deep learning models process minibatches of video frames structured as `(batch_size, time_frames, height, width, channels)`.
+
+Without NumPy's contiguous memory buffers and fixed numerical data types, training even a tiny neural network on a modern CPU or GPU would take hours instead of seconds due to memory pointer chasing.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Anatomy of an `ndarray`: Shape, Dimensions, and Size
+
+Every NumPy array exposes three essential attributes that tell you its structure:
+
+- `ndim`: The number of axes (dimensions). A 1D vector has `ndim=1`, a 2D matrix has `ndim=2`, and a 3D tensor has `ndim=3`.
+- `shape`: A tuple of integers describing how many elements exist along each axis. For example, `(3, 4)` means 3 rows and 4 columns.
+- `size`: The total number of numerical elements contained inside the array (the product of all elements in `shape`).
+
+```python
+import numpy as np
+
+# 1. Create a 1D Array (Vector)
+vector = np.array([10, 20, 30, 40, 50])
+print(f"Vector shape: {vector.shape}")  # (5,) -> 1 dimension with 5 items
+print(f"Vector dimensions: {vector.ndim}")  # 1
+print(f"Total elements: {vector.size}")    # 5
+
+# 2. Create a 2D Array (Matrix: 2 rows, 3 columns)
+matrix = np.array([
+    [1, 2, 3],
+    [4, 5, 6]
+])
+print(f"Matrix shape: {matrix.shape}")  # (2, 3) -> 2 rows, 3 columns
+print(f"Matrix dimensions: {matrix.ndim}")  # 2
+print(f"Total elements: {matrix.size}")    # 6
+
+# 3. Create a 3D Array (Tensor: 2 stacked matrices, each 3x4)
+tensor = np.zeros((2, 3, 4))
+print(f"Tensor shape: {tensor.shape}")  # (2, 3, 4)
+print(f"Tensor dimensions: {tensor.ndim}")  # 3
+print(f"Total elements: {tensor.size}")    # 24
+```
+
+<Analogy>
+  Imagine an apartment building:
+  - A **1D array** is a single hallway with 5 rooms in a straight line: `shape = (5,)`.
+  - A **2D array** is an entire floor plan with 3 rows of rooms and 4 rooms per row: `shape = (3, 4)`.
+  - A **3D array** is a multi-story building: 2 identical floors stacked vertically, each having 3 rows and 4 rooms: `shape = (2, 3, 4)`.
+</Analogy>
+
+---
+
+### 2. Numerical Data Types (`dtype`) and Memory Footprint
+
+In pure Python, an integer dynamically expands to whatever size is needed. In NumPy, you choose exact bit-widths matching computer hardware architecture:
+
+| NumPy `dtype` | Description | Values Range | Bytes per Element |
+| :--- | :--- | :--- | :---: |
+| `int8` / `uint8` | 8-bit signed / unsigned integer | -128 to 127 / 0 to 255 (image pixels) | 1 byte |
+| `int32` / `int64` | 32-bit / 64-bit signed integer | Standard integer indexing & counts | 4 / 8 bytes |
+| `float32` | 32-bit single-precision float | Standard deep learning weights (faster) | 4 bytes |
+| `float64` | 64-bit double-precision float | Default scientific computing precision | 8 bytes |
+| `bool_` | Boolean (`True` or `False`) | 1 bit packed into 1 byte | 1 byte |
+
+```python
+# Inspecting and casting dtypes
+data = np.array([1.5, 2.7, 3.2], dtype=np.float32)
+print(data.dtype)       # float32
+print(data.itemsize)    # 4 bytes per number
+print(data.nbytes)      # 12 bytes total memory (3 elements * 4 bytes)
+
+# Explicitly cast to integer (truncates decimal values)
+int_data = data.astype(np.int32)
+print(int_data)         # array([1, 2, 3], dtype=int32)
+```
+
+<Callout kind="warning">
+  **The Silent Integer Overflow Trap**:
+  If you use `uint8` (0 to 255) for pixel values and compute `np.uint8(250) + np.uint8(10)`, the result does **not** equal 260. It wraps around to `4` without raising an error! Always convert image data to `float32` before applying normalization formulas.
+</Callout>
+
+---
+
+### 3. Array Creation Routines
+
+You rarely build arrays by typing out Python lists by hand. NumPy provides fast C-level creation functions:
+
+```python
+# 1. Zeros: Pre-allocate an empty canvas of zeros
+zeros_grid = np.zeros((3, 5), dtype=np.float32)
+
+# 2. Ones: Useful for bias vectors in linear regression
+ones_vector = np.ones((4,), dtype=np.float64)
+
+# 3. Arange: Step from start to stop with a given step size (like python range)
+even_numbers = np.arange(0, 10, 2)  # [0, 2, 4, 6, 8] (stop=10 is exclusive)
+
+# 4. Linspace: Divide an interval into exactly N evenly-spaced points (stop is INCLUSIVE)
+x_axis = np.linspace(0.0, 1.0, num=5)  # [0.0, 0.25, 0.5, 0.75, 1.0]
+
+# 5. Full: Fill an entire shape with a constant value
+fill_seven = np.full((2, 3), fill_value=7.0)
+
+# 6. Eye / Identity: Identity matrix with 1s along the diagonal
+identity_matrix = np.eye(3)
+```
+
+<Callout kind="tip">
+  Use `np.linspace(start, stop, num)` whenever plotting graphs or evaluating loss functions. Unlike `np.arange`, `np.linspace` avoids floating-point rounding errors and guarantees the exact count of points you request.
+</Callout>
+
+---
+
+### 4. Reshaping Arrays (`reshape` vs `-1` Wildcard)
+
+You can transform the dimensions of an array without changing its underlying numbers, provided the total element count remains identical:
+
+```python
+raw_data = np.arange(12)  # 12 elements: [0, 1, 2, ..., 11]
+
+# Reshape into 3 rows and 4 columns
+grid = raw_data.reshape(3, 4)
+print(grid.shape)  # (3, 4)
+
+# Using -1 as an automatic dimension solver
+# "NumPy, make this 2 rows, and automatically compute how many columns are needed"
+auto_grid = raw_data.reshape(2, -1)
+print(auto_grid.shape)  # (2, 6) because 12 / 2 = 6
+
+# Flatten any multi-dimensional array back into a 1D vector
+flat = grid.ravel()
+print(flat.shape)  # (12,)
+```
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'numpy-shapes-q1',
+      kind: 'mcq',
+      text: 'Why are NumPy ndarrays significantly faster than native Python lists for numerical computing?',
+      options: [
+        'NumPy arrays store elements of identical dtype in a contiguous memory block, maximizing CPU cache line hits',
+        'NumPy converts all Python code into JavaScript before execution in the browser',
+        'Python lists are limited to 256 elements, whereas NumPy arrays can store infinite numbers',
+        'NumPy bypasses physical RAM and executes code directly inside the computer hard drive',
+      ],
+      correctIndex: 0,
+      explanation: 'NumPy stores elements in a single unbroken contiguous buffer in RAM with uniform data types. This allows CPU vector instructions (SIMD) and cache lines to fetch data without chasing heap pointers.',
+    },
+    {
+      id: 'numpy-shapes-q2',
+      kind: 'mcq',
+      text: 'What will be the shape of an array initialized with np.arange(24).reshape(4, -1)?',
+      options: [
+        '(4, 6)',
+        '(4, 24)',
+        '(6, 4)',
+        'An error is raised because -1 is not a valid dimension',
+      ],
+      correctIndex: 0,
+      explanation: 'Passing -1 instructs NumPy to automatically calculate the missing dimension. Since total size is 24 and the first dimension is 4, 24 / 4 = 6. The resulting shape is (4, 6).',
+    },
+    {
+      id: 'numpy-shapes-q3',
+      kind: 'mcq',
+      text: 'What happens when evaluating np.uint8(250) + np.uint8(15)?',
+      options: [
+        'The value overflows and wraps around modulo 256 to produce 9',
+        'Python raises an OverflowError and halts execution',
+        'The result is automatically promoted to float64 (265.0)',
+        'The value is clipped at 255',
+      ],
+      correctIndex: 0,
+      explanation: 'uint8 only holds values between 0 and 255. When 250 + 15 = 265 exceeds the maximum representable 8-bit integer, it silently wraps around: 265 % 256 = 9.',
+    },
+    {
+      id: 'numpy-shapes-q4',
+      kind: 'mcq',
+      text: 'Which array creation function guarantees an exact number of evenly spaced points between a start and stop value (inclusive)?',
+      options: [
+        'np.linspace(start, stop, num)',
+        'np.arange(start, stop, step)',
+        'np.empty((start, stop))',
+        'np.zeros(num)',
+      ],
+      correctIndex: 0,
+      explanation: 'np.linspace produces exactly num evenly spaced points between start and stop (with stop included by default), avoiding floating-point step accumulation errors.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="NumPy ndarrays, Shapes and Data Types"
+  oneLiner="A NumPy ndarray is a contiguous block of homogeneous memory that turns slow Python pointer chasing into blazing-fast hardware-level vector computing."
+  takeaways={[
+    'Inspect array structure using `.shape` (dimensions), `.ndim` (axis count), and `.size` (total elements).',
+    'Standardize data with appropriate `dtype` (e.g., `float32` for neural nets, `uint8` for raw image pixels).',
+    'Avoid `arange` with floating-point steps; use `np.linspace(start, stop, num)` instead.',
+    'Use `-1` in `.reshape(rows, -1)` to let NumPy automatically calculate the remaining dimension.',
+  ]}
+  commonTrap="Assuming Python lists and NumPy arrays consume similar memory. A Python list of 1,000,000 integers takes ~8 MB of heap pointers; a NumPy int32 array takes exactly 4 MB packed contiguously."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="numpy-arrays-and-shapes"
+  topicTitle="NumPy Arrays, Shapes and Data Types"
+  referenceChecklist={[
+    'Explained the difference between contiguous memory layout in ndarray vs scattered pointers in Python lists.',
+    'Defined ndim, shape, and size with concrete examples.',
+    'Outlined why selecting the right dtype (int8 vs float32 vs float64) matters in ML pipelines.',
+    'Demonstrated reshaping with the -1 wildcard parameter.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/programming-and-tools/numpy/numpy-arrays-and-shapes"
+  items={[
+    {
+      title: "NumPy Documentation: Array Creation & dtypes",
+      type: "documentation",
+      description: "Official guide to multidimensional ndarrays, memory strides, and data types.",
+      url: "https://numpy.org/doc/stable/user/basics.creation.html"
+    },
+    {
+      title: "Interactive Python Companion Code",
+      type: "cheatsheet",
+      description: "Ready-to-run Jupyter notebook and script covering memory layouts, reshaping, and dtype conversions.",
+      url: "https://github.com/mltheta/resources/tree/main/programming-and-tools/numpy/numpy-arrays-and-shapes"
+    }
+  ]}
+/>
+
+</Section>
