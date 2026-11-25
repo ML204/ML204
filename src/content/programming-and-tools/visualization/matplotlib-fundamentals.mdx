@@ -1,0 +1,344 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Matplotlib Fundamentals',
+  description: 'Master scientific plotting and figure architecture in Python: Object-Oriented API vs pyplot state machine, figure anatomy, subplot orchestration, styling, and publication-ready exports.',
+};
+
+<Section label="What is it?">
+
+**Matplotlib** is the foundational 2D data visualization and plotting library in the Python scientific stack. Created by John D. Hunter in 2003 to emulate MATLAB's plotting capabilities, it serves as the underlying graphic engine powering high-level visualization tools like Seaborn, Pandas plotting, and Yellowbrick.
+
+Matplotlib exposes two distinct programming paradigms:
+1. **The Pyplot State Machine (`plt.plot`)**: An implicit, MATLAB-like procedural interface where state (the active figure and axes) is tracked globally behind the scenes.
+2. **The Object-Oriented (OO) API (`fig, ax = plt.subplots()`)**: An explicit, professional interface where top-level canvas containers (**Figures**) and individual plotting coordinate areas (**Axes**) are treated as first-class Python objects.
+
+```
++--------------------------------------------------------------+
+| Figure (The Outer Canvas)                                    |
+|                                                              |
+|   +--------------------------+  +--------------------------+ |
+|   | Axes 1 (Subplot coordinate|  | Axes 2                   | |
+|   | system: X-Axis, Y-Axis,  |  |                          | |
+|   | Spines, Titles, Legend)  |  |                          | |
+|   +--------------------------+  +--------------------------+ |
++--------------------------------------------------------------+
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+In machine learning engineering and research:
+- **Publication-Ready Scientific Graphics**: Conference papers (NeurIPS, ICML, CVPR) require pixel-perfect formatting: vector exports (PDF/SVG), exact typography sizing, LaTeX formula rendering, and custom color maps.
+- **Model Debugging & Monitoring**: Plotting training and validation loss curves, gradient norms across backpropagation layers, and learning rate warmups.
+- **Explainability & Model Auditing**: Visualizing decision boundaries in 2D projection spaces, Shapley value waterfalls, and feature correlation matrices.
+- **Complete Visual Control**: High-level libraries like Seaborn return native Matplotlib `Axes` objects. Customizing legends, annotating specific data anomalies, or modifying tick formatting requires direct proficiency with Matplotlib's OO API.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Object-Oriented API vs. Pyplot State Machine
+
+Amateur tutorials often rely on implicit `plt.plot()` calls:
+
+```python
+# ❌ The implicit state-machine approach (prone to state leakage across cells):
+import matplotlib.pyplot as plt
+
+plt.figure(figsize=(8, 4))
+plt.plot([1, 2, 3], [4, 5, 6])
+plt.title("Implicit Title")
+plt.xlabel("X Axis")
+plt.show()
+```
+
+While convenient for quick exploratory one-liners in a scratch notebook, procedural state-machine calls become fragile when building multi-panel dashboards or production reporting pipelines.
+
+The industry standard is the **Explicit Object-Oriented API**:
+
+```python
+# ✅ The explicit Object-Oriented approach (modular, thread-safe, scalable):
+import matplotlib.pyplot as plt
+import numpy as np
+
+# 1. Create the Figure (canvas container) and Axes (coordinate plotting area)
+fig, ax = plt.subplots(figsize=(8, 5), dpi=100)
+
+x = np.linspace(0, 10, 100)
+y_train = np.sin(x)
+y_noisy = y_train + np.random.normal(0, 0.2, size=len(x))
+
+# 2. Call plotting methods directly on the Axes instance
+ax.plot(x, y_train, label="Ground Truth f(x)", color="#2563eb", linewidth=2.0)
+ax.scatter(x[::4], y_noisy[::4], label="Noisy Training Samples", color="#dc2626", alpha=0.7, s=30)
+
+# 3. Configure labels, title, limits, and styling explicitly
+ax.set_title("Regression Ground Truth vs. Sampled Observations", fontsize=14, fontweight="bold", pad=12)
+ax.set_xlabel("Input Feature x", fontsize=11)
+ax.set_ylabel("Target Response y", fontsize=11)
+ax.set_xlim(0, 10)
+ax.set_ylim(-1.6, 1.6)
+ax.grid(True, linestyle="--", alpha=0.5)
+ax.legend(frameon=True, facecolor="#f8fafc", edgecolor="#cbd5e1", loc="upper right")
+
+plt.show()
+```
+
+<Analogy>
+  Think of Matplotlib's hierarchy like an art gallery exhibition:
+  - The **`Figure`** is the physical wooden picture frame hanging on the gallery wall. It dictates overall dimensions, background wall color, and resolution.
+  - The **`Axes`** is the canvas stretched inside that frame where paints are applied. A single picture frame can hold two, four, or six separate canvases arranged side by side (**Subplots**).
+  - The **`Axis`**, **`Ticks`**, and **`Spines`** are the labeled measurement rulers and boundary borders surrounding each individual canvas.
+</Analogy>
+
+---
+
+### 2. Anatomy of a Matplotlib Figure
+
+Every visual element in a chart is a programmable Python object inheriting from `matplotlib.artist.Artist`:
+
+| Figure Component | Class / Accessor | Functional Responsibility |
+| :--- | :--- | :--- |
+| **Figure** | `fig` | Outer canvas managing layout, DPI, and background color. |
+| **Axes** | `ax` | Bounded coordinate system containing plots, lines, texts, and patches. |
+| **XAxis / YAxis** | `ax.xaxis`, `ax.yaxis` | Handles scale (linear, log), tick locations, and number formatting. |
+| **Spines** | `ax.spines['top']` | The boundary lines framing the data area (can be hidden or styled). |
+| **Major/Minor Ticks** | `ax.tick_params()` | Markings indicating scale increments along the axis. |
+| **Legend** | `ax.legend()` | Explanatory key mapping colors, line styles, and markers to series labels. |
+
+```python
+# Customizing figure anatomy: Spines & Tick formatting
+fig, ax = plt.subplots(figsize=(7, 4))
+ax.plot([0, 1, 2, 3], [0, 1, 4, 9], color="#059669", linewidth=2.5)
+
+# Hide top and right boundary spines for clean modern look:
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+
+# Customize spine width and tick directions:
+ax.spines['left'].set_linewidth(1.2)
+ax.spines['bottom'].set_linewidth(1.2)
+ax.tick_params(direction="out", length=6, width=1.2, colors="#334155")
+```
+
+---
+
+### 3. Multi-Panel Subplot Orchestration
+
+Complex machine learning diagnostics require comparing multiple metrics simultaneously (e.g., loss vs. accuracy, or training vs. validation curves):
+
+#### Grid Creation with `plt.subplots()`
+```python
+# Create a 2x2 grid of subplots sharing identical X-axis intervals
+fig, axes = plt.subplots(nrows=2, ncols=2, figsize=(10, 8), sharex=True)
+
+# axes is a 2D NumPy array of Axes objects: shape (2, 2)
+epochs = np.arange(1, 21)
+
+# Top-Left: Training Loss
+axes[0, 0].plot(epochs, 1.0 / epochs, color="#2563eb")
+axes[0, 0].set_title("Training Loss")
+axes[0, 0].grid(True, alpha=0.3)
+
+# Top-Right: Validation Accuracy
+axes[0, 1].plot(epochs, 1 - 0.5 / epochs, color="#059669")
+axes[0, 1].set_title("Validation Accuracy")
+axes[0, 1].grid(True, alpha=0.3)
+
+# Bottom-Left: Learning Rate Schedule
+axes[1, 0].plot(epochs, np.linspace(0.01, 0.001, 20), color="#d97706")
+axes[1, 0].set_title("Learning Rate Schedule")
+axes[1, 0].set_xlabel("Epoch")
+axes[1, 0].grid(True, alpha=0.3)
+
+# Bottom-Right: Gradient Norms
+axes[1, 1].plot(epochs, np.random.uniform(0.1, 0.4, 20), color="#dc2626")
+axes[1, 1].set_title("Gradient L2 Norm")
+axes[1, 1].set_xlabel("Epoch")
+axes[1, 1].grid(True, alpha=0.3)
+
+# Automatically resolve overlapping titles and labels:
+fig.tight_layout()
+plt.show()
+```
+
+#### Advanced Layouts with `GridSpec`
+When subplots need asymmetric dimensions (e.g., a large main scatter plot flanked by small marginal histograms):
+
+```python
+import matplotlib.gridspec as gridspec
+
+fig = plt.figure(figsize=(8, 8))
+gs = gridspec.GridSpec(4, 4, hspace=0.3, wspace=0.3)
+
+# Main central scatter plot (occupies rows 1-3, columns 0-2)
+ax_main = fig.add_subplot(gs[1:4, 0:3])
+
+# Top marginal histogram (occupies row 0, columns 0-2)
+ax_top = fig.add_subplot(gs[0, 0:3], sharex=ax_main)
+
+# Right marginal histogram (occupies rows 1-3, column 3)
+ax_right = fig.add_subplot(gs[1:4, 3], sharey=ax_main)
+```
+
+---
+
+### 4. Color Theory, Colormaps, and Publication-Quality Exports
+
+#### Choosing Appropriate Colormaps
+Choosing the wrong colormap can create optical illusions or misrepresent data distributions:
+- **Sequential Colormaps (`viridis`, `plasma`, `Blues`)**: Used for ordered numerical metrics where values progress from low to high (e.g. loss values, sample densities). `viridis` is perceptually uniform and accessible to colorblind readers.
+- **Diverging Colormaps (`coolwarm`, `RdBu`)**: Used when data has a meaningful critical midpoint (e.g. zero correlation, positive vs. negative residuals).
+- **Qualitative Colormaps (`tab10`, `Set2`)**: Used for unordered categorical classes (e.g. label 0 = Cat, label 1 = Dog).
+
+#### Exporting Publication-Ready Figures
+To export figures suitable for academic papers and production dashboards:
+
+```python
+# Save as high-resolution raster image (300 DPI for print publication):
+fig.savefig("reports/figures/model_convergence.png", dpi=300, bbox_inches="tight")
+
+# Save as lossless vector graphic (scales infinitely without pixelation):
+fig.savefig("reports/figures/model_convergence.pdf", bbox_inches="tight")
+fig.savefig("reports/figures/model_convergence.svg", bbox_inches="tight")
+```
+
+<Callout kind="tip">
+  Always pass `bbox_inches="tight"` to `fig.savefig()`. This recalculates bounding boxes and ensures that rotated axis labels, titles, and legends placed outside the axes are not clipped in the saved file.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'mpl-q1',
+      kind: 'mcq',
+      text: 'What is the primary architectural difference between the "pyplot" interface (plt.plot) and the Object-Oriented API (fig, ax = plt.subplots()) in Matplotlib?',
+      options: [
+        'The OO API explicitly manipulates Figure and Axes objects directly, making it modular, reusable, and thread-safe; pyplot relies on a global state machine',
+        'The OO API runs on the GPU, while pyplot executes on the CPU',
+        'pyplot can only draw bar charts, while the OO API can only draw scatter plots',
+        'The OO API requires an active internet connection to download chart themes',
+      ],
+      correctIndex: 0,
+      explanation: 'The OO API explicitly treats Figures and Axes as Python objects, avoiding global state collisions when generating multiple charts or integrating with web services.',
+    },
+    {
+      id: 'mpl-q2',
+      kind: 'mcq',
+      text: 'In Matplotlib object hierarchy, what is the conceptual difference between a Figure and an Axes?',
+      options: [
+        'A Figure is the top-level outer canvas container; an Axes is an individual coordinate space (subplot) where data is plotted',
+        'A Figure is a 3D plot, while an Axes is a 2D plot',
+        'Axes is the outer window frame, while Figure represents the tick labels',
+        'There is no difference; Figure and Axes are aliases for the same object',
+      ],
+      correctIndex: 0,
+      explanation: 'A Figure represents the entire bounding canvas. An Axes is an individual subplot coordinate system residing within that Figure.',
+    },
+    {
+      id: 'mpl-q3',
+      kind: 'mcq',
+      text: 'Why is `bbox_inches="tight"` recommended when saving figures via fig.savefig()?',
+      options: [
+        'It computes tight bounding boxes around all visual elements, preventing titles, legends, and tick labels from being clipped in the exported file',
+        'It compresses PNG files using lossy JPEG compression to reduce disk size',
+        'It removes all grid lines and axis borders automatically',
+        'It encrypts the figure so it cannot be viewed without a password',
+      ],
+      correctIndex: 0,
+      explanation: '`bbox_inches="tight"` automatically recalculates padding to ensure all figure annotations, titles, and legends fit cleanly inside the exported boundary.',
+    },
+    {
+      id: 'mpl-q4',
+      kind: 'mcq',
+      text: 'Which type of colormap should be selected when visualizing model residuals that deviate symmetrically above and below zero?',
+      options: [
+        'A diverging colormap (such as coolwarm or RdBu)',
+        'A qualitative colormap (such as tab10)',
+        'A strictly monochromatic grayscale colormap',
+        'A random color generator',
+      ],
+      correctIndex: 0,
+      explanation: 'Diverging colormaps highlight deviations on both sides of a critical midpoint (such as zero error or zero correlation), emphasizing positive and negative extremes.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Matplotlib Fundamentals"
+  oneLiner="Matplotlib separates the outer canvas container (Figure) from individual coordinate subplots (Axes), providing an explicit Object-Oriented API for publication-grade visualization."
+  takeaways={[
+    'Always use the Object-Oriented API (`fig, ax = plt.subplots()`) over procedural `plt.plot()` calls.',
+    'Remember the hierarchy: A Figure holds one or more Axes; an Axes holds Spines, Ticks, Labels, and Artists.',
+    'Use `fig.tight_layout()` to resolve overlapping subplot titles and tick marks automatically.',
+    'Select perceptually uniform sequential colormaps (`viridis`) for continuous densities and diverging colormaps (`coolwarm`) for residuals.',
+    'Export publication-quality graphics using `fig.savefig("plot.pdf", bbox_inches="tight")`.',
+  ]}
+  commonTrap="Calling `plt.plot()` inside iterative model training loops without closing figures (`plt.close(fig)`). Matplotlib keeps every procedural figure in memory until explicitly closed, causing massive silent RAM memory leaks."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="matplotlib-fundamentals"
+  topicTitle="Matplotlib Fundamentals"
+  referenceChecklist={[
+    'Explained the difference between the pyplot procedural state machine and the Object-Oriented API.',
+    'Described the anatomical hierarchy of Figure, Axes, Axis, Spines, and Ticks.',
+    'Demonstrated creating multi-panel subplot grids with plt.subplots(nrows, ncols).',
+    'Differentiated sequential, diverging, and qualitative colormaps.',
+    'Explained how to export publication-ready vector and raster graphics with fig.savefig().',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/visualization/matplotlib-fundamentals"
+  items={[
+    {
+      title: "Matplotlib Official Documentation: The Lifecycle of a Plot",
+      type: "article",
+      description: "Official guide covering the Object-Oriented interface, Artist anatomy, and layout tuning.",
+      url: "https://matplotlib.org/stable/tutorials/introductory/lifecycle.html"
+    },
+    {
+      title: "Scientific Visualization: Python + Matplotlib by Nicolas P. Rougier",
+      type: "book",
+      description: "Open-access masterclass on crafting publication-grade aesthetic scientific charts and layouts.",
+      url: "https://github.com/rougier/scientific-visualization-book"
+    },
+    {
+      title: "Matplotlib Fundamentals Notebook & Exercise Solutions",
+      type: "cheatsheet",
+      description: "Hands-on Jupyter notebooks, subplot orchestration examples, and styling templates in the ML204 repository.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/visualization/matplotlib-fundamentals"
+    }
+  ]}
+/>
+
+</Section>

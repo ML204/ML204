@@ -20,6 +20,14 @@ export const contentRegistry: Record<string, Loader> = {
     import('@/content/programming-and-tools/python-fundamentals/file-io-json-csv.mdx'),
   'programming-and-tools/python-fundamentals/error-handling-virtualenv': () =>
     import('@/content/programming-and-tools/python-fundamentals/error-handling-virtualenv.mdx'),
+  'programming-and-tools/visualization/matplotlib-fundamentals': () =>
+    import('@/content/programming-and-tools/visualization/matplotlib-fundamentals.mdx'),
+  'programming-and-tools/visualization/seaborn-statistical-graphics': () =>
+    import('@/content/programming-and-tools/visualization/seaborn-statistical-graphics.mdx'),
+  'programming-and-tools/visualization/diagnostic-charts': () =>
+    import('@/content/programming-and-tools/visualization/diagnostic-charts.mdx'),
+  'programming-and-tools/visualization/model-evaluation-plots': () =>
+    import('@/content/programming-and-tools/visualization/model-evaluation-plots.mdx'),
   'programming-and-tools/git-and-sql/git-version-control': () =>
     import('@/content/programming-and-tools/git-and-sql/git-version-control.mdx'),
   'programming-and-tools/git-and-sql/ml-project-repository-structure': () =>

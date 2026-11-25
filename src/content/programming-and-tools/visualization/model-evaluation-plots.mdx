@@ -1,0 +1,363 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Plotting Model Results & Diagnostics',
+  description: 'Master machine learning evaluation visualization: learning curves, overfitting diagnostics, confusion matrices, ROC and Precision-Recall curves, feature importances, and regression residual analysis.',
+};
+
+<Section label="What is it?">
+
+**Model Evaluation Visualization** is the practice of translating quantitative validation metrics into diagnostic visual curves and matrices. While summary scalar metrics (like $R^2 = 0.88$ or $\text{Accuracy} = 94\%$) offer high-level benchmarks, they conceal critical failure modes:
+- A $95\%$ accuracy score can completely obscure a model that predicts the majority class $100\%$ of the time on an imbalanced dataset.
+- A high $R^2$ score can hide severe **heteroscedasticity** where variance explodes on high-value predictions.
+- A decreasing training loss can disguise runaway **overfitting** if validation error diverged ten epochs ago.
+
+Diagnostic plotting equips machine learning engineers to visually diagnose learning dynamics, threshold trade-offs, classification errors, and model interpretability.
+
+```
+Model Evaluation Diagnostics
+  ├── Training Dynamics ──> Learning Curves (Loss vs. Epochs: Underfitting vs. Overfitting)
+  ├── Classification    ──> Confusion Matrices, ROC Curves (AUC), Precision-Recall Curves
+  ├── Regression        ──> Residuals vs. Fitted Plots, Quantile-Quantile (Q-Q) Plots
+  └── Interpretability  ──> Feature Importance Bar Charts (Gini Impurity vs. Permutation)
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+In production machine learning:
+1. **Detecting Overfitting & Determining Early Stopping**:
+   Plotting training loss alongside validation loss across epochs reveals the exact inflection point where the model stops learning generalizable patterns and begins memorizing training noise.
+2. **Optimal Decision Threshold Tuning**:
+   In fraud detection or cancer diagnosis, default $0.5$ classification thresholds are unacceptable. Visualizing **Precision-Recall** and **ROC curves** allows engineers to select the exact probability threshold maximizing recall while bounding false alarm rates.
+3. **Validating Statistical Assumptions in Regression**:
+   Ordinary Least Squares assumes normally distributed errors with constant variance (homoscedasticity). Plotting **Residuals vs. Fitted Values** and **Q-Q plots** visually exposes non-linearities and non-constant variance.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Training Dynamics: Diagnosing Learning Curves
+
+A **Learning Curve** plots the progression of an objective metric (Loss, Accuracy, F1-Score) across training epochs for both the training split and an unseen validation split:
+
+```
+  High Loss │                                     High Loss │              Validation Loss
+            │  Training Loss                                │       /──────────────────── (Overfitting Divergence)
+            │  ──────────────────────── (High Bias)         │      /
+            │  Validation Loss                              │     /      Training Loss
+            │  ──────────────────────── (Underfitting)      │    └────────────────────── (Near Zero)
+   Low Loss └──────────────────────────────        Low Loss └──────────────────────────────
+            0            Epochs          50                 0            Epochs          50
+                 Scenario A: Underfitting                        Scenario B: Overfitting
+```
+
+#### Diagnostic Scenarios
+- **Underfitting (High Bias)**: Both training and validation loss remain high and plateau early. The model lacks capacity (too few parameters, under-engineered features, or excessive regularization).
+- **Overfitting (High Variance)**: Training loss steadily declines toward zero, but validation loss reaches a minimum and begins climbing upward. The model has memorized training noise.
+- **Optimal Generalization**: Both curves decline smoothly and converge close together with minimal generalization gap.
+
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+
+epochs = np.arange(1, 31)
+# Simulated metrics: Training continues dropping, validation begins diverging at epoch 12
+train_loss = 1.0 / (1 + 0.15 * epochs) + np.random.normal(0, 0.01, size=len(epochs))
+val_loss = 1.0 / (1 + 0.12 * epochs) + 0.001 * (epochs - 12)**2 * (epochs > 12) + np.random.normal(0, 0.015, size=len(epochs))
+
+fig, ax = plt.subplots(figsize=(8, 4.5))
+ax.plot(epochs, train_loss, label="Training Loss", color="#2563eb", linewidth=2)
+ax.plot(epochs, val_loss, label="Validation Loss", color="#dc2626", linewidth=2)
+
+# Annotate the optimal early stopping checkpoint:
+best_epoch = np.argmin(val_loss) + 1
+ax.axvline(best_epoch, color="#059669", linestyle="--", alpha=0.8, label=f"Optimal Early Stop (Epoch {best_epoch})")
+
+ax.set_title("Epoch Loss Curve: Diagnosing Overfitting Inflection", fontsize=13, fontweight="bold")
+ax.set_xlabel("Training Epochs")
+ax.set_ylabel("Loss (Cross-Entropy)")
+ax.legend(frameon=True)
+ax.grid(True, alpha=0.3)
+plt.show()
+```
+
+<Analogy>
+  Think of learning curves like a student preparing for a medical exam. The **Training Loss** is their score on practice tests they have memorized. The **Validation Loss** is their score on new, unseen questions. If their practice score is 100% but their unseen score plunges to 50%, they have merely memorized the flashcards (overfitting). If both scores remain stuck at 50%, they haven’t learned the fundamental concepts (underfitting).
+</Analogy>
+
+---
+
+### 2. Classification Diagnostics: Confusion Matrices
+
+A **Confusion Matrix** visualizes prediction counts cross-tabulated against ground-truth labels:
+
+```
+                      PREDICTED CLASS
+                  Positive        Negative
+ACTUAL   Positive [ True Pos (TP)   False Neg (FN) ]
+CLASS    Negative [ False Pos (FP)  True Neg (TN)  ]
+```
+
+- **Raw Count Matrix**: Useful for auditing dataset scale and support.
+- **Normalized by True Labels (`normalize='true'`)**: Displays class-specific **Recall**, exposing whether minority classes are being ignored.
+- **Normalized by Predictions (`normalize='pred'`)**: Displays class-specific **Precision**.
+
+```python
+import seaborn as sns
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
+
+# Compute raw confusion matrix
+y_true = [1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1]
+y_pred = [1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0]
+
+cm_normalized = confusion_matrix(y_true, y_pred, normalize="true")
+
+fig, ax = plt.subplots(figsize=(6, 5))
+disp = ConfusionMatrixDisplay(confusion_matrix=cm_normalized, display_labels=["Non-Churn", "Churn"])
+disp.plot(cmap="Blues", values_format=".2%", ax=ax, colorbar=False)
+
+ax.set_title("Normalized Confusion Matrix (Recall per Class)", fontweight="bold")
+plt.show()
+```
+
+---
+
+### 3. Threshold Diagnostics: ROC vs. Precision-Recall Curves
+
+#### ROC (Receiver Operating Characteristic) Curve
+Plots the **True Positive Rate (Recall)** against the **False Positive Rate** across every possible classification probability threshold ($t \in [0, 1]$):
+
+$$\text{TPR} = \frac{\text{TP}}{\text{TP} + \text{FN}}, \quad \text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}}$$
+
+The **Area Under the Curve (ROC-AUC)** measures the probability that a randomly chosen positive sample will be ranked higher than a randomly chosen negative sample:
+- $\text{AUC} = 0.5$: Worthless classifier (equivalent to random coin flip).
+- $\text{AUC} = 1.0$: Perfect classifier.
+
+#### Precision-Recall (PR) Curve
+Plots **Precision** against **Recall** across thresholds:
+
+$$\text{Precision} = \frac{\text{TP}}{\text{TP} + \text{FP}}, \quad \text{Recall} = \frac{\text{TP}}{\text{TP} + \text{FN}}$$
+
+```python
+from sklearn.metrics import roc_curve, auc, precision_recall_curve
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+
+# 1. Plot ROC Curve
+fpr, tpr, _ = roc_curve(y_test, y_prob)
+roc_score = auc(fpr, tpr)
+axes[0].plot(fpr, tpr, color="#2563eb", lw=2, label=f"ROC Curve (AUC = {roc_score:.2f})")
+axes[0].plot([0, 1], [0, 1], color="#94a3b8", linestyle="--", label="Random Classifier")
+axes[0].set_title("ROC Curve (TPR vs. FPR)", fontweight="bold")
+axes[0].set_xlabel("False Positive Rate")
+axes[0].set_ylabel("True Positive Rate (Recall)")
+axes[0].legend(loc="lower right")
+
+# 2. Plot Precision-Recall Curve (Crucial for Imbalanced Datasets)
+precision, recall, _ = precision_recall_curve(y_test, y_prob)
+axes[1].plot(recall, precision, color="#059669", lw=2, label="Precision-Recall Curve")
+axes[1].set_title("Precision-Recall Curve (PR-AUC)", fontweight="bold")
+axes[1].set_xlabel("Recall")
+axes[1].set_ylabel("Precision")
+axes[1].legend(loc="lower left")
+
+plt.tight_layout()
+plt.show()
+```
+
+<Callout kind="warning">
+  **The ROC Curve Trap in Imbalanced Datasets**: If you have a fraud dataset where only $0.1\%$ of transactions are fraudulent ($99.9\%$ negative class), the number of True Negatives ($\text{TN}$) is immense. This keeps the False Positive Rate ($\text{FPR} = \frac{\text{FP}}{\text{FP} + \text{TN}}$) artificially tiny, making the ROC curve look deceptively perfect ($\text{AUC} = 0.98$) even when the model makes 1,000 false alarms. **Always use the Precision-Recall curve on imbalanced datasets!**
+</Callout>
+
+---
+
+### 4. Regression Diagnostics: Residuals vs. Fitted Values
+
+In linear regression, residuals ($e_i = y_i - \hat{y}_i$) must satisfy Gauss-Markov assumptions: zero mean, homoscedasticity (constant variance), and independence.
+
+```python
+import scipy.stats as stats
+
+residuals = y_test - y_pred_regression
+
+fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
+
+# Subplot 1: Residuals vs. Fitted Values (Detecting Heteroscedasticity)
+axes[0].scatter(y_pred_regression, residuals, alpha=0.5, color="#0284c7")
+axes[0].axhline(0, color="#dc2626", linestyle="--", linewidth=1.5)
+axes[0].set_title("Residuals vs. Fitted (Check Homoscedasticity)", fontweight="bold")
+axes[0].set_xlabel("Fitted Values (y_pred)")
+axes[0].set_ylabel("Residuals (y_true - y_pred)")
+
+# Subplot 2: Normal Q-Q Plot (Check Residual Normality)
+stats.probplot(residuals, dist="norm", plot=axes[1])
+axes[1].set_title("Normal Q-Q Plot of Residuals", fontweight="bold")
+
+plt.tight_layout()
+plt.show()
+```
+
+- **Ideal Residual Plot**: Randomly scattered points forming a horizontal band centered around zero with constant width.
+- **Heteroscedasticity Warning**: A distinct funnel/fan shape (variance expands as predicted values grow). Requires variance-stabilizing log transforms.
+- **Non-Linearity Warning**: A distinct U-shape or curve in the residuals indicates that linear regression failed to capture quadratic or polynomial patterns.
+
+---
+
+### 5. Interpretability: Feature Importance Bar Charts
+
+Visualizing which features drive model decisions:
+
+```python
+# Ranking features by importance in Random Forest:
+importances = rf_model.feature_importances_
+indices = np.argsort(importances)[::-1]
+feature_names = [features[i] for i in indices]
+
+fig, ax = plt.subplots(figsize=(8, 5))
+ax.barh(range(len(importances)), importances[indices][::-1], color="#3b82f6", align="center")
+ax.set_yticks(range(len(importances)))
+ax.set_yticklabels(feature_names[::-1])
+ax.set_xlabel("Mean Decrease in Impurity (Gini Importance)")
+ax.set_title("Random Forest: Top Predictive Features", fontweight="bold")
+plt.show()
+```
+
+<Callout kind="tip">
+  **Permutation Importance vs. Impurity Importance**: Tree-based impurity importance (`feature_importances_`) is biased toward high-cardinality numerical features. For uncompromised model auditing, use **Permutation Importance** (`sklearn.inspection.permutation_importance`), which measures the true drop in validation score when each feature column is shuffled randomly.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'eval-q1',
+      kind: 'mcq',
+      text: 'On a training vs. validation loss curve across epochs, what does a widening gap where training loss continues declining while validation loss begins rising indicate?',
+      options: [
+        'The model is overfitting to the training data and memorizing noise; training should be halted via early stopping',
+        'The model is underfitting and requires additional layers',
+        'The learning rate is too small and should be scaled up by 10x',
+        'The model has achieved optimal generalization',
+      ],
+      correctIndex: 0,
+      explanation: 'When training loss decreases while validation loss increases, the model has entered the overfitting regime, degrading its ability to generalize to unseen test distributions.',
+    },
+    {
+      id: 'eval-q2',
+      kind: 'mcq',
+      text: 'Why is the Precision-Recall (PR) curve preferred over the ROC curve when evaluating models on severe class-imbalanced datasets (e.g., fraud detection with 0.1% positive samples)?',
+      options: [
+        'The ROC curve incorporates True Negatives in its False Positive Rate calculation, making performance appear deceptively optimistic when the negative class is massive; PR curves focus solely on the minority positive class',
+        'ROC curves cannot be calculated on binary classification tasks',
+        'Precision-Recall curves run faster because they do not require sorting probability thresholds',
+        'ROC curves only work when model accuracy is above 90%',
+      ],
+      correctIndex: 0,
+      explanation: 'In highly imbalanced datasets, millions of True Negatives dilute the denominator of FPR ($\text{FP} / (\text{FP} + \text{TN})$), keeping FPR deceptively low. Precision-Recall curves omit True Negatives entirely.',
+    },
+    {
+      id: 'eval-q3',
+      kind: 'mcq',
+      text: 'What diagnostic problem does a distinct "funnel shape" (variance expanding as predicted values increase) on a Residuals vs. Fitted plot indicate in linear regression?',
+      options: [
+        'Heteroscedasticity (non-constant error variance), violating the standard Gauss-Markov assumption of linear models',
+        'Multicollinearity between independent features',
+        'The presence of duplicate sample rows in the training split',
+        'Perfect mathematical convergence',
+      ],
+      correctIndex: 0,
+      explanation: 'A funnel shape indicates heteroscedasticity, meaning model prediction errors grow larger for higher values. This violates OLS assumptions and often requires target transformations ($\log(y)$).',
+    },
+    {
+      id: 'eval-q4',
+      kind: 'mcq',
+      text: 'Why is Permutation Feature Importance generally preferred over standard Random Forest Impurity Importance (Mean Decrease in Impurity)?',
+      options: [
+        'Impurity importance is artificially biased toward continuous features with high cardinality (many unique values); permutation importance measures true validation performance drops',
+        'Impurity importance can only be computed on deep neural networks',
+        'Permutation importance eliminates the need for test datasets',
+        'Impurity importance runs slower than permutation importance',
+      ],
+      correctIndex: 0,
+      explanation: 'Tree impurity importance artificially favors high-cardinality numerical features. Permutation importance tests generalization drop directly on held-out validation data by shuffling feature columns.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Plotting Model Results & Diagnostics"
+  oneLiner="Evaluation plots uncover critical model dynamics: learning curves detect overfitting, confusion matrices & PR curves expose threshold trade-offs, and residual plots validate regression assumptions."
+  takeaways={[
+    'Plot loss curves across epochs to identify early stopping checkpoints before validation error diverges.',
+    'Normalize confusion matrices by true labels (`normalize="true"`) to evaluate class recall independently.',
+    'Always use Precision-Recall curves instead of ROC curves when evaluating imbalanced datasets.',
+    'Inspect Residuals vs. Fitted values and Q-Q plots to verify homoscedasticity and normality in regression models.',
+    'Audit feature drivers using Permutation Importance rather than biased tree impurity metrics.',
+  ]}
+  commonTrap="Relying exclusively on ROC-AUC on imbalanced datasets. An ROC-AUC score of 0.95 can conceal a completely useless model that generates 10,000 false positives because the overwhelming volume of True Negatives keeps FPR near zero."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="model-evaluation-plots"
+  topicTitle="Model Evaluation & Diagnostic Plots"
+  referenceChecklist={[
+    'Explained how learning curves diagnose underfitting and overfitting across training epochs.',
+    'Differentiated raw confusion matrices from matrices normalized by true labels.',
+    'Explained why Precision-Recall curves are superior to ROC curves for imbalanced datasets.',
+    'Described how Residuals vs. Fitted plots and Q-Q plots detect heteroscedasticity and non-normality.',
+    'Differentiated Tree Impurity importance from Permutation feature importance.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/visualization/model-evaluation-plots"
+  items={[
+    {
+      title: "Scikit-Learn Visualizations Guide: Metrics & Diagnostics",
+      type: "article",
+      description: "Official guide to ConfusionMatrixDisplay, RocCurveDisplay, and PrecisionRecallDisplay.",
+      url: "https://scikit-learn.org/stable/visualizations.html"
+    },
+    {
+      title: "Google Machine Learning Crash Course: Classification & ROC-AUC",
+      type: "article",
+      description: "Interactive tutorial on True Positive Rates, False Positive Rates, and decision threshold selection.",
+      url: "https://developers.google.com/machine-learning/crash-course/classification/roc-and-auc"
+    },
+    {
+      title: "Model Evaluation & Diagnostic Plots Homework Notebook",
+      type: "cheatsheet",
+      description: "Hands-on Jupyter notebook covering residual analysis, ROC/PR curves, and feature importance plotting in ML204.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/visualization/model-evaluation-plots"
+    }
+  ]}
+/>
+
+</Section>

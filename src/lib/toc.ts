@@ -70,10 +70,10 @@ export const toc: Part[] = [
         slug: 'visualization',
         title: 'Data Visualization',
         subchapters: [
-          { slug: 'matplotlib-fundamentals',       title: 'Matplotlib Fundamentals',                   estimatedMinutes: 7 },
-          { slug: 'seaborn-statistical-graphics',  title: 'Statistical Plots with Seaborn',            estimatedMinutes: 7 },
-          { slug: 'diagnostic-charts',             title: 'Histograms, Scatter, Box and Heatmaps',     estimatedMinutes: 7 },
-          { slug: 'model-evaluation-plots',        title: 'Plotting Model Results & Diagnostics',      estimatedMinutes: 7 },
+          { slug: 'matplotlib-fundamentals',       title: 'Matplotlib Fundamentals',                   estimatedMinutes: 7, done: true },
+          { slug: 'seaborn-statistical-graphics',  title: 'Statistical Plots with Seaborn',            estimatedMinutes: 7, done: true },
+          { slug: 'diagnostic-charts',             title: 'Histograms, Scatter, Box and Heatmaps',     estimatedMinutes: 7, done: true },
+          { slug: 'model-evaluation-plots',        title: 'Plotting Model Results & Diagnostics',      estimatedMinutes: 7, done: true },
         ],
       },
       {

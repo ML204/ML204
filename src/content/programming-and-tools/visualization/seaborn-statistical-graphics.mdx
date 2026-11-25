@@ -1,0 +1,326 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Statistical Plots with Seaborn',
+  description: 'Master high-level statistical visualization in Python: tidy DataFrames, semantic mapping with hue and style, categorical aggregations, regression visualization, and multi-facet grids.',
+};
+
+<Section label="What is it?">
+
+**Seaborn** is a high-level Python data visualization library built directly on top of Matplotlib, closely integrated with Pandas data structures. While Matplotlib provides low-level primitive building blocks (drawing lines, placing rectangles, and positioning ticks), Seaborn operates at the level of statistical hypotheses and exploratory data analysis (EDA).
+
+With Seaborn, you do not write loops to calculate means, standard deviations, or confidence intervals. Instead, you pass a Pandas DataFrame and declare **semantic mappings**:
+- Map continuous feature columns to the **`x`** and **`y`** positional axes.
+- Map discrete categorical features to **`hue`** (color grouping), **`style`** (marker/dash patterns), or **`size`** (marker scaling).
+- Automatically estimate statistical central tendencies and calculate 95% bootstrap confidence intervals (`errorbar='ci'`).
+
+```
+Pandas DataFrame (Tidy) ──> Seaborn Statistical Engine ──> Automatic Aggregations + Confidence Intervals ──> Matplotlib Axes
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+In modern machine learning workflows:
+- **Rapid Exploratory Data Analysis (EDA)**: Before engineering features, data scientists must visually uncover multi-variable interactions, class separability, and variance disparities across target labels in a single line of code.
+- **Statistical Aggregation Without Data Mutation**: In Matplotlib, generating a bar chart of mean churn rates by customer tier requires manually grouping data (`df.groupby('tier')['churn'].mean()`). In Seaborn, `sns.barplot(data=df, x='tier', y='churn')` aggregates, plots, and computes confidence interval error bars automatically.
+- **Seamless Faceting Across Subsets**: Breaking a complex statistical distribution down across multiple categorical dimensions (e.g., comparing model loss across learning rates and model architectures) is handled declaratively with multi-facet grids like `sns.catplot` and `sns.relplot`.
+- **Aesthetic Defaults & Colorblind Safety**: Out-of-the-box themes (`sns.set_theme()`) and accessible color palettes (`palette='colorblind'`) guarantee visually appealing, readable graphics without tedious styling boilerplate.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Tidy Data Philosophy
+
+Seaborn is designed to operate on **Tidy Data** (long-form DataFrames) as popularized by statistician Hadley Wickham:
+1. Each **variable** forms a distinct column.
+2. Each **observation** (sample row) forms a distinct row.
+3. Each type of **observational unit** forms an individual table.
+
+```python
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Set Seaborn global theme with modern aesthetics
+sns.set_theme(style="whitegrid", palette="colorblind")
+
+# Example Tidy DataFrame: Model training log across experiments
+data = {
+    "epoch": [1, 2, 3, 1, 2, 3, 1, 2, 3],
+    "val_loss": [0.85, 0.62, 0.45, 0.92, 0.70, 0.58, 0.78, 0.55, 0.40],
+    "optimizer": ["AdamW", "AdamW", "AdamW", "SGD", "SGD", "SGD", "AdamW", "AdamW", "AdamW"],
+    "learning_rate": [1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 1e-3, 5e-4, 5e-4, 5e-4]
+}
+df = pd.DataFrame(data)
+```
+
+<Analogy>
+  Think of Matplotlib as an artist’s manual toolkit containing raw brushes, canvas stretchers, and individual pigment tubes. You must measure every proportion and mix every color by hand. Seaborn is an automated digital design studio: you feed it your structured spreadsheet, pick an aesthetic style preset, and it instantly renders balanced, statistically annotated artwork.
+</Analogy>
+
+---
+
+### 2. Semantic Mapping: Expressing High-Dimensional Relationships
+
+Rather than plotting 2D projections where data points lose their contextual identity, Seaborn enables mapping up to four dimensions simultaneously on a single 2D plot using **semantic bindings**:
+
+```python
+fig, ax = plt.subplots(figsize=(8, 5))
+
+# Plotting 4 dimensions on a single chart:
+# 1. X-Axis: Epoch (temporal)
+# 2. Y-Axis: Validation Loss (continuous response)
+# 3. Hue: Optimizer Type (categorical color grouping)
+# 4. Style: Learning Rate (line dashing pattern)
+sns.lineplot(
+    data=df,
+    x="epoch",
+    y="val_loss",
+    hue="optimizer",
+    style="learning_rate",
+    markers=True,
+    dashes=True,
+    linewidth=2.5,
+    ax=ax
+)
+
+ax.set_title("Hyperparameter Comparison Across Epochs", fontsize=14, fontweight="bold")
+ax.set_ylabel("Validation Loss (Cross-Entropy)")
+plt.show()
+```
+
+<Callout kind="tip">
+  Notice the `ax=ax` parameter! Because Seaborn is built directly on top of Matplotlib, passing an existing Matplotlib `Axes` allows you to seamlessly embed Seaborn statistical charts into complex Matplotlib subplot grids.
+</Callout>
+
+---
+
+### 3. Categorical Statistical Plots
+
+When one of your primary features is categorical (e.g. customer segment, model family, geographic region), Seaborn offers specialized functions divided by visualization goals:
+
+| Function | Visualization Focus | Statistical Estimation |
+| :--- | :--- | :--- |
+| **`sns.barplot()`** | Central tendency comparison | Plots mean (or median) with bootstrap confidence interval error bars. |
+| **`sns.countplot()`** | Frequency distribution | Displays raw observation counts per category (like a categorical histogram). |
+| **`sns.pointplot()`** | Slope and factor interaction | Connects summary points with lines; ideal for comparing factorial interactions. |
+| **`sns.stripplot()`** | Jittered sample points | Shows every raw observation point with horizontal jitter to prevent overplotting. |
+| **`sns.swarmplot()`** | Non-overlapping distribution | Positions data points without overlap, revealing density and multimodal clustering. |
+
+```python
+# Comparing model accuracy across architectures with 95% bootstrap confidence intervals:
+fig, ax = plt.subplots(figsize=(7, 4))
+sns.barplot(
+    data=df_results,
+    x="model_backbone",
+    y="test_accuracy",
+    hue="pretraining_dataset",
+    palette="Blues_d",
+    errorbar=("ci", 95),  # 95% Bootstrap Confidence Interval
+    capsize=0.1,
+    ax=ax
+)
+ax.set_title("Test Accuracy by Architecture and Pretraining Corpus")
+```
+
+---
+
+### 4. Relational Plots and Linear Regression Visualizations
+
+#### Statistical Regressions with `sns.regplot` and `sns.lmplot`
+When modeling relationships between two continuous variables, Seaborn estimates linear fits along with translucent confidence bands:
+
+```python
+# Plots a scatter plot, fits an OLS regression line, and draws a 95% confidence band:
+fig, ax = plt.subplots(figsize=(7, 5))
+sns.regplot(
+    data=df_housing,
+    x="median_income",
+    y="median_house_value",
+    scatter_kws={"alpha": 0.4, "color": "#0284c7"},
+    line_kws={"color": "#dc2626", "linewidth": 2},
+    order=1,  # 1 for linear fit, 2 for polynomial quadratic fit
+    ax=ax
+)
+ax.set_title("Housing Value vs. Median Income (OLS Fit)")
+```
+
+---
+
+### 5. Multi-Facet Grids: `FacetGrid`, `catplot`, and `pairplot`
+
+#### Pairwise Feature Matrices with `sns.pairplot()`
+In early-stage Exploratory Data Analysis, inspecting every pairwise feature combination is the fastest way to detect linear correlation, multi-collinearity, and class separability:
+
+```python
+# Generates an N x N matrix of scatter plots for pairwise features, 
+# with diagonal univariate KDE plots colored by target label:
+pairplot_fig = sns.pairplot(
+    data=df_iris,
+    hue="species",
+    palette="Set2",
+    diag_kind="kde",
+    corner=True  # Renders only the lower triangle to eliminate redundancy!
+)
+```
+
+#### Faceting with `FacetGrid` and Figure-Level Functions
+When analyzing complex multivariate experiments, Seaborn’s figure-level functions (`relplot`, `catplot`, `displot`) manage grid allocations automatically across rows and columns:
+
+```python
+# Create a multi-column grid faceting by dataset and row faceting by model size:
+g = sns.relplot(
+    data=df_benchmark,
+    x="batch_size",
+    y="throughput_samples_per_sec",
+    hue="precision",  # FP32 vs. FP16 vs. INT8
+    col="gpu_architecture",  # One subplot column per GPU type
+    row="model_family",       # One subplot row per architecture
+    kind="line",
+    height=3.5,
+    aspect=1.2
+)
+g.set_axis_labels("Batch Size", "Throughput (samples/s)")
+g.set_titles(col_template="GPU: {col_name}", row_template="Model: {row_name}")
+```
+
+<Callout kind="warning">
+  **Figure-Level vs. Axes-Level Functions**: Functions like `sns.lineplot` and `sns.barplot` are **Axes-level** functions that draw into a single `ax`. Functions like `sns.relplot`, `sns.catplot`, and `sns.pairplot` are **Figure-level** functions that instantiate their own new figure and manage multiple subplots via `FacetGrid`. Do not pass `ax=` to figure-level functions!
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'sns-q1',
+      kind: 'mcq',
+      text: 'What data structure format does Seaborn expect for optimal semantic mapping (hue, style, size)?',
+      options: [
+        'A Tidy (long-form) DataFrame where each variable is a column and each observation is an individual row',
+        'A wide-form matrix of unlabelled raw nested Python lists',
+        'A single 1D NumPy array containing interleaved values',
+        'A binary SQLite file stored on disk',
+      ],
+      correctIndex: 0,
+      explanation: 'Seaborn is built around the Tidy Data principles: each variable occupies its own column and each sample observation is a row, allowing effortless semantic mapping.',
+    },
+    {
+      id: 'sns-q2',
+      kind: 'mcq',
+      text: 'What do the error bar caps on a standard Seaborn barplot (sns.barplot) represent by default?',
+      options: [
+        'A 95% bootstrap confidence interval estimating the uncertainty of the calculated mean',
+        'The absolute minimum and maximum data values in the dataset',
+        'The standard error of measurement divided by the number of columns',
+        'A user-defined hardcoded margin of error',
+      ],
+      correctIndex: 0,
+      explanation: 'By default, `sns.barplot` computes a 95% bootstrap confidence interval around the central tendency estimate, reflecting statistical sampling uncertainty.',
+    },
+    {
+      id: 'sns-q3',
+      kind: 'mcq',
+      text: 'What is the primary operational difference between an Axes-level function (e.g. sns.scatterplot) and a Figure-level function (e.g. sns.relplot)?',
+      options: [
+        'Axes-level functions draw onto a single existing Matplotlib Axes (accepting an ax= parameter); Figure-level functions create and manage their own multi-subplot FacetGrid',
+        'Axes-level functions run on GPU, while Figure-level functions run on CPU',
+        'Figure-level functions cannot render colors',
+        'Axes-level functions cannot accept Pandas DataFrames',
+      ],
+      correctIndex: 0,
+      explanation: 'Axes-level functions plot into an individual `ax` object. Figure-level functions manage their own layout, creating multi-facet grids across rows and columns.',
+    },
+    {
+      id: 'sns-q4',
+      kind: 'mcq',
+      text: 'Why is setting "corner=True" useful when generating pairwise feature matrices with sns.pairplot()?',
+      options: [
+        'It hides the redundant upper mirror triangle of plots, halving rendering time and reducing visual clutter',
+        'It rounds the corners of the plot borders for aesthetic presentation',
+        'It converts continuous features into binary flags',
+        'It automatically removes all outlier rows from the DataFrame',
+      ],
+      correctIndex: 0,
+      explanation: 'Pairwise scatter matrices are symmetric across the diagonal. Setting `corner=True` omits the redundant upper triangle, making EDA dashboards clean and fast to read.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Statistical Plots with Seaborn"
+  oneLiner="Seaborn elevates Python visualization to declarative statistical graphics, mapping tidy DataFrame columns into multi-dimensional visual semantics with automated confidence intervals."
+  takeaways={[
+    'Format data into Tidy (long-form) DataFrames before plotting with Seaborn.',
+    'Use semantic mappings (`hue`, `style`, `size`) to visualize 3 to 5 dimensions on a single 2D coordinate system.',
+    'Distinguish Axes-level functions (`sns.lineplot`, `sns.barplot`) from Figure-level functions (`sns.relplot`, `sns.catplot`).',
+    'Integrate Seaborn seamlessly with Matplotlib by passing existing Axes via `ax=ax`.',
+    'Use `sns.pairplot(df, hue="label", corner=True)` for instant high-dimensional EDA class separability checks.',
+  ]}
+  commonTrap="Passing wide-form unstacked DataFrames to Seaborn and attempting to plot multiple columns using nested manual loops. Always melt or reshape your data into tidy format (`pd.melt`) to unleash Seaborn’s semantic power."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="seaborn-statistical-graphics"
+  topicTitle="Statistical Graphics with Seaborn"
+  referenceChecklist={[
+    'Explained the concept of Tidy Data and why Seaborn relies on long-form DataFrames.',
+    'Demonstrated semantic mapping using hue, style, and size.',
+    'Differentiated Axes-level functions from Figure-level FacetGrid functions.',
+    'Explained how Seaborn calculates bootstrap confidence intervals automatically.',
+    'Described the role of pairplot in early-stage ML exploratory data analysis.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/visualization/seaborn-statistical-graphics"
+  items={[
+    {
+      title: "Seaborn Official Documentation & Gallery",
+      type: "article",
+      description: "Official API reference, user guides, and comprehensive example gallery for statistical visualization.",
+      url: "https://seaborn.pydata.org/"
+    },
+    {
+      title: "Tidy Data by Hadley Wickham (Journal of Statistical Software)",
+      type: "book",
+      description: "The seminal paper establishing the principles of tidy tabular data formatting for statistical computing.",
+      url: "https://vita.had.co.nz/papers/tidy-data.pdf"
+    },
+    {
+      title: "Seaborn Statistical Plots Case Study & Notebooks",
+      type: "cheatsheet",
+      description: "Hands-on Jupyter notebooks, case studies, and solutions located in the ML204 companion repository.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/visualization/seaborn-statistical-graphics"
+    }
+  ]}
+/>
+
+</Section>
