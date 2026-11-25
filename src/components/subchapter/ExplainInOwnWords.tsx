@@ -13,16 +13,20 @@ export function ExplainInOwnWords({
   topicTitle,
   referenceChecklist,
 }: ExplainInOwnWordsProps) {
-  const STORAGE_KEY = `ml204:explain:${subchapterSlug}`;
-  const LEGACY_STORAGE_KEY = `mlens:explain:${subchapterSlug}`;
+  const STORAGE_KEY = `mltheta:explain:${subchapterSlug}`;
+  const LEGACY_STORAGE_KEY = `ml204:explain:${subchapterSlug}`;
+  const OLD_LEGACY_STORAGE_KEY = `mlens:explain:${subchapterSlug}`;
   const [text, setText] = useState('');
   const [showChecklist, setShowChecklist] = useState(false);
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    const savedText = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
+    const savedText =
+      localStorage.getItem(STORAGE_KEY) ||
+      localStorage.getItem(LEGACY_STORAGE_KEY) ||
+      localStorage.getItem(OLD_LEGACY_STORAGE_KEY);
     if (savedText) setText(savedText);
-  }, [STORAGE_KEY, LEGACY_STORAGE_KEY]);
+  }, [STORAGE_KEY, LEGACY_STORAGE_KEY, OLD_LEGACY_STORAGE_KEY]);
 
   function handleChange(val: string) {
     setText(val);
