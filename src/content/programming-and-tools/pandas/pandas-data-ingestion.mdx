@@ -1,0 +1,176 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import { Section, Callout, Analogy, Divider } from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = { title: 'Loading CSV, Excel and JSON', description: 'Load CSV, Excel, and JSON data while controlling encodings, missing values, dates, chunking, and export formats.' };
+
+<Section label="What is it?">
+
+**Data ingestion** reads external files into a pandas DataFrame. The common entry points are `read_csv`, `read_excel`, and `read_json`. Each reader turns text or structured bytes into labeled rows and columns.
+
+```python
+import pandas as pd
+
+customers = pd.read_csv('customers.csv')
+sales = pd.read_excel('sales.xlsx', sheet_name='2026')
+events = pd.read_json('events.json')
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+The source format, encoding, and schema can change before machine learning code starts. Reliable ingestion prevents silent type conversion, broken characters, incorrect dates, and memory exhaustion.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### CSV files
+
+```python
+orders = pd.read_csv(
+    'orders.csv',
+    encoding='utf-8',
+    na_values=['NA', 'N/A', 'unknown'],
+    parse_dates=['order_date'],
+    usecols=['order_id', 'customer', 'order_date', 'amount'],
+)
+
+print(orders.dtypes)
+```
+
+- `encoding` determines how bytes become text.
+- `na_values` turns selected strings into missing values.
+- `parse_dates` converts date columns during ingestion.
+- `usecols` avoids loading unnecessary columns.
+
+<Callout kind="warning">
+  Never assume dates are parsed correctly. Inspect `DataFrame.dtypes` and convert with `pd.to_datetime(..., errors='coerce')` when source values are inconsistent.
+</Callout>
+
+### Excel and JSON
+
+```python
+inventory = pd.read_excel(
+    'inventory.xlsx',
+    sheet_name='Warehouse',
+    usecols='A:D',
+    na_values=['-'],
+)
+
+logs = pd.read_json('logs.json', lines=True)
+```
+
+Use `sheet_name` for Excel and `lines=True` for newline-delimited JSON.
+
+### Chunking large files
+
+```python
+chunk_reader = pd.read_csv('large_events.csv', chunksize=100_000)
+filtered_chunks = []
+
+for chunk in chunk_reader:
+    filtered_chunks.append(chunk.loc[chunk['active'] == True])
+
+active_events = pd.concat(filtered_chunks, ignore_index=True)
+```
+
+`chunksize` yields a DataFrame iterator instead of loading the complete file. Process or filter one chunk at a time.
+
+### Exporting data
+
+```python
+orders.to_csv('clean_orders.csv', index=False)
+orders.to_json('clean_orders.json', orient='records', lines=True)
+orders.to_excel('clean_orders.xlsx', index=False, sheet_name='Orders')
+orders.to_parquet('clean_orders.parquet', index=False)
+```
+
+<Analogy>
+  Data ingestion is like moving boxes from different warehouses. CSV is a flat text manifest, Excel is a labeled workbook, JSON is a nested package, and Parquet is compact analytical storage.
+</Analogy>
+
+### Why ingestion choices matter
+
+Different readers may infer different types from the same source. Always verify the resulting dtypes and test the result with representative edge cases:
+
+```python
+frame = pd.read_csv(
+    'model_data.csv',
+    dtype={'zip_code': 'string', 'customer_id': 'string'},
+    parse_dates=['signup_date'],
+)
+
+print(frame[['zip_code', 'signup_date']].head())
+print(frame.dtypes)
+```
+
+Identifier columns such as ZIP codes and customer IDs should often remain strings. Reading `00123` as an integer would silently turn it into `123` and lose leading zeros.
+
+### Chunk processing safely
+
+A CSV chunk reader does not reduce the final memory required if all chunks are concatenated. Chunking helps when you filter or aggregate as you read:
+
+```python
+accepted = []
+
+for chunk in pd.read_csv('events.csv', chunksize=50_000):
+    approved = chunk.loc[chunk['status'] == 'approved']
+    accepted.append(approved[['event_id', 'value']])
+
+approved_events = pd.concat(accepted, ignore_index=True)
+print(approved_events.shape)
+```
+
+Chunking is also useful for computing totals because pandas can update an accumulator each iteration. Avoid appending full-sized chunks when only an aggregate or filtered result is needed.
+
+| Format | Strength | Main beginner concern |
+| :--- | :--- | :--- |
+| CSV | Simple and widely supported | Encoding and inferred dtypes |
+| Excel | Human-readable sheets and tabs | Sheet names and merged/header rows |
+| JSON | Nested records and web/API data | Orient and nested shape |
+| Parquet | Efficient, typed analytical storage | Requires a Parquet engine |
+
+<Callout kind="tip">
+  After any read, run `head()`, `dtypes`, and `isna().sum()`. A successful read only means the file was parsed; it does not prove the parsed schema is correct.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    { id: 'pandas-ingestion-q1', kind: 'mcq', text: 'Which argument tells pd.read_csv how to decode source bytes?', options: ['encoding', 'chunksize', 'sheet_name', 'orient'], correctIndex: 0, explanation: 'encoding tells pandas how to interpret text bytes. UTF-8 is common, but legacy files may require another encoding.' },
+    { id: 'pandas-ingestion-q2', kind: 'mcq', text: 'What does chunksize=100000 do in pd.read_csv?', options: ['Filters every 100,000th row', 'Returns an iterator that yields chunks of up to 100,000 rows', 'Duplicates 100,000 rows', 'Compresses the source file'], correctIndex: 1, explanation: 'chunksize creates an iterator that limits memory use by processing a large CSV incrementally.' },
+    { id: 'pandas-ingestion-q3', kind: 'mcq', text: 'Which option reads newline-delimited JSON records?', options: ['lines=True', 'sheet_name', 'na_values=True', 'parse_dates=True'], correctIndex: 0, explanation: 'lines=True tells pandas each line contains one JSON record.' },
+    { id: 'pandas-ingestion-q4', kind: 'mcq', text: 'Why use index=False when exporting ordinary tabular data to CSV?', options: ['To delete all columns', 'To avoid an extra CSV column containing the pandas row index', 'To encrypt the file', 'To parse dates'], correctIndex: 1, explanation: 'Without index=False, pandas may export the row index as an unintended extra column.' }
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard title="Reliable ingestion in one minute" oneLiner="Choose the reader, describe the source format, control missing values and dates, and verify dtypes after loading." takeaways={['Use read_csv, read_excel, or read_json for the source format.', 'Encoding, na_values, parse_dates, usecols, and sheet selection prevent silent mistakes.', 'chunksize processes large CSV files incrementally.', 'Use index=False for ordinary CSV exports.']} commonTrap="A successful read does not prove dates, numbers, or encodings are correct. Inspect dtypes and sample values." />
+
+<ExplainInOwnWords prompt="Describe why chunked CSV reading is useful and what pd.read_csv(..., chunksize=5000) returns." hint="Mention memory use, iteration, and chunk DataFrames." />
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection title="Continue learning ingestion" resources={[{ label: 'pandas: IO Tools', url: 'https://pandas.pydata.org/docs/user_guide/io.html' }, { label: 'pandas: read_csv parameters', url: 'https://pandas.pydata.org/docs/reference/api/pandas.read_csv.html' }]} />
+
+</Section>

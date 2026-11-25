@@ -1,0 +1,189 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import { Section, Callout, Analogy, Divider } from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = { title: 'Merging, Joining and Concatenating', description: 'Combine pandas tables with merge types, index joins, concat, key collisions, and join validation.' };
+
+<Section label="What is it?">
+
+**Merging** matches rows using key columns. **Joining** is convenient index-based or column-based merging. **Concatenation** stacks or places tables together without key matching.
+
+```python
+combined = customers.merge(orders, on='customer_id', how='left')
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+ML datasets often span sources: customer features in one table, transactions in another, and observations in several files. Combining them correctly preserves the intended population and prevents duplication.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### Merge join types
+
+```python
+customers = pd.DataFrame({'customer_id':[1,2,3], 'city':['Dhaka','London','Paris']})
+orders = pd.DataFrame({'customer_id':[1,2,4], 'amount':[50,80,30]})
+
+inner = customers.merge(orders, on='customer_id', how='inner')
+left = customers.merge(orders, on='customer_id', how='left')
+right = customers.merge(orders, on='customer_id', how='right')
+outer = customers.merge(orders, on='customer_id', how='outer', indicator=True)
+```
+
+- `inner` keeps matches in both tables.
+- `left` keeps all left rows.
+- `right` keeps all right rows.
+- `outer` keeps all rows from both tables.
+
+<Analogy>
+  Imagine two class lists. An inner join shows students on both lists. A left join starts with the left list and attaches matches. An outer join starts with every student from both lists.
+</Analogy>
+
+### Index joins and key collisions
+
+```python
+customer_features = customers.set_index('customer_id')
+order_totals = orders.groupby('customer_id')['amount'].sum()
+joined = customer_features.join(order_totals, how='left')
+
+merged = customers.merge(
+    orders,
+    on='customer_id',
+    suffixes=('_customer', '_order'),
+)
+```
+
+Use `suffixes` for overlapping non-key column names.
+
+### Concatenation
+
+```python
+train = pd.concat([jan, feb, mar], axis=0, ignore_index=True)
+wide = pd.concat([prices, volume], axis=1)
+```
+
+`axis=0` stacks rows. `axis=1` places tables side by side.
+
+### Join integrity
+
+```python
+safe = customers.merge(
+    orders,
+    on='customer_id',
+    how='left',
+    validate='1:m',
+)
+```
+
+`validate='1:m'` confirms one customer row may match many order rows.
+
+<Callout kind="warning">
+  A many-to-many merge can multiply row count. Check row counts and use `validate` when the intended relationship is known.
+</Callout>
+
+### A merge checklist
+
+Before a merge, inspect both tables and describe the relationship:
+
+```python
+print(customers.columns)
+print(orders.columns)
+print(customers['customer_id'].is_unique)
+print(orders['customer_id'].is_unique)
+```
+
+| Validation | Meaning | Merge option |
+| :--- | :--- | :--- |
+| `one_to_one` | A key appears once in each table | `validate='1:1'` |
+| `one_to_many` | One left key matches several right rows | `validate='1:m'` |
+| `many_to_one` | Several left rows match one right key | `validate='m:1'` |
+| `many_to_many` | Several keys match on both sides | Usually avoid or aggregate first |
+
+```python
+customer_orders = customers.merge(
+    orders,
+    on='customer_id',
+    how='left',
+    validate='1:m',
+    indicator=True,
+)
+
+print(customer_orders['_merge'].value_counts())
+```
+
+The indicator column reveals whether each row matched both tables or came from only the left or right table.
+
+### Prefixes, suffixes, and duplicate key names
+
+If overlapping columns exist, suffixes prevent ambiguous output names:
+
+```python
+left = pd.DataFrame({'id':[1,2], 'name':['A','B'], 'status':['active','old']})
+right = pd.DataFrame({'id':[1,2], 'status':['paid','late']})
+
+combined = left.merge(right, on='id', suffixes=('_left', '_right'))
+print(combined.columns)
+```
+
+Do not merge with a column that has different meanings or incompatible types. Matching integer `1` to string `'1'` will usually produce no matches.
+
+<Callout kind="tip">
+  Inspect the count before and after a merge: `left_rows`, `right_rows`, and `merged_rows`. A merged table should not grow unless your intended relationship permits multiple matches.
+</Callout>
+
+### Merge versus concat
+
+Use `merge` when rows are connected by keys. Use `concat` when each table contributes more rows or columns without key matching:
+
+```python
+# Add rows from monthly snapshots
+history = pd.concat([january, february], axis=0, ignore_index=True)
+
+# Place independent feature tables beside each other
+features = pd.concat([demographics, spending], axis=1)
+```
+
+If both DataFrames have the same row index, axis-1 concatenation aligns by index. If one index differs, the result may include extra rows filled with missing values.
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    { id: 'pandas-join-q1', kind: 'mcq', text: 'Which merge type keeps every row from the left table?', options: ['inner', 'left', 'right', 'cross'], correctIndex: 1, explanation: 'A left merge preserves all left-key rows and adds matches from the right table.' },
+    { id: 'pandas-join-q2', kind: 'mcq', text: 'What does pd.concat([a, b], axis=0) do?', options: ['Matches keys', 'Stacks rows vertically', 'Places tables side by side', 'Deletes duplicate keys'], correctIndex: 1, explanation: 'axis=0 concatenates DataFrames along rows.' },
+    { id: 'pandas-join-q3', kind: 'mcq', text: 'What can validate="1:m" detect?', options: ['An invalid left-to-right relationship', 'A missing encoding', 'A Boolean mask syntax error', 'A category dtype'], correctIndex: 0, explanation: 'validate="1:m" asserts one left key matches many right keys and raises MergeError if violated.' },
+    { id: 'pandas-join-q4', kind: 'mcq', text: 'Why are suffixes useful in a merge?', options: ['They create missing values', 'They distinguish overlapping non-key column names', 'They sort both tables', 'They change join type'], correctIndex: 1, explanation: 'Suffixes give overlapping columns separate names.' }
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard title="Combining tables in one minute" oneLiner="Merge on keys, join on indexes, concatenate along an axis, and validate relationships to prevent accidental row multiplication." takeaways={['Inner keeps matches; left/right/outer control unmatched rows.', 'concat stacks or aligns tables and does not require a merge key.', 'Suffixes clarify overlapping column names.', 'validate catches relationship mistakes early.']} commonTrap="Do not assume merge row count stays unchanged. Many-to-many keys can multiply rows." />
+
+<ExplainInOwnWords prompt="Choose a join type for adding order totals to a customer table and explain your choice." hint="The customer table should usually remain the analysis population." />
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection title="Continue learning joins" resources={[{ label: 'pandas: Merge, join, concatenate', url: 'https://pandas.pydata.org/docs/user_guide/merging.html' }, { label: 'pandas: Merge validation', url: 'https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.merge.html' }]} />
+
+</Section>

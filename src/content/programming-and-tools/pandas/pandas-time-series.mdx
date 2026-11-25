@@ -1,0 +1,180 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import { Section, Callout, Analogy, Divider } from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = { title: 'Handling Dates and Time Series', description: 'Parse dates, use datetime accessors, build DatetimeIndexes, resample, roll, localize time zones, and create lag features.' };
+
+<Section label="What is it?">
+
+A pandas time series stores observations associated with dates or timestamps. A `DatetimeIndex` allows sorting, slicing, resampling, and aggregation by time.
+
+```python
+prices = pd.read_csv('prices.csv', parse_dates=['date'])
+prices = prices.set_index('date').sort_index()
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+Forecasting and monitoring depend on ordered time. Correct parsing enables monthly summaries, rolling trends, timezone-aware events, and lag features that use previous observations.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### Parsing and datetime accessors
+
+```python
+sales = pd.DataFrame({
+    'time': ['2026-01-01 09:30', '2026-01-02 10:15'],
+    'amount': [20, 35],
+})
+sales['time'] = pd.to_datetime(sales['time'], errors='coerce')
+
+print(sales['time'].dt.year)
+print(sales['time'].dt.month)
+print(sales['time'].dt.day_name())
+print(sales['time'].dt.hour)
+```
+
+`.dt` exposes datetime properties and methods from a datetime Series.
+
+### DatetimeIndex and resampling
+
+```python
+daily = pd.DataFrame({
+    'date': pd.to_datetime(['2026-01-01','2026-01-02','2026-01-31','2026-02-01']),
+    'value': [10,20,30,40],
+}).set_index('date')
+
+monthly = daily.resample('ME').mean()
+print(monthly)
+```
+
+`resample('ME')` groups observations into calendar month ends.
+
+### Rolling windows and lag features
+
+```python
+daily['rolling_7'] = daily['value'].rolling(window=7, min_periods=1).mean()
+daily['lag_1'] = daily['value'].shift(1)
+daily['lag_7'] = daily['value'].shift(7)
+```
+
+A rolling mean summarizes observations in a window. `shift(1)` moves values forward by one observation.
+
+<Callout kind="warning">
+  Create lag features only after sorting timestamps. A lag is future-safe only when it references strictly earlier observations.
+</Callout>
+
+### Time zones
+
+```python
+aware = sales['time'].dt.tz_localize('Asia/Dhaka')
+utc = aware.dt.tz_convert('UTC')
+```
+
+Localize attaches a zone to naive timestamps. Convert changes an aware timestamp to another zone.
+
+<Analogy>
+  A DatetimeIndex is a calendar ruler. Resampling gathers observations between ruler marks, rolling windows slide across the ruler, and shift copies earlier marks to the current position.
+</Analogy>
+
+### The timestamp checklist
+
+A beginner should verify four things before forecasting or grouping:
+
+```python
+series = series.sort_index()
+print(series.index.dtype)
+print(series.index.is_monotonic_increasing)
+print(series.index.is_unique)
+print(series.index.freq)
+```
+
+| Check | Why it matters |
+| :--- | :--- |
+| Datetime dtype/index | String dates sort and slice differently. |
+| Monotonic index | Rolling and lag operations assume chronological order. |
+| Unique index | Duplicate timestamps make joins and resampling ambiguous. |
+| Expected frequency | Missing periods may hide irregular observations. |
+
+### Resample versus rolling
+
+`resample` changes a time grid, while `rolling` keeps the current grid and summarizes nearby observations:
+
+```python
+# Change daily observations into monthly observations
+monthly_mean = daily.resample('ME')['value'].mean()
+
+# Keep daily observations and calculate a trailing 7-day mean
+rolling_mean = daily['value'].rolling('7D', min_periods=1).mean()
+```
+
+The first result has one row per month. The second result has a value for every day and uses observations in the preceding 7-day window.
+
+### Creating safe lag features
+
+```python
+forecast = daily[['value']].copy()
+forecast['lag_1'] = forecast['value'].shift(1)
+forecast['lag_7'] = forecast['value'].shift(7)
+forecast['target_next_day'] = forecast['value'].shift(-1)
+
+features = forecast.dropna()
+X = features[['lag_1', 'lag_7']]
+y = features['target_next_day']
+```
+
+<Callout kind="warning">
+  Never use future values as model features. `shift(-1)` creates a target for training, but it must not be included in `X`. In real evaluation, test rows also need to follow the same historical cutoff.
+</Callout>
+
+### Frequency conversion and missing periods
+
+```python
+print(daily.asfreq('D'))
+print(daily.asfreq('D').interpolate(method='time'))
+```
+
+`asfreq` changes or exposes the expected grid. `interpolate(method='time')` estimates missing values from neighboring timestamps. Interpolation can be useful for continuous signals, but it is not appropriate for sparse events or after a data leakage boundary.
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    { id: 'pandas-time-q1', kind: 'mcq', text: 'What does pd.to_datetime(errors="coerce") do?', options: ['Always raises an error', 'Converts valid values and replaces invalid values with NaT', 'Removes every row', 'Converts text to category'], correctIndex: 1, explanation: 'errors="coerce" converts recognizable dates and replaces parsing failures with NaT.' },
+    { id: 'pandas-time-q2', kind: 'mcq', text: 'What is returned by daily.resample("ME").mean()?', options: ['Calendar-month-end means', 'The first seven rows', 'A category table', 'Rows sorted alphabetically'], correctIndex: 0, explanation: 'ME groups observations into month-end bins and mean summarizes each bin.' },
+    { id: 'pandas-time-q3', kind: 'mcq', text: 'What does rolling(window=7).mean() calculate?', options: ['The mean of the whole table', 'A mean for each seven-observation window ending at the current row', 'Every seventh column', 'Only the first seven rows'], correctIndex: 1, explanation: 'A rolling window moves through the data and summarizes each window.' },
+    { id: 'pandas-time-q4', kind: 'mcq', text: 'What is the difference between tz_localize and tz_convert?', options: ['Both remove time zones', 'tz_localize attaches a zone to naive timestamps; tz_convert changes an aware timestamp to another zone', 'tz_convert creates NaT', 'tz_localize sorts rows'], correctIndex: 1, explanation: 'Localization assigns a zone to naive datetime values. Conversion translates aware values to another zone.' }
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard title="Time series in one minute" oneLiner="Parse timestamps, use a sorted index, resample for frequency changes, roll for trends, and shift for lag features." takeaways={['Inspect datetime dtypes and sort timestamps before modeling.', 'resample changes frequency and aggregates bins.', 'rolling summarizes nearby observations.', 'shift creates lag features without mixing future information.']} commonTrap="Do not shift or calculate rolling statistics before sorting timestamps or after shuffling the DataFrame." />
+
+<ExplainInOwnWords prompt="Explain how to create a 7-day mean and a one-day lag feature from a sorted daily DataFrame." hint="Mention rolling(window=7).mean() and shift(1)." />
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection title="Continue learning time series" resources={[{ label: 'pandas: Time series', url: 'https://pandas.pydata.org/docs/user_guide/timeseries.html' }, { label: 'pandas: Window operations', url: 'https://pandas.pydata.org/docs/user_guide/window.html' }]} />
+
+</Section>

@@ -1,0 +1,243 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Series and DataFrames',
+  description: 'Learn the pandas Series and DataFrame structures, indexes, dtypes, inspection methods, and memory-efficient categorical data.',
+};
+
+<Section label="What is it?">
+
+A **pandas Series** is a one-dimensional, labeled array. A **pandas DataFrame** is a two-dimensional collection of labeled columns. pandas is built on top of NumPy, so both structures store data in NumPy-backed arrays while adding useful labels and tabular operations.
+
+```python
+import pandas as pd
+
+scores = pd.Series([82, 91, 78], name='score')
+print(scores)
+
+students = pd.DataFrame({
+    'name': ['Asha', 'Ben', 'Chen'],
+    'score': [82, 91, 78],
+    'passed': [True, True, True],
+})
+print(students)
+```
+
+In a Series, one index belongs to all values. In a DataFrame, the same row index applies across multiple columns.
+
+</Section>
+
+<Section label="Why we need it">
+
+Machine learning datasets are usually tables: each row is a sample, and each column is a feature or target. DataFrames make loading, inspecting, cleaning, and transforming those tables possible with a few readable expressions.
+
+- **Series** represent a single feature or target column.
+- **DataFrames** represent complete datasets.
+- **Indexes** identify rows and support fast, label-aware operations.
+- **Dtypes** affect memory use, missing-value behavior, and which operations are valid.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### Creating and inspecting a Series
+
+```python
+scores = pd.Series(
+    [82, 91, 78, 88],
+    index=['Asha', 'Ben', 'Chen', 'Diego'],
+    name='score',
+    dtype='int64',
+)
+
+print(scores.index)   # Index(['Asha', 'Ben', 'Chen', 'Diego'], dtype='object')
+print(scores.to_numpy())  # NumPy values used internally
+print(scores.dtype)   # int64
+print(scores.head(2))
+```
+
+The index labels are separate from the array values. Labels make outputs easier to understand, but they are not the same as `.iloc` positions.
+
+<Analogy>
+  A Series is like a labeled column in a spreadsheet. The values are in the column, while the index labels identify each row. A DataFrame is several of these labeled columns sharing the same row index.
+</Analogy>
+
+### Creating and inspecting a DataFrame
+
+```python
+students = pd.DataFrame({
+    'name': ['Asha', 'Ben', 'Chen'],
+    'score': [82, 91, 78],
+    'passed': [True, True, True],
+})
+
+print(students.head())       # First five rows
+print(students.tail(2))      # Last two rows
+print(students.info())       # Columns, dtypes, and memory usage
+print(students.describe())   # Numeric summary statistics
+print(students.shape)        # (rows, columns)
+print(students.dtypes)       # dtype of every column
+```
+
+Use `head()` and `tail()` for quick samples, `shape` for dimensions, `dtypes` for column types, `info()` for an overview, and `describe()` for numerical summary statistics.
+
+### Memory-efficient categories
+
+A text column with only a few repeated values may waste memory if pandas stores every string separately. The `category` dtype stores each unique value once and uses integer codes for the rows.
+
+```python
+students['passed'] = students['passed'].astype('category')
+print(students['passed'].dtype)
+print(students['passed'].cat.categories)
+
+students = pd.read_csv(
+    'students.csv',
+    dtype={'grade': 'category', 'student_id': 'string'},
+)
+```
+
+<Callout kind="tip">
+  Convert categorical columns such as grade, country, payment status, or department to `category` when the number of unique values is much smaller than the number of rows.
+</Callout>
+
+<Callout kind="warning">
+  Do not convert every text column to `category`. Free-form text such as reviews or comments may contain nearly one unique string per row, which provides little memory benefit.
+</Callout>
+
+### Reading a DataFrame without guessing
+
+A beginner can use this four-step inspection routine every time a new DataFrame arrives:
+
+```python
+print(df.shape)
+print(df.columns)
+print(df.dtypes)
+print(df.isna().sum().sort_values(ascending=False).head())
+```
+
+| Check | Question it answers | Typical next action |
+| :--- | :--- | :--- |
+| `shape` | How many rows and columns exist? | Confirm the table is not accidentally empty or duplicated. |
+| `dtypes` | Is each column numeric, text, Boolean, or datetime? | Convert parsed or numeric-looking text before calculations. |
+| `head()` | Do the first values look realistic? | Catch wrong delimiters, shifted columns, or header problems. |
+| `isna().sum()` | Which columns contain missing values? | Decide whether to drop, fill, or investigate them. |
+
+For machine learning, the DataFrame is not just a display table. It is the source of tensors used later by NumPy and scikit-learn. A column's dtype determines whether it can participate in a calculation:
+
+```python
+# Convert a numeric-looking text column before using it in ML
+students['score'] = pd.to_numeric(students['score'], errors='coerce')
+
+# Keep missing values visible instead of silently treating 'missing' as text
+print(students['score'].isna().sum())
+```
+
+<Callout kind="tip">
+  `errors='coerce'` is useful for discovering source problems, but it can hide invalid data. After conversion, inspect which values became missing and verify their meaning before filling or dropping them.
+</Callout>
+
+### Indexes and copies
+
+The index is a row label, not a score or a feature column. It can be integers, strings, timestamps, or another unique identifier:
+
+```python
+customers = pd.DataFrame(
+    {'plan': ['free', 'pro', 'pro']},
+    index=pd.Index(['C-100', 'C-101', 'C-102'], name='customer_id'),
+)
+
+print(customers.loc['C-101'])
+print(customers.iloc[1])
+```
+
+Both statements select the second row, but `.loc` uses the label `C-101` while `.iloc` uses position `1`. Do not mix the two when reasoning about row selection.
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'pandas-series-df-q1',
+      kind: 'mcq',
+      text: 'Which structure is best suited for a two-dimensional ML dataset with named columns?',
+      options: ['pd.Series', 'pd.DataFrame', 'Python tuple', 'A NumPy scalar'],
+      correctIndex: 1,
+      explanation: 'A pandas DataFrame is two-dimensional and supports named columns and an index for rows. A Series represents only one dimension.',
+    },
+    {
+      id: 'pandas-series-df-q2',
+      kind: 'mcq',
+      text: 'What does students.shape return for a DataFrame with 1,000 rows and 8 columns?',
+      options: ['(8, 1000)', '(1000, 8)', '1000', '8000'],
+      correctIndex: 1,
+      explanation: 'DataFrame shape is (row count, column count), so 1,000 rows and 8 columns produce (1000, 8).',
+    },
+    {
+      id: 'pandas-series-df-q3',
+      kind: 'mcq',
+      text: 'When can category dtype be useful?',
+      options: ['For every free-form text field', 'For a column with many repeated categories and far fewer unique values than rows', 'Only for floating-point columns', 'Only for integer index labels'],
+      correctIndex: 1,
+      explanation: 'Category stores the unique values once and integer codes for each row. This is useful when repeated categories are common and usually saves memory.',
+    },
+    {
+      id: 'pandas-series-df-q4',
+      kind: 'mcq',
+      text: 'What does students.dtypes report?',
+      options: ['The memory size of the full DataFrame', 'The dtype of each column', 'Only missing values', 'Only string columns'],
+      correctIndex: 1,
+      explanation: 'DataFrame.dtypes is a Series-like result containing the dtype assigned to every column.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  title="Series and DataFrames in one minute"
+  oneLiner="A Series is one labeled column; a DataFrame is a table of Series sharing row labels."
+  takeaways={[
+    'Series are one-dimensional and have a name and index.',
+    'DataFrames are two-dimensional and organize named columns by row index.',
+    'Use head, tail, shape, info, describe, and dtypes to inspect data safely.',
+    'Use category dtype for repeated labels, not for every text column.',
+  ]}
+  commonTrap="Do not confuse index labels with integer positions: labels belong to the row identity, while positions count the row location."
+/>
+
+<ExplainInOwnWords
+  prompt="Explain how a DataFrame is built from Series and why a shared row index helps it represent a dataset."
+  hint="Mention rows, named columns, one index, and the connection to NumPy-backed values."
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  title="Continue learning pandas"
+  resources={[
+    { label: 'pandas Documentation: Data Structures', url: 'https://pandas.pydata.org/docs/user_guide/dsintro.html' },
+    { label: 'pandas Documentation: Categorical Data', url: 'https://pandas.pydata.org/docs/user_guide/categorical.html' },
+  ]}
+/>
+
+</Section>
