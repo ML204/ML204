@@ -5,7 +5,7 @@ import { App } from '@capacitor/app';
 import { isDeviceOnline } from './resourceDownload';
 import { openExternalUrl } from './externalLinks';
 
-export const CURRENT_APP_VERSION = '1.0.3';
+export const CURRENT_APP_VERSION = '2.0.0';
 
 /**
  * Gets the actual running version from Android package metadata,

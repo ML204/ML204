@@ -1,9 +1,9 @@
 {
-  "version": "1.0.3",
-  "name": "MLTheta Android v1.0.3",
+  "version": "2.0.0",
+  "name": "MLTheta Android v2.0.0",
   "releaseDate": "2026-11-25",
   "minAndroidVersion": "7.0+ (API 24+)",
-  "apkUrl": "https://github.com/mltheta/mltheta-mobile/releases/download/v1.0.3/app-release.apk",
-  "releaseNotesUrl": "https://github.com/mltheta/mltheta-mobile/releases/tag/v1.0.3",
-  "notes": "Added visible horizontal scroll indicators & controls to tables, removed repository links from supplementary study cards, and updated download flow to skip intrusive auto-install prompts."
+  "apkUrl": "https://github.com/mltheta/mltheta-mobile/releases/download/v2.0.0/app-release.apk",
+  "releaseNotesUrl": "https://github.com/mltheta/mltheta-mobile/releases/tag/v2.0.0",
+  "notes": "Major Release 2.0.0: Official rebrand to MLTheta featuring the official Greek Theta neural logo, 5 brand-new interactive NumPy array programming lessons, modernized curriculum architecture, and complete offline capability."
 }
