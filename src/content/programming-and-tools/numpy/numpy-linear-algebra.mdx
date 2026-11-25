@@ -1,0 +1,358 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Linear Algebra Operations in NumPy',
+  description: 'Master linear algebra in NumPy: matrix multiplication with @, transposes, inverses, solving linear systems with np.linalg.solve, eigenvalues, and implementing the Normal Equation from scratch.',
+};
+
+<Section label="What is it?">
+
+**Linear Algebra** is the mathematical language of Machine Learning. Nearly every algorithm—from simple linear regression to 100-billion-parameter Large Language Models—is built upon vectors, matrices, dot products, and coordinate transformations.
+
+NumPy provides a dedicated linear algebra submodule called `np.linalg`, which links directly to highly optimized Fortran-based hardware libraries (**BLAS** and **LAPACK**):
+
+```
+Python Code: C = A @ B
+     │
+     ▼
+NumPy C API
+     │
+     ▼
+Optimized BLAS / LAPACK (OpenBLAS, Intel MKL, Apple Accelerate)
+     │
+     ▼
+Multi-core CPU Vector Engine (AVX-512, Apple Silicon NEON)
+```
+
+Through `np.linalg`, operations like multiplying matrices with millions of entries or computing eigendecompositions execute in milliseconds.
+
+</Section>
+
+<Section label="Why we need it">
+
+Linear algebra isn't just theory; it is the physical engine that powers machine learning:
+
+1. **Neural Network Feedforward Passes**:
+   Every dense layer in a neural network computes a matrix multiplication:
+   $$Y = XW + b$$
+   Where $X$ is the input data matrix, $W$ is the weight matrix, and $b$ is the bias vector.
+2. **Closed-Form Solution to Linear Regression**:
+   The optimal parameter vector $\hat{\theta}$ for Ordinary Least Squares regression can be computed directly without iterative gradient descent using the **Normal Equation**:
+   $$\hat{\theta} = (X^T X)^{-1} X^T y$$
+3. **Dimensionality Reduction (PCA)**:
+   Principal Component Analysis (PCA) finds the directions of maximum variance in high-dimensional data by calculating the eigenvalues and eigenvectors of the feature covariance matrix.
+4. **Cosine Similarity in Search & Recommendation**:
+   Determining how semantically similar two sentence embeddings are relies on normalized dot products:
+   $$\text{similarity}(u, v) = \frac{u \cdot v}{\|u\| \|v\|}$$
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Matrix Multiplication: Element-Wise (`*`) vs. Matrix Product (`@`)
+
+One of the most dangerous beginner traps in NumPy is using the asterisk `*` when you intend to multiply matrices:
+
+- `A * B`: Performs **element-by-element** multiplication (Hadamard product). Both shapes must be identical or broadcastable.
+- `A @ B` or `np.matmul(A, B)`: Performs true **matrix multiplication** (row-by-column dot products).
+
+```
+Matrix A (2 x 3)          Matrix B (3 x 2)             Result A @ B (2 x 2)
+┌────┬────┬────┐          ┌────┬────┐                  ┌──────────┬──────────┐
+│ a1 │ a2 │ a3 │          │ b1 │ b2 │                  │ dot(r1,c1) dot(r1,c2)│
+├────┼────┼────┤     @    ├────┼────┤         =        ├──────────┼──────────┤
+│ a4 │ a5 │ a6 │          │ b3 │ b4 │                  │ dot(r2,c1) dot(r2,c2)│
+└────┴────┴────┘          ├────┼────┤                  └──────────┴──────────┘
+                          │ b5 │ b6 │
+                          └────┴────┘
+     Inner dimensions MUST match: (2 x [3]) @ ([3] x 2) -> (2 x 2)
+```
+
+```python
+import numpy as np
+
+A = np.array([
+    [1, 2],
+    [3, 4]
+])
+
+B = np.array([
+    [5, 6],
+    [7, 8]
+])
+
+# 1. Element-wise multiplication (*)
+print("Element-wise:\n", A * B)
+# [[ 1*5,  2*6 ]   -> [[ 5, 12]
+#  [ 3*7,  4*8 ]]      [21, 32]]
+
+# 2. True Matrix Multiplication (@ operator)
+print("Matrix Product:\n", A @ B)
+# [[ 1*5 + 2*7,  1*6 + 2*8 ]   -> [[19, 22]
+#  [ 3*5 + 4*7,  3*6 + 4*8 ]]      [43, 50]]
+
+# Vector dot product
+v1 = np.array([1, 2, 3])
+v2 = np.array([4, 5, 6])
+dot_product = v1 @ v2  # 1*4 + 2*5 + 3*6 = 32
+print("Dot product:", dot_product)
+```
+
+<Callout kind="warning">
+  **Inner Dimension Rule**:
+  To multiply matrix $A$ of shape $(M, K)$ by matrix $B$ of shape $(J, N)$, the inner dimensions must match: $K == J$. The resulting product has shape $(M, N)$. If $K \neq J$, NumPy raises `ValueError: matmul: Input operand 1 has a mismatch in its core dimension`.
+</Callout>
+
+---
+
+### 2. Transposition: Swapping Axes (`.T`)
+
+Transposing a matrix flips it over its diagonal, turning rows into columns:
+If $A$ has shape $(M, N)$, then $A^T$ has shape $(N, M)$.
+
+```python
+X = np.array([
+    [1, 2, 3],
+    [4, 5, 6]
+])  # Shape: (2, 3)
+
+X_transposed = X.T
+print("Transposed Matrix:\n", X_transposed)
+# [[1, 4],
+#  [2, 5],
+#  [3, 6]]
+print("Transposed Shape:", X_transposed.shape)  # (3, 2)
+```
+
+---
+
+### 3. Solving Linear Systems: Why `np.linalg.solve` Beats `np.linalg.inv`
+
+Suppose you have a system of linear equations:
+$$Ax = b$$
+
+Mathematically, you can invert the matrix $A$ to solve for $x$:
+$$x = A^{-1} b$$
+
+In code, beginners often write:
+```python
+x = np.linalg.inv(A) @ b  # POOR PRACTICE!
+```
+
+**Never do this in production.** Computing an explicit matrix inverse is:
+1. **Slow**: Inversion takes $\mathcal{O}(N^3)$ operations with high constant factors.
+2. **Numerically Unstable**: Floating-point rounding errors can severely distort the solution, especially if $A$ is ill-conditioned (near singular).
+
+Instead, use `np.linalg.solve(A, b)`, which uses **LU decomposition**:
+
+```python
+# System of equations:
+# 2x + 3y = 8
+# 4x + 9y = 20
+
+A = np.array([
+    [2.0, 3.0],
+    [4.0, 9.0]
+])
+b = np.array([8.0, 20.0])
+
+# Fast, stable, professional solution:
+x = np.linalg.solve(A, b)
+print("Solution [x, y]:", x)  # [2.0, 1.33333333]
+```
+
+<Analogy>
+  Computing $x = A^{-1} b$ is like solving $\frac{10}{2}$ by calculating the decimal expansion of $\frac{1}{2} = 0.5$ and then multiplying $10 \times 0.5$.
+  `np.linalg.solve` does direct division without calculating the fragile intermediate inverse, saving compute and avoiding rounding drift.
+</Analogy>
+
+---
+
+### 4. Eigenvalues and Eigenvectors (`np.linalg.eig`)
+
+An **eigenvector** of a square matrix $A$ is a special vector that does not change direction when transformed by $A$—it only gets scaled by a factor $\lambda$ called its **eigenvalue**:
+$$A v = \lambda v$$
+
+In ML, eigenvectors identify the principal axes of spread in a dataset (used in PCA):
+
+```python
+# Symmetric covariance matrix
+cov_matrix = np.array([
+    [2.0, 0.8],
+    [0.8, 1.5]
+])
+
+# Compute eigenvalues and eigenvectors
+eigenvalues, eigenvectors = np.linalg.eig(cov_matrix)
+
+print("Eigenvalues (variance along principal axes):", eigenvalues)
+print("Eigenvectors (directions of axes):\n", eigenvectors)
+```
+
+---
+
+### 5. Building Ordinary Least Squares from Scratch: The Normal Equation
+
+Let us put all these tools together to build a complete linear regression model from pure mathematical foundations:
+
+$$\hat{\theta} = (X^T X)^{-1} X^T y$$
+
+```python
+# 1. Synthesize training data: y = 3 * x + 4 + noise
+np.random.seed(42)
+x_raw = np.linspace(1, 10, 10)
+y = 3.0 * x_raw + 4.0 + np.random.normal(0, 0.5, size=10)
+
+# 2. Construct Design Matrix X with bias intercept column of 1s
+# X will have shape (10, 2): column 0 is 1s, column 1 is x_raw
+ones = np.ones((len(x_raw), 1))
+x_col = x_raw[:, np.newaxis]
+X = np.hstack([ones, x_col])
+
+# 3. Apply the Normal Equation:
+# theta = (X^T @ X)^(-1) @ X^T @ y
+# We use solve(X.T @ X, X.T @ y) for maximum numerical precision:
+XT_X = X.T @ X
+XT_y = X.T @ y
+theta = np.linalg.solve(XT_X, XT_y)
+
+intercept, slope = theta[0], theta[1]
+print(f"Calculated Parameters:")
+print(f"Intercept (theta_0): {intercept:.4f} (True: 4.0)")
+print(f"Slope (theta_1):     {slope:.4f} (True: 3.0)")
+
+# 4. Make predictions on new unseen data:
+new_x = np.array([[1.0, 15.0]])  # Bias 1.0, feature 15.0
+prediction = new_x @ theta
+print(f"Prediction for x=15: {prediction[0]:.4f}")
+```
+
+<Callout kind="tip">
+  By substituting `np.linalg.solve(X.T @ X, X.T @ y)` instead of `np.linalg.inv(X.T @ X) @ X.T @ y`, your implementation is robust against matrix singularity issues and runs with optimal cache efficiency.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'numpy-linalg-q1',
+      kind: 'mcq',
+      text: 'What is the fundamental difference between A * B and A @ B for two 2D NumPy arrays of shape (3, 3)?',
+      options: [
+        'A * B performs element-wise multiplication, whereas A @ B performs algebraic matrix multiplication (dot product of rows and columns)',
+        'A * B is valid only for integers, whereas A @ B is for floating-point values',
+        'A @ B transposes both matrices before multiplying, whereas A * B does not',
+        'There is no difference; @ is simply an alternative syntax alias for *',
+      ],
+      correctIndex: 0,
+      explanation: 'In NumPy, the asterisk * denotes the element-wise Hadamard product, while the @ operator (introduced in Python 3.5 via PEP 465) executes mathematical matrix multiplication.',
+    },
+    {
+      id: 'numpy-linalg-q2',
+      kind: 'mcq',
+      text: 'If matrix A has shape (4, 7) and matrix B has shape (7, 3), what will be the shape of A @ B?',
+      options: [
+        '(4, 3)',
+        '(7, 7)',
+        '(4, 7)',
+        'An error is raised because the shapes are unequal',
+      ],
+      correctIndex: 0,
+      explanation: 'Matrix multiplication requires inner dimensions to match (7 == 7). The resulting product takes the outer dimensions: (4, 3).',
+    },
+    {
+      id: 'numpy-linalg-q3',
+      kind: 'mcq',
+      text: 'Why is np.linalg.solve(A, b) strongly preferred over np.linalg.inv(A) @ b when solving the linear system Ax = b?',
+      options: [
+        'np.linalg.solve uses LU decomposition, which is faster and significantly less susceptible to floating-point rounding errors and ill-conditioned matrices',
+        'np.linalg.inv cannot process floating-point matrices',
+        'np.linalg.solve automatically runs on a remote GPU cluster',
+        'np.linalg.inv requires the matrix to be 3-dimensional',
+      ],
+      correctIndex: 0,
+      explanation: 'Explicit matrix inversion is computationally expensive and prone to severe numerical instability. np.linalg.solve employs LU/Cholesky factorization to solve the system directly without calculating an unstable intermediate inverse.',
+    },
+    {
+      id: 'numpy-linalg-q4',
+      kind: 'mcq',
+      text: 'In the Normal Equation for Linear Regression theta = (X^T X)^(-1) X^T y, how can this be solved using np.linalg.solve for optimal stability?',
+      options: [
+        'np.linalg.solve(X.T @ X, X.T @ y)',
+        'np.linalg.solve(X, y)',
+        'np.linalg.solve(X.T, y)',
+        'np.linalg.solve(y, X.T @ X)',
+      ],
+      correctIndex: 0,
+      explanation: 'The system has the form A theta = b where A = (X.T @ X) and b = (X.T @ y). Calling np.linalg.solve(X.T @ X, X.T @ y) provides the exact least-squares parameters theta.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Linear Algebra in NumPy"
+  oneLiner="NumPy linear algebra binds Python directly to optimized C/Fortran BLAS libraries, making matrix multiplication, decomposition, and least-squares regression blistering fast."
+  takeaways={[
+    'Use `@` for matrix multiplication and `*` strictly for element-wise multiplication.',
+    'Inner dimensions must match for matrix multiplication: `(M, K) @ (K, N) -> (M, N)`.',
+    'Never compute `inv(A) @ b` to solve a linear system; always use `np.linalg.solve(A, b)`.',
+    'Implement the Normal Equation with `np.linalg.solve(X.T @ X, X.T @ y)` for optimal numerical precision.',
+  ]}
+  commonTrap="Using `np.linalg.inv` on near-singular matrices. Slight numerical precision errors can produce wildly inaccurate weights or NaN values. Always prefer `np.linalg.solve` or `np.linalg.lstsq`."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="numpy-linear-algebra"
+  topicTitle="Linear Algebra Operations in NumPy"
+  referenceChecklist={[
+    'Differentiated element-wise multiplication (*) from matrix multiplication (@).',
+    'Explained the inner-dimension matching rule for matrix products.',
+    'Argued why np.linalg.solve is numerically superior to explicit inversion via np.linalg.inv.',
+    'Implemented the Ordinary Least Squares Normal Equation from scratch.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/programming-and-tools/numpy/numpy-linear-algebra"
+  items={[
+    {
+      title: "NumPy Documentation: Linear Algebra (numpy.linalg)",
+      type: "documentation",
+      description: "Official reference on matrix norms, decompositions, determinants, and LAPACK wrappers.",
+      url: "https://numpy.org/doc/stable/reference/routines.linalg.html"
+    },
+    {
+      title: "Linear Algebra & Normal Equation Scratch Implementation",
+      type: "cheatsheet",
+      description: "Complete Python scripts implementing OLS regression, eigendecomposition, and BLAS benchmarks.",
+      url: "https://github.com/mltheta/resources/tree/main/programming-and-tools/numpy/numpy-linear-algebra"
+    }
+  ]}
+/>
+
+</Section>

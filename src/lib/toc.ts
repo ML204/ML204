@@ -47,11 +47,11 @@ export const toc: Part[] = [
         slug: 'numpy',
         title: 'NumPy Array Programming',
         subchapters: [
-          { slug: 'numpy-arrays-and-shapes',       title: 'Arrays, Shapes and Data Types',             estimatedMinutes: 7 },
-          { slug: 'numpy-indexing-and-slicing',    title: 'Indexing, Slicing and Strides',             estimatedMinutes: 7 },
-          { slug: 'numpy-broadcasting',            title: 'Array Broadcasting Rules',                  estimatedMinutes: 7 },
-          { slug: 'numpy-vectorization',           title: 'Vectorized Operations Without Loops',       estimatedMinutes: 7 },
-          { slug: 'numpy-linear-algebra',          title: 'Linear Algebra Operations in NumPy',        estimatedMinutes: 7 },
+          { slug: 'numpy-arrays-and-shapes',       title: 'Arrays, Shapes and Data Types',             estimatedMinutes: 7, done: true },
+          { slug: 'numpy-indexing-and-slicing',    title: 'Indexing, Slicing and Strides',             estimatedMinutes: 7, done: true },
+          { slug: 'numpy-broadcasting',            title: 'Array Broadcasting Rules',                  estimatedMinutes: 7, done: true },
+          { slug: 'numpy-vectorization',           title: 'Vectorized Operations Without Loops',       estimatedMinutes: 7, done: true },
+          { slug: 'numpy-linear-algebra',          title: 'Linear Algebra Operations in NumPy',        estimatedMinutes: 7, done: true },
         ],
       },
       {

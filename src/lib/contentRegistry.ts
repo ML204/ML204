@@ -35,6 +35,18 @@ export const contentRegistry: Record<string, Loader> = {
   'programming-and-tools/git-and-sql/sql-queries-joins-aggregations': () =>
     import('@/content/programming-and-tools/git-and-sql/sql-queries-joins-aggregations.mdx'),
 
+  // Part 0: NumPy Array Programming
+  'programming-and-tools/numpy/numpy-arrays-and-shapes': () =>
+    import('@/content/programming-and-tools/numpy/numpy-arrays-and-shapes.mdx'),
+  'programming-and-tools/numpy/numpy-indexing-and-slicing': () =>
+    import('@/content/programming-and-tools/numpy/numpy-indexing-and-slicing.mdx'),
+  'programming-and-tools/numpy/numpy-broadcasting': () =>
+    import('@/content/programming-and-tools/numpy/numpy-broadcasting.mdx'),
+  'programming-and-tools/numpy/numpy-vectorization': () =>
+    import('@/content/programming-and-tools/numpy/numpy-vectorization.mdx'),
+  'programming-and-tools/numpy/numpy-linear-algebra': () =>
+    import('@/content/programming-and-tools/numpy/numpy-linear-algebra.mdx'),
+
   // Part 1: Math Foundations
   'math-foundations/linear-algebra/vectors-and-matrices': () =>
     import('@/content/math-foundations/linear-algebra/vectors-and-matrices.mdx'),
