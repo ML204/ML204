@@ -353,6 +353,18 @@
       }
     ]
   },
+  "error-handling-virtualenv": {
+    "part": "programming-and-tools",
+    "chapter": "python-fundamentals",
+    "sub": "error-handling-virtualenv",
+    "files": [
+      {
+        "name": "Python_Error_Handling_and_Virtualenv_Guide.py",
+        "size": "6.4 KB",
+        "extension": "py"
+      }
+    ]
+  },
   "file-io-json-csv": {
     "part": "programming-and-tools",
     "chapter": "python-fundamentals",
