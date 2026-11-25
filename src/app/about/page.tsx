@@ -83,7 +83,7 @@ export default function AboutPage() {
             ⚖️ Credits & Licenses
           </Link>
           <a
-            href="https://github.com/mltheta/ML204"
+            href="https://github.com/mltheta/mltheta"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-1.5"

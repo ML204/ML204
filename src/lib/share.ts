@@ -7,7 +7,7 @@ export async function shareMLTheta() {
   const shareData = {
     title: 'MLTheta — Interactive Machine Learning Book',
     text: 'Learn machine learning visually with interactive figures and quizzes — free & 100% offline!',
-    url: 'https://github.com/mltheta/ML204-mobile/releases/latest',
+    url: 'https://github.com/mltheta/mltheta-mobile/releases/latest',
     dialogTitle: 'Share MLTheta with Friends',
   };
 

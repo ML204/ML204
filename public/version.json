@@ -3,7 +3,7 @@
   "name": "MLTheta Android v1.0.3",
   "releaseDate": "2026-11-25",
   "minAndroidVersion": "7.0+ (API 24+)",
-  "apkUrl": "https://github.com/mltheta/ML204-mobile/releases/download/v1.0.3/app-release.apk",
-  "releaseNotesUrl": "https://github.com/mltheta/ML204-mobile/releases/tag/v1.0.3",
+  "apkUrl": "https://github.com/mltheta/mltheta-mobile/releases/download/v1.0.3/app-release.apk",
+  "releaseNotesUrl": "https://github.com/mltheta/mltheta-mobile/releases/tag/v1.0.3",
   "notes": "Added visible horizontal scroll indicators & controls to tables, removed repository links from supplementary study cards, and updated download flow to skip intrusive auto-install prompts."
 }

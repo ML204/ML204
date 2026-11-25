@@ -148,7 +148,7 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
     }
 
     // 3. Fallback: GitHub Releases API
-    const ghUrl = 'https://api.github.com/repos/mltheta/ML204-mobile/releases/latest';
+    const ghUrl = 'https://api.github.com/repos/mltheta/mltheta-mobile/releases/latest';
     interface GhRelease {
       tag_name: string;
       name?: string;
@@ -162,14 +162,14 @@ export async function checkForAppUpdate(): Promise<UpdateCheckResult> {
     if (ghRelease && ghRelease.tag_name) {
       const tagName = ghRelease.tag_name.replace(/^v/, '');
       const apkAsset = ghRelease.assets?.find((a) => a.name?.endsWith('.apk'));
-      const apkUrl = apkAsset?.browser_download_url || `https://github.com/mltheta/ML204-mobile/releases/download/${ghRelease.tag_name}/app-release.apk`;
+      const apkUrl = apkAsset?.browser_download_url || `https://github.com/mltheta/mltheta-mobile/releases/download/${ghRelease.tag_name}/app-release.apk`;
 
       const versionInfo: VersionInfo = {
         version: tagName,
-        name: ghRelease.name || `ML204 v${tagName}`,
+        name: ghRelease.name || `MLTheta v${tagName}`,
         releaseDate: ghRelease.published_at ? ghRelease.published_at.split('T')[0] : undefined,
         apkUrl,
-        releaseNotesUrl: ghRelease.html_url || `https://github.com/mltheta/ML204-mobile/releases/tag/${ghRelease.tag_name}`,
+        releaseNotesUrl: ghRelease.html_url || `https://github.com/mltheta/mltheta-mobile/releases/tag/${ghRelease.tag_name}`,
         notes: ghRelease.body || undefined,
       };
 
