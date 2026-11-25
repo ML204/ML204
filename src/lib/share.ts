@@ -3,12 +3,12 @@
 import { Share } from '@capacitor/share';
 import { Capacitor } from '@capacitor/core';
 
-export async function shareML204() {
+export async function shareMLTheta() {
   const shareData = {
-    title: 'ML204 — Interactive Machine Learning Book',
+    title: 'MLTheta — Interactive Machine Learning Book',
     text: 'Learn machine learning visually with interactive figures and quizzes — free & 100% offline!',
-    url: 'https://github.com/ML204/ML204-mobile/releases/latest',
-    dialogTitle: 'Share ML204 with Friends',
+    url: 'https://github.com/mltheta/ML204-mobile/releases/latest',
+    dialogTitle: 'Share MLTheta with Friends',
   };
 
   try {
@@ -22,7 +22,7 @@ export async function shareML204() {
     }
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       await navigator.clipboard.writeText(shareData.url);
-      alert('ML204 download link copied to clipboard!');
+      alert('MLTheta download link copied to clipboard!');
       return true;
     }
   } catch (err: unknown) {

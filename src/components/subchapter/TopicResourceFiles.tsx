@@ -50,7 +50,7 @@ export function TopicResourceFiles({ topicSlug, topicTitle, files }: TopicResour
   const [activeFileName, setActiveFileName] = useState<string>('');
   const loc = getTopicLocation(topicSlug);
   const relPath = loc ? `${loc.partSlug}/${loc.chapterSlug}/${topicSlug}` : topicSlug;
-  const githubFolderUrl = `https://github.com/ML204/resources/tree/main/${relPath}`;
+  const githubFolderUrl = `https://github.com/mltheta/resources/tree/main/${relPath}`;
 
   async function handleDownload(file: TopicFile) {
     setActiveFileName(file.name);

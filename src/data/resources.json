@@ -2,7 +2,7 @@
   {
     "id": "res-poly-pdf",
     "title": "Polynomial Regression Theory Notes (PDF)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/polynomial-regression/Polynomial_Regression.pdf",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/polynomial-regression/Polynomial_Regression.pdf",
     "author": "Md. Inzamamul Lohani",
     "license": "CC-BY-4.0",
     "type": "copied",
@@ -14,7 +14,7 @@
   {
     "id": "res-poly-tex",
     "title": "Polynomial Regression LaTeX Source (.tex)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/polynomial-regression/Polynomial_Regression.tex",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/polynomial-regression/Polynomial_Regression.tex",
     "author": "Md. Inzamamul Lohani",
     "license": "MIT",
     "type": "copied",
@@ -26,7 +26,7 @@
   {
     "id": "res-ols-pdf",
     "title": "Ordinary Least Squares (OLS) Revision Notes (PDF)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/ordinary-least-squares/OLS.pdf",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/ordinary-least-squares/OLS.pdf",
     "author": "Md. Inzamamul Lohani",
     "license": "CC-BY-4.0",
     "type": "copied",
@@ -38,7 +38,7 @@
   {
     "id": "res-ols-tex",
     "title": "OLS Matrix Notes LaTeX Source (.tex)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/ordinary-least-squares/OLS_matrix_notes.tex",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/ordinary-least-squares/OLS_matrix_notes.tex",
     "author": "Md. Inzamamul Lohani",
     "license": "MIT",
     "type": "copied",
@@ -50,7 +50,7 @@
   {
     "id": "res-ridge-pdf",
     "title": "Ridge Regression Complete Journey Notes (PDF)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/ridge-regression/Ridge_regression.pdf",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/ridge-regression/Ridge_regression.pdf",
     "author": "Md. Inzamamul Lohani",
     "license": "CC-BY-4.0",
     "type": "copied",
@@ -62,7 +62,7 @@
   {
     "id": "res-ridge-tex",
     "title": "Ridge Regression Study Notes (.tex)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/ridge-regression/Ridge_Regression_Notes.tex",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/ridge-regression/Ridge_Regression_Notes.tex",
     "author": "Md. Inzamamul Lohani",
     "license": "MIT",
     "type": "copied",
@@ -74,7 +74,7 @@
   {
     "id": "res-lasso-pdf",
     "title": "Lasso Regression Revision Notes (PDF)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/lasso-regression/Lasso_Regression.pdf",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/lasso-regression/Lasso_Regression.pdf",
     "author": "Md. Inzamamul Lohani",
     "license": "CC-BY-4.0",
     "type": "copied",
@@ -86,7 +86,7 @@
   {
     "id": "res-lasso-tex",
     "title": "Lasso Regression Study Notes (.tex)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/lasso-regression/Lasso_Regression_Notes.tex",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/lasso-regression/Lasso_Regression_Notes.tex",
     "author": "Md. Inzamamul Lohani",
     "license": "MIT",
     "type": "copied",
@@ -98,7 +98,7 @@
   {
     "id": "res-linear-pdf",
     "title": "Linear Regression Theoretical Notes (PDF)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/linear-regression/Linear_Regression.pdf",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/linear-regression/Linear_Regression.pdf",
     "author": "Md. Inzamamul Lohani",
     "license": "CC-BY-4.0",
     "type": "copied",
@@ -110,7 +110,7 @@
   {
     "id": "res-linear-summary",
     "title": "Linear Regression Theory Summary (Markdown)",
-    "url": "https://github.com/ML204/resources/blob/main/classical-ml/supervised-regression/linear-regression/Linear_Regression_Summary.md",
+    "url": "https://github.com/mltheta/resources/blob/main/classical-ml/supervised-regression/linear-regression/Linear_Regression_Summary.md",
     "author": "Md. Inzamamul Lohani",
     "license": "MIT",
     "type": "copied",
@@ -122,7 +122,7 @@
   {
     "id": "res-vectors-summary",
     "title": "Vector Arithmetic & NumPy Code Cheat Sheet (Markdown)",
-    "url": "https://github.com/ML204/resources/blob/main/math-foundations/linear-algebra/vectors-and-matrices/Vectors_and_Matrices_Summary.md",
+    "url": "https://github.com/mltheta/resources/blob/main/math-foundations/linear-algebra/vectors-and-matrices/Vectors_and_Matrices_Summary.md",
     "author": "Md. Inzamamul Lohani",
     "license": "MIT",
     "type": "copied",
@@ -134,7 +134,7 @@
   {
     "id": "res-gradient-readme",
     "title": "Gradient Descent Formulation & Study Guide (Markdown)",
-    "url": "https://github.com/ML204/resources/blob/main/math-foundations/calculus/gradient-descent/Gradient_Descent_Summary.md",
+    "url": "https://github.com/mltheta/resources/blob/main/math-foundations/calculus/gradient-descent/Gradient_Descent_Summary.md",
     "author": "Md. Inzamamul Lohani",
     "license": "MIT",
     "type": "copied",

@@ -31,7 +31,7 @@ export function SiteHeader() {
           M
         </span>
         <span className="text-lg tracking-tight">
-          ML<span className="text-brand-600">204</span>
+          ML<span className="text-brand-600">Theta</span>
         </span>
       </Link>
 

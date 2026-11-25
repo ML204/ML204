@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useIsNative } from '@/lib/useNative';
-import { shareML204 } from '@/lib/share';
+import { shareMLTheta } from '@/lib/share';
 import { openExternalUrl } from '@/lib/externalLinks';
 import {
   CURRENT_APP_VERSION,
@@ -96,7 +96,7 @@ export function AboutAppCard() {
             </div>
 
             <h2 className="text-2xl font-bold text-slate-900">
-              ML204 Offline Learning Suite
+              MLTheta Offline Learning Suite
             </h2>
             <p className="text-sm text-slate-600 leading-relaxed">
               Standalone native offline runtime for interactive geometry, rigorous derivations,
@@ -188,7 +188,7 @@ export function AboutAppCard() {
 
             {/* Share App Button */}
             <button
-              onClick={shareML204}
+              onClick={shareMLTheta}
               className="px-5 py-3 bg-brand-600 hover:bg-brand-700 active:scale-95 text-white font-bold rounded-xl shadow-xs transition-all text-center flex items-center justify-center gap-2 cursor-pointer"
             >
               <span>🔗</span>
@@ -197,7 +197,7 @@ export function AboutAppCard() {
 
             {/* GitHub Repo */}
             <a
-              href="https://github.com/ML204/ML204"
+              href="https://github.com/mltheta/ML204"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2.5 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-center transition-colors flex items-center justify-center gap-1.5"
@@ -223,7 +223,7 @@ export function AboutAppCard() {
             Official Android Release · v{appVersion}
           </div>
           <h2 className="text-2xl font-bold text-slate-900">
-            Take ML204 Anywhere — 100% Offline
+            Take MLTheta Anywhere — 100% Offline
           </h2>
           <p className="text-sm text-slate-600 leading-relaxed">
             Install the standalone native Android app. Enjoy fully functional interactive figures,
@@ -240,14 +240,14 @@ export function AboutAppCard() {
 
         <div className="flex flex-col sm:flex-row md:flex-col gap-3 min-w-[200px]">
           <a
-            href="https://github.com/ML204/ML204-mobile/releases/latest/download/app-release.apk"
+            href="https://github.com/mltheta/ML204-mobile/releases/latest/download/app-release.apk"
             className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 text-center flex items-center justify-center gap-2"
           >
             <span className="text-xl">📱</span>
             <span>Download APK</span>
           </a>
           <a
-            href="https://github.com/ML204/ML204-mobile/releases/latest"
+            href="https://github.com/mltheta/ML204-mobile/releases/latest"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2.5 bg-white text-slate-700 hover:bg-slate-50 border border-slate-300 rounded-xl text-xs font-semibold text-center transition-colors flex items-center justify-center gap-1.5"

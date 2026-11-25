@@ -66,15 +66,15 @@ export async function isDeviceOnline(): Promise<boolean> {
 }
 
 /**
- * Computes the canonical online download URL from ML204/resources repository.
+ * Computes the canonical online download URL from mltheta/resources repository.
  */
 export function getOnlineDownloadUrl(topicSlug: string, filename: string): string {
   const encFile = encodeURIComponent(filename);
   const loc = getTopicLocation(topicSlug);
   if (loc) {
-    return `https://raw.githubusercontent.com/ML204/resources/main/${loc.partSlug}/${loc.chapterSlug}/${topicSlug}/${encFile}`;
+    return `https://raw.githubusercontent.com/mltheta/resources/main/${loc.partSlug}/${loc.chapterSlug}/${topicSlug}/${encFile}`;
   }
-  return `https://raw.githubusercontent.com/ML204/resources/main/${topicSlug}/${encFile}`;
+  return `https://raw.githubusercontent.com/mltheta/resources/main/${topicSlug}/${encFile}`;
 }
 
 /**

@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { AboutAppCard } from '@/components/about/AboutAppCard';
 
 export const metadata = {
-  title: 'About ML204 — Free Interactive Machine Learning Book',
+  title: 'About MLTheta — Free Interactive Machine Learning Book',
   description: 'Learn machine learning visually without code prerequisites. Download the offline Android APK app.',
 };
 
@@ -22,10 +22,10 @@ export default function AboutPage() {
           Mission & Technology
         </span>
         <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-          About ML<span className="text-brand-600">204</span>
+          About ML<span className="text-brand-600">Theta</span>
         </h1>
         <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-          ML204 is a free, visual, and interactive machine learning textbook engineered
+          MLTheta is a free, visual, and interactive machine learning textbook engineered
           for college and undergraduate students. It strips away dense code boilerplate
           to focus purely on geometric intuition, mathematical rigor, and visual discovery.
         </p>
@@ -72,7 +72,7 @@ export default function AboutPage() {
             Free & Open Source Software
           </h2>
           <p className="text-xs text-slate-500">
-            ML204 is built with Next.js, Tailwind CSS, KaTeX, and Capacitor under open educational licenses.
+            MLTheta is built with Next.js, Tailwind CSS, KaTeX, and Capacitor under open educational licenses.
           </p>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -83,7 +83,7 @@ export default function AboutPage() {
             ⚖️ Credits & Licenses
           </Link>
           <a
-            href="https://github.com/ML204/ML204"
+            href="https://github.com/mltheta/ML204"
             target="_blank"
             rel="noopener noreferrer"
             className="px-4 py-2 bg-slate-900 text-white text-xs font-semibold rounded-xl hover:bg-slate-800 transition-colors flex items-center gap-1.5"

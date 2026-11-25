@@ -51,7 +51,7 @@ export function Sidebar() {
               M
             </span>
             <span className="text-lg tracking-tight">
-              ML<span className="text-brand-600">204</span>
+              ML<span className="text-brand-600">Theta</span>
             </span>
           </Link>
 
@@ -209,7 +209,7 @@ export function Sidebar() {
               <span className="w-5 h-5 rounded-md bg-brand-600 text-white flex items-center justify-center text-[10px] font-black">
                 M
               </span>
-              <span>About ML<span className="text-brand-600">204</span></span>
+              <span>About ML<span className="text-brand-600">Theta</span></span>
               <span className="text-stone-400 group-hover:text-brand-700">→</span>
             </Link>
             <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-[#ded1af] text-stone-900 border border-[#cbbe99] font-mono">

@@ -48,8 +48,8 @@ export function getTopicFiles(topicSlug: string): TopicFile[] {
 
   return entry.files.map((file) => {
     const encFile = encodeURIComponent(file.name);
-    const rawUrl = `https://raw.githubusercontent.com/ML204/resources/main/${relPath}/${encFile}`;
-    const treeUrl = `https://github.com/ML204/resources/blob/main/${relPath}/${encFile}`;
+    const rawUrl = `https://raw.githubusercontent.com/mltheta/resources/main/${relPath}/${encFile}`;
+    const treeUrl = `https://github.com/mltheta/resources/blob/main/${relPath}/${encFile}`;
 
     return {
       name: file.name,
