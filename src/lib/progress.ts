@@ -1,20 +1,22 @@
 // Local progress tracking — no account needed.
 import { useState, useEffect } from 'react';
 
-const PREFIX = 'ml204:progress:';
-const LEGACY_PREFIX = 'mlens:progress:';
+const PREFIX = 'mltheta:progress:';
+const LEGACY_PREFIX = 'ml204:progress:';
+const OLD_LEGACY_PREFIX = 'mlens:progress:';
 
 export function markComplete(slug: string) {
   if (typeof window === 'undefined') return;
   localStorage.setItem(PREFIX + slug, 'done');
-  window.dispatchEvent(new Event('ml204:progress-update'));
+  window.dispatchEvent(new Event('mltheta:progress-update'));
 }
 
 export function unmarkComplete(slug: string) {
   if (typeof window === 'undefined') return;
   localStorage.removeItem(PREFIX + slug);
   localStorage.removeItem(LEGACY_PREFIX + slug);
-  window.dispatchEvent(new Event('ml204:progress-update'));
+  localStorage.removeItem(OLD_LEGACY_PREFIX + slug);
+  window.dispatchEvent(new Event('mltheta:progress-update'));
 }
 
 export function toggleComplete(slug: string): boolean {
@@ -31,7 +33,11 @@ export function toggleComplete(slug: string): boolean {
 
 export function isComplete(slug: string): boolean {
   if (typeof window === 'undefined') return false;
-  return localStorage.getItem(PREFIX + slug) === 'done' || localStorage.getItem(LEGACY_PREFIX + slug) === 'done';
+  return (
+    localStorage.getItem(PREFIX + slug) === 'done' ||
+    localStorage.getItem(LEGACY_PREFIX + slug) === 'done' ||
+    localStorage.getItem(OLD_LEGACY_PREFIX + slug) === 'done'
+  );
 }
 
 export function getCompletedSlugs(): Set<string> {
@@ -43,6 +49,8 @@ export function getCompletedSlugs(): Set<string> {
       set.add(key.replace(PREFIX, ''));
     } else if (key?.startsWith(LEGACY_PREFIX) && localStorage.getItem(key) === 'done') {
       set.add(key.replace(LEGACY_PREFIX, ''));
+    } else if (key?.startsWith(OLD_LEGACY_PREFIX) && localStorage.getItem(key) === 'done') {
+      set.add(key.replace(OLD_LEGACY_PREFIX, ''));
     }
   }
   return set;
@@ -54,10 +62,10 @@ export function useCompletedSlugs(): Set<string> {
   useEffect(() => {
     const update = () => setCompleted(getCompletedSlugs());
     update();
-    window.addEventListener('ml204:progress-update', update);
+    window.addEventListener('mltheta:progress-update', update);
     window.addEventListener('storage', update);
     return () => {
-      window.removeEventListener('ml204:progress-update', update);
+      window.removeEventListener('mltheta:progress-update', update);
       window.removeEventListener('storage', update);
     };
   }, []);
