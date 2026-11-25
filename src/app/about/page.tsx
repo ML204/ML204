@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { AboutAppCard } from '@/components/about/AboutAppCard';
 
 export const metadata = {
@@ -17,18 +18,29 @@ export default function AboutPage() {
       </nav>
 
       {/* Header */}
-      <div className="mb-12">
-        <span className="inline-block px-3 py-1 text-xs font-semibold text-brand-600 bg-brand-50 rounded-full border border-brand-200 mb-3">
-          Mission & Technology
-        </span>
-        <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
-          About ML<span className="text-brand-600">Theta</span>
-        </h1>
-        <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
-          MLTheta is a free, visual, and interactive machine learning textbook engineered
-          for college and undergraduate students. It strips away dense code boilerplate
-          to focus purely on geometric intuition, mathematical rigor, and visual discovery.
-        </p>
+      <div className="mb-12 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div>
+          <span className="inline-block px-3 py-1 text-xs font-semibold text-brand-600 bg-brand-50 rounded-full border border-brand-200 mb-3">
+            Mission & Technology
+          </span>
+          <h1 className="text-3xl sm:text-4xl font-bold text-slate-900 mb-4 leading-tight">
+            About ML<span className="text-brand-600">Theta</span>
+          </h1>
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl">
+            MLTheta is a free, visual, and interactive machine learning textbook engineered
+            for college and undergraduate students. It strips away dense code boilerplate
+            to focus purely on geometric intuition, mathematical rigor, and visual discovery.
+          </p>
+        </div>
+        <div className="flex-shrink-0 flex items-center justify-center p-4 rounded-2xl bg-[#faf5e4] border border-[#dcd1b3] shadow-xs self-start sm:self-center">
+          <Image
+            src="/logo.png"
+            alt="MLTheta Logo"
+            width={96}
+            height={96}
+            className="w-20 h-20 sm:w-24 sm:h-24 object-contain drop-shadow-sm"
+          />
+        </div>
       </div>
 
       {/* App Highlight Card: Share in App, Download on Web */}

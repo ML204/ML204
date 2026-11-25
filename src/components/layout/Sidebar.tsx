@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { toc } from '@/lib/toc';
 import { useMobileNav } from '@/components/layout/MobileNavContext';
 import { useCompletedSlugs } from '@/lib/progress';
@@ -46,10 +47,14 @@ export function Sidebar() {
       >
         {/* Mobile Drawer Header (Hidden on Desktop) */}
         <div className="flex items-center justify-between px-5 h-[var(--header-height)] border-b border-[#d4c6a0] md:hidden flex-shrink-0 bg-[#eae1c5]">
-          <Link href="/" onClick={close} className="flex items-center gap-2 font-bold text-stone-900">
-            <span className="w-7 h-7 rounded-lg bg-brand-600 flex items-center justify-center text-white text-sm font-black shadow-sm">
-              M
-            </span>
+          <Link href="/" onClick={close} className="flex items-center gap-2.5 font-bold text-stone-900">
+            <Image
+              src="/logo.png"
+              alt="MLTheta Logo"
+              width={28}
+              height={28}
+              className="w-7 h-7 object-contain drop-shadow-xs"
+            />
             <span className="text-lg tracking-tight">
               ML<span className="text-brand-600">Theta</span>
             </span>
@@ -206,9 +211,13 @@ export function Sidebar() {
               onClick={close}
               className="text-xs font-bold text-stone-900 hover:text-brand-700 transition-colors flex items-center gap-2 group"
             >
-              <span className="w-5 h-5 rounded-md bg-brand-600 text-white flex items-center justify-center text-[10px] font-black">
-                M
-              </span>
+              <Image
+                src="/logo.png"
+                alt="MLTheta Logo"
+                width={20}
+                height={20}
+                className="w-5 h-5 object-contain"
+              />
               <span>About ML<span className="text-brand-600">Theta</span></span>
               <span className="text-stone-400 group-hover:text-brand-700">→</span>
             </Link>
