@@ -1,0 +1,325 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'SQL: SELECT, WHERE, JOIN and GROUP BY',
+  description: 'Master relational data extraction and feature store querying for machine learning: execution order, filtering, aggregations, table joins, CTEs, and window functions.',
+};
+
+<Section label="What is it?">
+
+**Structured Query Language (SQL)** is the universal domain-specific language used to query, transform, and extract datasets from relational database management systems (RDBMS) and modern cloud data warehouses (PostgreSQL, Snowflake, Google BigQuery, DuckDB, Amazon Redshift).
+
+In machine learning pipelines, raw data rarely starts as a clean Pandas DataFrame or PyTorch tensor. Instead, raw events, user transactions, and sensor logs reside across normalized relational tables. SQL is the primary engine used to:
+- Filter and slice millions of records before memory ingestion.
+- Join disparate tables (e.g., users, purchases, and browsing sessions).
+- Aggregate raw transactional events into tabular training features (e.g., total spend, purchase frequency, rolling averages).
+
+```sql
+-- Feature extraction query: Extracting user behavioral features for churn prediction
+SELECT 
+    user_id,
+    COUNT(order_id) AS total_orders,
+    AVG(order_amount) AS avg_order_value,
+    MAX(order_date) AS last_active_date
+FROM orders
+WHERE order_date >= CURRENT_DATE - INTERVAL '90 days'
+GROUP BY user_id
+HAVING COUNT(order_id) >= 2
+ORDER BY total_orders DESC;
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+In production machine learning:
+- **In-Database Processing at Scale**: Processing petabytes of data inside BigQuery or Snowflake using SQL leverages distributed query engines. Bringing raw unaggregated data into Python memory causes Out-Of-Memory (OOM) crashes.
+- **Relational Feature Stores**: Online and offline feature stores (such as Feast or Hopsworks) use SQL queries as foundational definition layers for ML feature tables.
+- **Data Quality & Leakage Prevention**: Point-in-time joins in SQL ensure that features constructed for a historical training sample only include information available *before* the prediction timestamp, preventing catastrophic data leakage.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The True SQL Query Execution Order
+
+While SQL queries are *written* starting with `SELECT`, SQL query planners *execute* clauses in a very specific logical order:
+
+```
+1. FROM & JOIN     ──> Locate and unite tables
+2. WHERE           ──> Filter individual rows
+3. GROUP BY        ──> Bucket rows into groups
+4. HAVING          ──> Filter aggregated groups
+5. SELECT          ──> Select columns and compute expressions/aliases
+6. DISTINCT        ──> Eliminate duplicate rows
+7. ORDER BY        ──> Sort the resulting rows
+8. LIMIT / OFFSET  ──> Slice row pagination
+```
+
+<Callout kind="warning">
+  Because `WHERE` executes *before* `GROUP BY` and `SELECT`, you **cannot** filter on aggregate functions inside `WHERE` (e.g. `WHERE COUNT(order_id) > 5` will throw a syntax error). Filtering on aggregated metrics must always be placed in the `HAVING` clause!
+</Callout>
+
+<Analogy>
+  Imagine an international postal sorting facility. First, you gather packages from all delivery vans (**`FROM & JOIN`**). You immediately discard damaged or unaddressed boxes (**`WHERE`**). Next, you sort the remaining packages into destination city bins (**`GROUP BY`**). You then inspect each bin and set aside any city with fewer than 50 parcels (**`HAVING`**). Finally, you stamp tracking barcodes onto the selected items (**`SELECT`**) and line them up from heaviest to lightest (**`ORDER BY`**).
+</Analogy>
+
+---
+
+### 2. Filtering and Conditional Expressions
+
+The `WHERE` clause isolates specific records using logical operators:
+
+| Operator | Syntax Example | Meaning |
+| :--- | :--- | :--- |
+| **Comparison** | `price >= 100 AND price <= 500` | Value within numeric range |
+| **Set Membership** | `device_type IN ('mobile', 'tablet')` | Matches any element in list |
+| **Pattern Match** | `email LIKE '%@university.edu'` | Case-sensitive pattern matching |
+| **Null Checks** | `churned_date IS NOT NULL` | Checks for present/absent values |
+| **Conditional CASE** | `CASE WHEN age < 25 THEN 1 ELSE 0 END` | Creates binary feature flags |
+
+```sql
+SELECT 
+    customer_id,
+    amount,
+    CASE 
+        WHEN amount > 1000 THEN 'high_value'
+        WHEN amount BETWEEN 200 AND 1000 THEN 'medium_value'
+        ELSE 'low_value'
+    END AS customer_segment
+FROM transactions
+WHERE status = 'completed' AND amount IS NOT NULL;
+```
+
+---
+
+### 3. Multi-Table Joins: Connecting Feature Entities
+
+Relational schemas normalize data across tables linked by keys (e.g. `user_id`). We use **JOINs** to reassemble feature matrices:
+
+```
+        Table A (Users)               Table B (Orders)
+  ┌─────────┬──────────────┐    ┌──────────┬─────────┬────────┐
+  │ user_id │ signup_date  │    │ order_id │ user_id │ amount │
+  ├─────────┼──────────────┤    ├──────────┼─────────┼────────┤
+  │    1    │  2024-01-15  │    │   101    │    1    │  50.0  │
+  │    2    │  2024-02-01  │    │   102    │    1    │  35.0  │
+  │    3    │  2024-03-10  │    │   103    │    4    │  80.0  │
+  └─────────┴──────────────┘    └──────────┴─────────┴────────┘
+```
+
+- **`INNER JOIN`**: Returns rows only when there is a match in *both* tables (e.g., users who placed orders).
+- **`LEFT JOIN`**: Returns *all* rows from Table A, along with matching rows from Table B (unmatched Table B values become `NULL`). Essential in ML feature engineering so that users with zero purchases are retained (and later imputed with 0).
+- **`RIGHT JOIN`**: Returns all rows from Table B, matching Table A.
+- **`FULL OUTER JOIN`**: Returns all records when there is a match in either table.
+
+```sql
+-- LEFT JOIN ensures inactive users are not dropped from feature matrix:
+SELECT 
+    u.user_id,
+    u.signup_date,
+    COALESCE(SUM(o.amount), 0.0) AS total_spent
+FROM users u
+LEFT JOIN orders o 
+    ON u.user_id = o.user_id
+GROUP BY u.user_id, u.signup_date;
+```
+
+---
+
+### 4. Aggregations with `GROUP BY` and `HAVING`
+
+The **Split-Apply-Combine** pattern aggregates multiple row observations per group into singular statistical summaries:
+
+```sql
+SELECT 
+    merchant_category,
+    COUNT(*) AS total_transactions,
+    ROUND(AVG(transaction_amount), 2) AS mean_amount,
+    ROUND(STDDEV(transaction_amount), 2) AS std_amount,
+    MAX(transaction_amount) AS max_single_transaction
+FROM card_transactions
+GROUP BY merchant_category
+HAVING COUNT(*) >= 1000;
+```
+
+---
+
+### 5. Advanced Feature Engineering: Common Table Expressions (CTEs) & Window Functions
+
+#### Common Table Expressions (`WITH ... AS`)
+CTEs make complex queries readable and maintainable by decomposing logic into sequential named steps:
+
+```sql
+WITH user_aggregates AS (
+    SELECT 
+        user_id,
+        AVG(session_duration_sec) AS avg_duration
+    FROM user_sessions
+    GROUP BY user_id
+)
+SELECT 
+    u.user_id,
+    u.subscription_tier,
+    a.avg_duration
+FROM users u
+JOIN user_aggregates a ON u.user_id = a.user_id;
+```
+
+#### Window Functions for Sequential ML Features
+Unlike `GROUP BY`, which collapses rows into a single summary, **Window Functions** compute aggregate or positional metrics across rows while **retaining individual row identity**:
+
+```sql
+-- Calculate user transaction order sequence and recency lag features:
+SELECT 
+    user_id,
+    order_id,
+    order_date,
+    amount,
+    -- Rank each purchase sequentially per user:
+    ROW_NUMBER() OVER (
+        PARTITION BY user_id 
+        ORDER BY order_date ASC
+    ) AS purchase_sequence_number,
+    -- Fetch the amount of the previous purchase:
+    LAG(amount, 1) OVER (
+        PARTITION BY user_id 
+        ORDER BY order_date ASC
+    ) AS previous_order_amount
+FROM orders;
+```
+
+Window functions are indispensable in temporal machine learning for building lag variables, calculating rolling customer spend, and preparing sequence models.
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'sql-q1',
+      kind: 'mcq',
+      text: 'In what logical order does a relational database engine evaluate SQL query clauses?',
+      options: [
+        'FROM & JOIN → WHERE → GROUP BY → HAVING → SELECT → ORDER BY',
+        'SELECT → FROM → WHERE → GROUP BY → HAVING → ORDER BY',
+        'WHERE → FROM → SELECT → GROUP BY → ORDER BY → HAVING',
+        'ORDER BY → LIMIT → SELECT → WHERE → FROM → GROUP BY',
+      ],
+      correctIndex: 0,
+      explanation: 'Databases first identify and join the tables (FROM & JOIN), filter individual rows (WHERE), group the remaining rows (GROUP BY), filter groups (HAVING), evaluate expressions (SELECT), and finally sort (ORDER BY).',
+    },
+    {
+      id: 'sql-q2',
+      kind: 'mcq',
+      text: 'Why does the following query fail: "SELECT department, COUNT(*) FROM employees WHERE COUNT(*) > 10 GROUP BY department;"?',
+      options: [
+        'The WHERE clause executes before rows are grouped, so aggregate functions like COUNT(*) cannot be evaluated in WHERE; HAVING must be used instead',
+        'SQL does not allow COUNT(*) when grouping by department',
+        'The department column must be converted to an integer before grouping',
+        'The query is missing an explicit INNER JOIN clause',
+      ],
+      correctIndex: 0,
+      explanation: '`WHERE` filters individual records before groups are formed. To filter on aggregate conditions, you must use `HAVING COUNT(*) > 10` after `GROUP BY`.',
+    },
+    {
+      id: 'sql-q3',
+      kind: 'mcq',
+      text: 'When preparing a training feature matrix of all registered users and their purchase history, why is a LEFT JOIN preferred over an INNER JOIN?',
+      options: [
+        'A LEFT JOIN preserves registered users who have zero purchases (with NULL values that can be imputed as 0), whereas an INNER JOIN would drop inactive users entirely',
+        'A LEFT JOIN executes 10 times faster than an INNER JOIN',
+        'An INNER JOIN requires both tables to have the same number of rows',
+        'LEFT JOIN automatically normalizes numeric features between 0 and 1',
+      ],
+      correctIndex: 0,
+      explanation: 'An INNER JOIN drops records without matches. If you want to train a model predicting churn or conversion, dropping inactive users introduces severe sample selection bias. A LEFT JOIN keeps all users.',
+    },
+    {
+      id: 'sql-q4',
+      kind: 'mcq',
+      text: 'What distinguishes a SQL Window Function (e.g. ROW_NUMBER() OVER (...)) from a standard GROUP BY aggregation?',
+      options: [
+        'Window functions perform calculations across related rows while preserving individual row identity, whereas GROUP BY collapses multiple rows into one',
+        'Window functions only work on string columns',
+        'Window functions delete duplicate records permanently from disk',
+        'GROUP BY can only be executed on primary key columns',
+      ],
+      correctIndex: 0,
+      explanation: '`GROUP BY` collapses multiple rows into a single grouped row per key. Window functions compute metrics across partitions while keeping every individual row intact.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="SQL: SELECT, WHERE, JOIN and GROUP BY"
+  oneLiner="SQL is the scalable feature extraction engine for ML, transforming normalized databases into feature tables through strict clause execution, joins, aggregations, and window functions."
+  takeaways={[
+    'Remember the true execution order: `FROM & JOIN` → `WHERE` → `GROUP BY` → `HAVING` → `SELECT` → `ORDER BY`.',
+    'Use `HAVING` to filter aggregate metrics; use `WHERE` to filter individual raw observations before grouping.',
+    'Use `LEFT JOIN` when constructing feature tables so that entities with zero activity are retained with NULLs instead of dropped.',
+    'Leverage Window Functions (`ROW_NUMBER()`, `LAG()`) over `PARTITION BY` to construct temporal and sequential features without collapsing rows.',
+  ]}
+  commonTrap="Confusing `WHERE` and `HAVING`. Trying to filter on an aggregate like `WHERE SUM(amount) > 500` fails because `WHERE` filters rows before `SUM` can compute them. Always filter aggregated groups with `HAVING`."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="sql-queries-joins-aggregations"
+  topicTitle="SQL Queries, Joins and Aggregations"
+  referenceChecklist={[
+    'Detailed the logical execution order of SQL query clauses.',
+    'Explained the difference between WHERE (row filter) and HAVING (group filter).',
+    'Differentiated INNER JOIN, LEFT JOIN, and outer joins in ML feature matrices.',
+    'Demonstrated the purpose of Common Table Expressions (WITH CTEs).',
+    'Explained how Window Functions (LAG, ROW_NUMBER) construct sequence features while retaining row identity.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/git-and-sql/sql-queries-joins-aggregations"
+  items={[
+    {
+      title: "PostgreSQL Official Documentation: SQL Tutorial",
+      type: "article",
+      description: "Official guide to relational databases, joins, aggregations, and window functions.",
+      url: "https://www.postgresql.org/docs/current/tutorial-sql.html"
+    },
+    {
+      title: "Mode Analytics: SQL Queries for Data Analysis",
+      type: "article",
+      description: "Comprehensive practical tutorials on advanced joins, subqueries, and data engineering aggregations.",
+      url: "https://mode.com/sql-tutorial/"
+    },
+    {
+      title: "SQL Feature Engineering Cheatsheet & Sample Queries",
+      type: "cheatsheet",
+      description: "Ready-to-run SQL query templates, CTE examples, and window function recipes for machine learning feature stores.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/git-and-sql/sql-queries-joins-aggregations"
+    }
+  ]}
+/>
+
+</Section>

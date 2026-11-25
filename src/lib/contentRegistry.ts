@@ -20,6 +20,12 @@ export const contentRegistry: Record<string, Loader> = {
     import('@/content/programming-and-tools/python-fundamentals/file-io-json-csv.mdx'),
   'programming-and-tools/python-fundamentals/error-handling-virtualenv': () =>
     import('@/content/programming-and-tools/python-fundamentals/error-handling-virtualenv.mdx'),
+  'programming-and-tools/git-and-sql/git-version-control': () =>
+    import('@/content/programming-and-tools/git-and-sql/git-version-control.mdx'),
+  'programming-and-tools/git-and-sql/ml-project-repository-structure': () =>
+    import('@/content/programming-and-tools/git-and-sql/ml-project-repository-structure.mdx'),
+  'programming-and-tools/git-and-sql/sql-queries-joins-aggregations': () =>
+    import('@/content/programming-and-tools/git-and-sql/sql-queries-joins-aggregations.mdx'),
 
   // Part 1: Math Foundations
   'math-foundations/linear-algebra/vectors-and-matrices': () =>

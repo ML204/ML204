@@ -1,0 +1,295 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Git: Commits, Branches and Pull Requests',
+  description: 'Master version control for machine learning workflows: Git architecture, staging mechanics, branching strategies, conflict resolution, and collaborative Pull Request pipelines.',
+};
+
+<Section label="What is it?">
+
+**Git** is a distributed version control system designed to record snapshots of a project's filesystem over time. Unlike older centralized systems that track file differences (deltas), Git captures the entire state of your repository as a cryptographic graph of content-addressed commits:
+
+- **Working Directory**: The actual files on your local filesystem that you edit in your IDE or Jupyter environment.
+- **Staging Area (Index)**: A preparatory scratchpad where changes are queued before being permanently stamped into history.
+- **Local Repository**: The `.git` database storing complete commit snapshots, branch pointers (`HEAD`), and historical logs.
+- **Remote Repository**: A centralized host (such as GitHub, GitLab, or Hugging Face) enabling team synchronization, code review, and automated CI/CD testing.
+
+```
+Working Directory  ──(git add)──>  Staging Area (Index)  ──(git commit)──>  Local Repo (.git)  ──(git push)──>  Remote (GitHub)
+```
+
+</Section>
+
+<Section label="Why we need it">
+
+In production machine learning and data science:
+- **Reproducibility Guarantee**: Model training requires synchronizing data, hyperparameters, and the exact commit hash of the training script. Storing the Git SHA in MLflow or WandB ensures any published model can be audited and rebuilt from scratch.
+- **Collaborative Experimentation**: Multiple researchers can experiment simultaneously on isolated feature branches without overwriting each other's model architectures, evaluation scripts, or exploratory notebooks.
+- **Safe Rollbacks**: When an experimental change introduces regressions or silent data pipeline bugs, Git allows instantaneous time travel to any historically verified, working state.
+- **Auditable Peer Review**: Through Pull Requests (PRs), teammates review data transformations, loss functions, and inference logic before code merges into production.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Four Git Stages and Core Workflow
+
+Every tracked file in a Git project moves between four distinct states:
+
+| Git State | Location | Command to Transition |
+| :--- | :--- | :--- |
+| **Untracked / Modified** | Working Directory | Modified by user in editor |
+| **Staged** | Staging Area (Index) | `git add <file>` or `git add .` |
+| **Committed** | Local Repository | `git commit -m "feat: add resnet backbone"` |
+| **Published** | Remote Repository | `git push origin <branch-name>` |
+
+<Callout kind="tip">
+  Always use `git status` frequently to inspect your current branch, staged changes ready to be committed, and untracked artifacts.
+</Callout>
+
+```bash
+# Initialize a new Git tracking repository
+git init
+
+# Check the state of your working directory and staging area
+git status
+
+# Stage specific training scripts for the next snapshot
+git add train.py src/models/transformer.py
+
+# Commit staged changes with an imperative, clear message
+git commit -m "feat(model): implement multi-head attention layer"
+
+# Push local commits to the remote main branch
+git push -u origin main
+```
+
+<Analogy>
+  Think of Git like a photographic studio. Your **Working Directory** is the studio floor where actors and props move around. The **Staging Area** is the photographer's viewfinder: you decide exactly who steps into the frame for this specific shot. The **Commit** is clicking the shutter: a permanent, timestamped snapshot stored in the album. Pushing to **Remote** is mailing a copy of that photo album to your research collaborators.
+</Analogy>
+
+---
+
+### 2. Inspecting Changes and Commit History
+
+Before committing, it is vital to audit exactly what lines were added, modified, or removed:
+
+```bash
+# Compare working directory against the staging area
+git diff
+
+# Compare staged changes against the latest commit (HEAD)
+git diff --staged
+
+# View a clean, visual graph of historical commits
+git log --oneline --graph --decorate --all -n 10
+```
+
+---
+
+### 3. Branching Strategies and Isolated Experimentation
+
+Branches in Git are lightweight, movable pointers to specific commits. Creating a branch costs virtually zero memory and does not duplicate your files:
+
+```bash
+# Create and switch to an experimental branch in one step
+git switch -c experiment/focal-loss
+
+# Verify which branch is active (indicated by asterisk *)
+git branch
+
+# Make changes, stage them, and record a commit
+git add loss.py
+git commit -m "feat(loss): implement focal loss to handle class imbalance"
+
+# Switch back to the stable main branch
+git switch main
+```
+
+#### Fast-Forward vs. 3-Way Merge
+When integrating completed work back into `main`:
+1. **Fast-Forward Merge**: If `main` has not progressed since the branch was created, Git simply slides the `main` pointer forward to match your branch.
+2. **Three-Way Merge**: If both `main` and your feature branch have new independent commits, Git locates their common ancestor and creates a new **merge commit** uniting both lines of development.
+
+```bash
+# Switch to target branch and merge
+git switch main
+git merge experiment/focal-loss
+```
+
+---
+
+### 4. Anatomy and Resolution of Merge Conflicts
+
+A merge conflict occurs when two branches modify the **exact same lines of a file** in divergent ways. Git cannot guess which version is correct and pauses the merge, inserting conflict markers:
+
+```python
+# train.py after a merge conflict:
+<<<<<<< HEAD
+# Changes on the current branch (e.g., main):
+optimizer = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=1e-2)
+=======
+# Changes from the incoming branch (e.g., experiment/optimizer):
+optimizer = torch.optim.AdamW(model.parameters(), lr=5e-4, eps=1e-8)
+>>>>>>> experiment/optimizer
+```
+
+#### Steps to Resolve Conflicts:
+1. Open the conflicted file and identify the sections between `<<<<<<<`, `=======`, and `>>>>>>>`.
+2. Edit the code manually to preserve the desired logic (or combine both options).
+3. Delete all marker lines (`<<<<<<<`, `=======`, `>>>>>>>`).
+4. Stage the resolved file with `git add train.py`.
+5. Finalize the merge by running `git commit`.
+
+<Callout kind="warning">
+  Jupyter Notebooks (`.ipynb`) store cell outputs, execution counts, and metadata in complex raw JSON. When two team members edit the same notebook, resolving Git conflicts in raw JSON is notoriously error-prone. Use tools like `nbstripout` or convert core logic into plain Python (`.py`) modules.
+</Callout>
+
+---
+
+### 5. Pull Requests and Collaborative Team Workflows
+
+In professional engineering organizations, developers do not commit directly to `main`. Instead, teams practice **Trunk-Based Development** or **Feature Branch Workflows**:
+
+```
+[Local Feature Branch] ──(push)──> [Remote GitHub Branch] ──(Open PR)──> [Code Review & Automated CI] ──(Merge)──> [main]
+```
+
+1. **Create Feature Branch**: Name branches descriptively (`feat/data-augmentation`, `fix/gradient-clipping`).
+2. **Push to Remote**: Run `git push origin feat/data-augmentation`.
+3. **Open a Pull Request (PR)**: Provide context, performance metrics (e.g., validation loss progression), and references to issue trackers.
+4. **Continuous Integration (CI)**: Automated GitHub Actions runners trigger unit tests, linters, and type checkers.
+5. **Peer Review & Merge**: Once approved by senior engineers, the PR is squashed and merged into `main`.
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'git-q1',
+      kind: 'mcq',
+      text: 'What is the role of the Git Staging Area (Index)?',
+      options: [
+        'A preparatory area where changes are curated and reviewed before permanently recording them into a commit snapshot',
+        'A remote cache stored exclusively on GitHub servers',
+        'A temporary backup directory for deleted files',
+        'A compiler that validates Python syntax before running code',
+      ],
+      correctIndex: 0,
+      explanation: 'The staging area allows developers to carefully assemble and review specific changes (via git add) before creating a cohesive commit snapshot.',
+    },
+    {
+      id: 'git-q2',
+      kind: 'mcq',
+      text: 'Which command creates and switches to a new branch named "experiment/resnet" in modern Git?',
+      options: [
+        '`git switch -c experiment/resnet`',
+        '`git branch -m experiment/resnet`',
+        '`git commit -b experiment/resnet`',
+        '`git checkout -d experiment/resnet`',
+      ],
+      correctIndex: 0,
+      explanation: '`git switch -c <name>` (or `git checkout -b <name>`) creates the specified branch and immediately checks it out into your working directory.',
+    },
+    {
+      id: 'git-q3',
+      kind: 'mcq',
+      text: 'What do the markers `<<<<<<< HEAD` and `>>>>>>>` indicate inside a source code file?',
+      options: [
+        'A merge conflict where conflicting changes from two branches require manual developer resolution',
+        'A syntax error detected by the Python runtime interpreter',
+        'A successful fast-forward merge operation',
+        'A GitHub Pull Request comment inserted by a code reviewer',
+      ],
+      correctIndex: 0,
+      explanation: 'Git inserts conflict markers `<<<<<<< HEAD`, `=======`, and `>>>>>>>` around conflicting lines when competing edits cannot be merged automatically.',
+    },
+    {
+      id: 'git-q4',
+      kind: 'mcq',
+      text: 'Why are Jupyter Notebooks (.ipynb) particularly difficult to manage in Git collaborative workflows?',
+      options: [
+        'They are formatted as JSON containing execution counters, base64 image outputs, and rich metadata that trigger frequent merge conflicts',
+        'Git refuses to track any file that is not a plain .py file',
+        'Jupyter notebooks cannot be tracked unless hosted on Google Colab',
+        'Git automatically executes notebooks during every commit',
+      ],
+      correctIndex: 0,
+      explanation: 'Notebooks store execution states, cell outputs, and rich JSON metadata. Even re-running cells without code changes alters the file, making diffs noisy and merge conflicts difficult to resolve.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Git: Commits, Branches and Pull Requests"
+  oneLiner="Git records immutable filesystem snapshots across local stages (Working Directory → Staging Area → Repository), providing isolated branch experimentation and auditable peer review via Pull Requests."
+  takeaways={[
+    'Use `git status` and `git diff` before every commit to ensure only intentional changes enter the Staging Area.',
+    'Keep commits atomic: each commit should represent a single logical unit of work with a descriptive imperative message.',
+    'Never commit directly to production `main`; conduct experiments on dedicated feature branches.',
+    'Resolve merge conflicts deliberately by understanding both the current branch (`HEAD`) and incoming branch changes.',
+  ]}
+  commonTrap="Staging and committing large binary datasets or model checkpoint weights (`.pt`, `.h5`, `.csv`) directly into Git history. Git is optimized for text; committing binaries permanently bloats repo size. Use Git LFS or object storage instead."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="git-version-control"
+  topicTitle="Git Version Control"
+  referenceChecklist={[
+    'Explained the difference between the Working Directory, Staging Area, Local Repository, and Remote.',
+    'Detailed essential commands: git add, git commit, git push, and git pull.',
+    'Differentiated between fast-forward merges and three-way merge commits.',
+    'Explained how merge conflicts occur and how conflict markers are manually resolved.',
+    'Described the Pull Request (PR) workflow and continuous integration in ML engineering.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="ML204/resources/programming-and-tools/git-and-sql/git-version-control"
+  items={[
+    {
+      title: "Pro Git Book (Official Documentation)",
+      type: "book",
+      description: "Scott Chacon and Ben Straub's comprehensive guide to Git internals, branching mechanics, and distributed workflows.",
+      url: "https://git-scm.com/book/en/v2"
+    },
+    {
+      title: "GitHub Skills: Introduction to GitHub & Git",
+      type: "article",
+      description: "Interactive, hands-on repository tutorials on branching, committing, pull requests, and resolving merge conflicts.",
+      url: "https://skills.github.com/"
+    },
+    {
+      title: "Git Workflow & Cheatsheet Reference",
+      type: "cheatsheet",
+      description: "Quick-reference cheatsheet and CLI command templates for machine learning and data science repositories.",
+      url: "https://github.com/ML204/resources/tree/main/programming-and-tools/git-and-sql/git-version-control"
+    }
+  ]}
+/>
+
+</Section>

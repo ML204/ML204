@@ -123,6 +123,42 @@
       }
     ]
   },
+  "git-version-control": {
+    "part": "programming-and-tools",
+    "chapter": "git-and-sql",
+    "sub": "git-version-control",
+    "files": [
+      {
+        "name": "Git_Workflow_CheatSheet.sh",
+        "size": "600 B",
+        "extension": "sh"
+      }
+    ]
+  },
+  "ml-project-repository-structure": {
+    "part": "programming-and-tools",
+    "chapter": "git-and-sql",
+    "sub": "ml-project-repository-structure",
+    "files": [
+      {
+        "name": "ML_Project_Structure_Template.py",
+        "size": "1.1 KB",
+        "extension": "py"
+      }
+    ]
+  },
+  "sql-queries-joins-aggregations": {
+    "part": "programming-and-tools",
+    "chapter": "git-and-sql",
+    "sub": "sql-queries-joins-aggregations",
+    "files": [
+      {
+        "name": "SQL_Queries_Feature_Engineering_Reference.sql",
+        "size": "1.0 KB",
+        "extension": "sql"
+      }
+    ]
+  },
   "numpy-arrays-and-shapes": {
     "part": "programming-and-tools",
     "chapter": "numpy",

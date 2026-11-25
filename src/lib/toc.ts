@@ -80,9 +80,9 @@ export const toc: Part[] = [
         slug: 'git-and-sql',
         title: 'Git and SQL for ML',
         subchapters: [
-          { slug: 'git-version-control',           title: 'Git: Commits, Branches and Pull Requests',  estimatedMinutes: 7 },
-          { slug: 'ml-project-repository-structure', title: 'Structuring ML Project Repositories',     estimatedMinutes: 6 },
-          { slug: 'sql-queries-joins-aggregations', title: 'SQL: SELECT, WHERE, JOIN and GROUP BY',    estimatedMinutes: 7 },
+          { slug: 'git-version-control',           title: 'Git: Commits, Branches and Pull Requests',  estimatedMinutes: 7, done: true },
+          { slug: 'ml-project-repository-structure', title: 'Structuring ML Project Repositories',     estimatedMinutes: 6, done: true },
+          { slug: 'sql-queries-joins-aggregations', title: 'SQL: SELECT, WHERE, JOIN and GROUP BY',    estimatedMinutes: 7, done: true },
         ],
       },
     ],
