@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Scans the local ML204/resources repository (or clones it if needed)
+ * Scans the local mltheta/resources repository (or clones it if needed)
  * and updates src/data/resourcesManifest.json automatically.
  */
 

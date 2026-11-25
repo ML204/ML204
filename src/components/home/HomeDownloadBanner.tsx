@@ -19,7 +19,7 @@ export function HomeDownloadBanner() {
         <div>
           <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-bold text-slate-900 text-sm sm:text-base">
-              ML204 for Android — 100% Offline
+              MLTheta for Android — 100% Offline
             </h3>
             <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">
               v{CURRENT_APP_VERSION}
@@ -32,7 +32,7 @@ export function HomeDownloadBanner() {
       </div>
       <div className="flex items-center gap-2 flex-shrink-0 w-full sm:w-auto">
         <a
-          href="https://github.com/ML204/ML204-mobile/releases/latest/download/app-release.apk"
+          href="https://github.com/mltheta/ML204-mobile/releases/latest/download/app-release.apk"
           className="flex-1 sm:flex-initial px-4 py-2 bg-emerald-600 text-white text-xs font-semibold rounded-xl hover:bg-emerald-700 transition-colors shadow-2xs text-center"
         >
           Download APK (10.7 MB)

@@ -13,7 +13,7 @@ export function TeachThisCard({ topic, oneLiner, takeaways, commonTrap }: TeachT
   const [copied, setCopied] = useState(false);
 
   function copyCard() {
-    const text = `📚 Teach This: ${topic}\n\n💡 Core Idea:\n${oneLiner}\n\n🔑 Key Takeaways:\n${takeaways.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\n⚠️ Common Trap:\n${commonTrap}\n\n— via ML204`;
+    const text = `📚 Teach This: ${topic}\n\n💡 Core Idea:\n${oneLiner}\n\n🔑 Key Takeaways:\n${takeaways.map((t, i) => `${i + 1}. ${t}`).join('\n')}\n\n⚠️ Common Trap:\n${commonTrap}\n\n— via MLTheta`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

@@ -3,7 +3,7 @@ import { getAllTopicsWithFiles } from '@/lib/topicFiles';
 import { TopicFileBrowser } from './TopicFileBrowser';
 
 export const metadata = {
-  title: 'Learning Resources & File Directory — ML204',
+  title: 'Learning Resources & File Directory — MLTheta',
   description: 'Download study notes, code implementations, and view curated textbooks across all machine learning topics.',
 };
 
@@ -130,7 +130,7 @@ export default function ResourcesPage() {
         </div>
 
         <a
-          href="https://github.com/ML204/resources"
+          href="https://github.com/mltheta/resources"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 font-semibold text-xs text-white transition-colors flex-shrink-0 text-center justify-center shadow-sm"

@@ -24,7 +24,7 @@ const notoSansBengali = Noto_Sans_Bengali({
 });
 
 export const metadata: Metadata = {
-  title: 'ML204 — Interactive ML Book',
+  title: 'MLTheta — Interactive ML Book',
   description:
     'A free, visual, interactive machine learning textbook for college and undergraduate students.',
   keywords: ['machine learning', 'interactive', 'education', 'AI', 'deep learning'],
