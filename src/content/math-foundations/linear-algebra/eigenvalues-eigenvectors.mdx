@@ -1,0 +1,472 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { EigenFigure } from '@/components/figures/EigenFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Eigenvalues and Eigenvectors',
+  description: 'Invariant directions under linear transformations (Av = λv), geometric meaning of λ, symmetric matrices, and Principal Component Analysis (PCA).',
+};
+
+<Section label="What is it?">
+
+When a square matrix $\mathbf{A}$ transforms space—stretching, tilting, or reflecting the grid—nearly every vector gets knocked off its original straight line.
+
+However, a few special non-zero directions stay **strictly on their own line**! When $\mathbf{A}$ hits one of these special vectors, it *never* twists sideways—it only stretches, shrinks, or flips the arrow in place. Those special invariant vectors are **eigenvectors** ($\mathbf{v}$), and their scaling factor is the matching **eigenvalue** ($\lambda$):
+
+$$
+\mathbf{A}\mathbf{v} = \lambda \mathbf{v}
+$$
+
+</Section>
+
+<Section label="Why we need it">
+
+Eigenvalues and eigenvectors uncover the hidden "natural skeleton" of a matrix or dataset:
+
+- **Principal Component Analysis (PCA)**: The eigenvectors of a dataset's covariance matrix reveal the perpendicular axes where data varies the most, letting us compress $1000$ correlated features into a handful of informative coordinates!
+- **Google PageRank**: Ranking billions of web pages finds the dominant eigenvector of the web link matrix.
+- **Matrix Powers & Dynamical Systems**: Predicting what happens after $100$ time steps ($\mathbf{A}^{100}\mathbf{x}$) reduces from multiplying matrices $100$ times to simply raising scalar eigenvalues to $\lambda^{100}$!
+- **Hessians & Optimization Curvature**: Eigenvalues of the loss surface's Hessian matrix tell optimizers whether you sit inside a smooth bowl (all $\lambda > 0$), on a flat plateau ($\lambda \approx 0$), or at a tricky saddle point (mixed signs).
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Knocked Off Course vs Staying on Track
+
+Imagine spinning a globe on its stand. Every city on the equator whips around in circles—its direction constantly changes. Only **the North–South axis** passes straight through both poles and stays aligned in place! That spin axis is literally the globe rotation's real eigenvector (with eigenvalue $\lambda = 1$).
+
+![Comparison showing ordinary vector v knocked off its line versus eigenvector e1 staying on its span scaled by lambda](/images/eigenvalues-eigenvectors/01_stretch_vs_knocked_off_span.png)
+
+<Analogy>
+  Think of eigenvectors as the **grain of a piece of wood** or the **stretch seams of a sheet of fabric**: pull diagonally across the sheet, and most drawn arrows twist crooked, while arrows drawn straight along the main stretch directions simply lengthen or shorten along the exact same ruler line!
+</Analogy>
+
+---
+
+### 2. What Every Value of $\lambda$ Means Geometrically
+
+Once you find an eigenvector $\mathbf{v}$, the scalar eigenvalue $\lambda$ tells you everything that happens along that line:
+
+![Four geometric behaviors of lambda: stretch > 1, shrink between 0 and 1, negative flip, and zero collapse](/images/eigenvalues-eigenvectors/02_eigenvalue_behaviors.png)
+
+| Eigenvalue $\lambda$ | Geometric Effect Along $\mathbf{v}$ | Example Meaning |
+| :--- | :--- | :--- |
+| **$\lambda > 1$** | Arrow stretches longer in the same direction | High-variance data axis in PCA |
+| **$0 < \lambda < 1$** | Arrow shrinks shorter in the same direction | Low-variance / noise direction |
+| **$\lambda < 0$** | Arrow flips $180^\circ$ backwards and scales by $|\lambda|$ | Mirror reflection axis |
+| **$\lambda = 0$** | Entire direction collapses to $\mathbf{0}$ | Matrix is **singular** ($\det(\mathbf{A}) = 0$) |
+| **Complex ($a \pm bi$)** | No real line stays fixed; space swirls/rotates! | Pure $90^\circ$ rotation matrix |
+
+---
+
+### 3. Finding Eigenvalues & Eigenvectors Step by Step (2×2 Worked Example)
+
+How do we solve $\mathbf{A}\mathbf{v} = \lambda \mathbf{v}$ for a concrete matrix $\mathbf{A} = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}$?
+
+Rewrite the equation with the identity matrix $\mathbf{I}$ so both sides subtract vectors cleanly:
+
+$$
+(\mathbf{A} - \lambda \mathbf{I})\mathbf{v} = \mathbf{0}
+$$
+
+For a **non-zero** vector $\mathbf{v}$ to get crushed to $\mathbf{0}$, the matrix $(\mathbf{A} - \lambda \mathbf{I})$ must squash space flat—which means its determinant MUST equal zero:
+
+$$
+\det(\mathbf{A} - \lambda \mathbf{I}) = 0
+$$
+
+#### Step 1: Solve the Characteristic Equation for $\lambda$
+$$
+\begin{aligned}
+\det\begin{pmatrix} 2 - \lambda & 1 \\ 1 & 2 - \lambda \end{pmatrix} &= 0 \\
+(2 - \lambda)^2 - 1 &= 0 \\
+\lambda^2 - 4\lambda + 3 &= 0 \\
+(\lambda - 3)(\lambda - 1) &= 0 \\
+\implies \lambda_1 = 3, &\quad \lambda_2 = 1
+\end{aligned}
+$$
+
+*(Shortcut check for $2 \times 2$ matrices: $\lambda_1 + \lambda_2 = 4 = \text{tr}(\mathbf{A})$, and $\lambda_1 \cdot \lambda_2 = 3 = \det(\mathbf{A})$.)*
+
+#### Step 2: Plug Each $\lambda$ Back In to Find Its Eigenvector
+- **For $\lambda_1 = 3$**:
+  $$
+  \begin{aligned}
+  (\mathbf{A} - 3\mathbf{I})\mathbf{v} &= \begin{bmatrix} -1 & 1 \\ 1 & -1 \end{bmatrix}\begin{bmatrix} v_1 \\ v_2 \end{bmatrix} \\
+  &= \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies v_1 = v_2
+  \end{aligned}
+  $$
+  Any multiple of $\begin{bmatrix} 1 \\ 1 \end{bmatrix}$ works! Check:
+  $$
+  \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 3 \\ 3 \end{bmatrix} = 3\begin{bmatrix} 1 \\ 1 \end{bmatrix}
+  $$
+
+- **For $\lambda_2 = 1$**:
+  $$
+  \begin{aligned}
+  (\mathbf{A} - 1\mathbf{I})\mathbf{v} &= \begin{bmatrix} 1 & 1 \\ 1 & 1 \end{bmatrix}\begin{bmatrix} v_1 \\ v_2 \end{bmatrix} \\
+  &= \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies v_1 = -v_2
+  \end{aligned}
+  $$
+  Any multiple of $\begin{bmatrix} 1 \\ -1 \end{bmatrix}$ works! Notice $[1, 1]^T \cdot [1, -1]^T = 0$—they are **perpendicular**!
+
+---
+
+### 4. Eigenvalue Decomposition & Diagonalization
+
+Once you have a full set of $n$ linearly independent eigenvectors, pack them side-by-side into columns of matrix $\mathbf{Q}$ and place their matching eigenvalues along diagonal matrix $\boldsymbol{\Lambda}$:
+
+$$
+\begin{aligned}
+\mathbf{A} &= \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^{-1} \\
+\boldsymbol{\Lambda} &= \begin{bmatrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{bmatrix}
+\end{aligned}
+$$
+
+Factoring $\mathbf{A}$ this way is called **diagonalization**. It breaks any complicated matrix transform into three clean moves:
+1. **$\mathbf{Q}^{-1}$**: Switch coordinates into the special eigenvector directions.
+2. **$\boldsymbol{\Lambda}$**: Simply scale along each axis by $\lambda_i$ (zero cross-mixing!).
+3. **$\mathbf{Q}$**: Switch back to standard coordinates.
+
+#### Superpower: Instant Matrix Powers ($\mathbf{A}^k$)
+Need to simulate $100$ steps of a system ($\mathbf{A}^{100}\mathbf{x}$)? Inside the middle $\mathbf{Q}^{-1}\mathbf{Q} = \mathbf{I}$ cancels out, leaving scalar diagonal powers:
+
+$$
+\mathbf{A}^k = \mathbf{Q}\boldsymbol{\Lambda}^k\mathbf{Q}^{-1}
+$$
+
+Instead of multiplying matrices $100$ times, simply raise each diagonal eigenvalue to $\lambda_i^{100}$!
+
+---
+
+### 5. Symmetric Matrices & PCA: Machine Learning's Best Friend
+
+Notice $\mathbf{A} = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}$ was **symmetric** ($\mathbf{A} = \mathbf{A}^T$). Symmetric matrices satisfy the **Spectral Theorem**, giving two magical guarantees:
+1. All eigenvalues are **guaranteed to be real numbers** (no imaginary swirls!).
+2. Eigenvectors are **orthogonal**, so normalizing them gives an orthogonal matrix ($\mathbf{Q}^{-1} = \mathbf{Q}^T$) and clean **Orthogonal Diagonalization** $\mathbf{A} = \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^T$.
+
+Because a dataset's covariance matrix $\boldsymbol{\Sigma} = \frac{1}{n}\mathbf{X}^T\mathbf{X}$ is *always* symmetric, **Principal Component Analysis (PCA)** finds perpendicular axes ranked from largest eigenvalue ($\lambda_1$ = direction of widest data spread) to smallest ($\lambda_2$ = narrowest noise axis):
+
+![PCA eigenvectors aligned cleanly along the major and minor variance axes of a tilted 2D data cloud](/images/eigenvalues-eigenvectors/03_pca_eigen_intuition.png)
+
+</Section>
+
+<EigenFigure />
+
+<Section label="What to try">
+
+- **Drag the blue unit vector $\mathbf{v}$** around the dashed circle (or sweep the angle slider) while watching the purple output arrow $\mathbf{A}\mathbf{v}$.
+- Notice how $\mathbf{A}\mathbf{v}$ swings off the line of $\mathbf{v}$ almost everywhere—*until* $\mathbf{v}$ crosses the **emerald ($e_1$)** or **amber ($e_2$)** span lines, where it flashes green (`🎯 YES (Av = λv)`)!
+- Click **"🎯 Snap e₁"** and **"🎯 Snap e₂"** to lock straight onto the two perpendicular PCA axes of the covariance ellipse.
+- Click **"Flip Axis ($\lambda < 0$)"**: watch `e₂` flip backward onto the negative side of its own span line!
+- Click **"Rotation (Complex)"** and try dragging $\mathbf{v}$ a full $360^\circ$: $\mathbf{A}\mathbf{v}$ *always* trails $90^\circ$ ahead, proving no real eigenvector exists!
+- Click **"Singular (λ₂=0)"** and snap to `e₂` to see $\mathbf{A}\mathbf{v}$ collapse right down to the origin!
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="Eigenvalue Equation">
+  $\mathbf{A}\mathbf{v} = \lambda \mathbf{v} \quad (\mathbf{v} \neq \mathbf{0})$
+  <br />
+  $\det(\mathbf{A} - \lambda \mathbf{I}) = 0$
+</Formula>
+
+<Formula label="Trace, Determinant & Spectral Form">
+  $\sum_{i=1}^{n} \lambda_i = \text{tr}(\mathbf{A})$
+  <br />
+  $\prod_{i=1}^{n} \lambda_i = \det(\mathbf{A})$
+  <br />
+  $\mathbf{A} = \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^T \quad (\mathbf{A} = \mathbf{A}^T)$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'v, eᵢ',     meaning: 'Eigenvector: non-zero direction left invariant by A' },
+    { symbol: 'λᵢ',        meaning: 'Eigenvalue: scalar stretch/flip factor along eigenvector vᵢ' },
+    { symbol: 'det(A-λI)', meaning: 'Characteristic polynomial whose roots are the eigenvalues' },
+    { symbol: 'tr(A)',     meaning: 'Trace (sum of main diagonal entries) = sum of all eigenvalues' },
+    { symbol: 'QΛQᵀ',      meaning: 'Orthogonal diagonalization available for all symmetric matrices' },
+  ]}
+/>
+
+<Callout kind="warning">
+  **Zero Vector Exception**: Notice $\mathbf{A}\mathbf{0} = \lambda \mathbf{0}$ is trivially true for *every* number $\lambda$, which is why the zero vector $\mathbf{0}$ is **never allowed to be an eigenvector**—it carries zero directional information! However, the **eigenvalue $\lambda = 0$** *is* completely valid (and signals a singular matrix!).
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'eig-q1',
+      kind: 'mcq',
+      text: 'In plain geometric terms, what makes v an eigenvector of square matrix A?',
+      options: [
+        'Applying A keeps v along its exact original line (only scaling or flipping it: Av = λv)',
+        'Applying A rotates v by exactly 90°',
+        'Vector v must have length equal to 1 and only positive entries',
+        'Applying A sets every coordinate to zero always',
+      ],
+      correctIndex: 0,
+      explanation: 'Most vectors get knocked sideways off their line when transformed by A. Only eigenvectors stay strictly on their span line.',
+      figureHint: 'Sweep vector v around the circle in the Eigenfigure until Av flashes green along the dashed span line.',
+    },
+    {
+      id: 'eig-q2',
+      kind: 'mcq',
+      text: 'Given A = [[3, 0], [0, 0.5]] and v = [0, 4]ᵀ, is v an eigenvector of A and what is λ?',
+      options: [
+        'Yes, with eigenvalue λ = 0.5 (because Av = [0, 2]ᵀ = 0.5 · [0, 4]ᵀ)',
+        'Yes, with eigenvalue λ = 3',
+        'No, because v does not have length 1',
+        'No, because the top entry is zero',
+      ],
+      correctIndex: 0,
+      explanation: 'Multiplying [[3, 0], [0, 0.5]] by [0, 4]ᵀ produces [0, 2]ᵀ = 0.5 [0, 4]ᵀ. Any scaled multiple of an eigenvector remains an eigenvector with the same λ!',
+    },
+    {
+      id: 'eig-q3',
+      kind: 'mcq',
+      text: 'What happens to a vector pointing along an eigenvector when its eigenvalue is λ = -2?',
+      options: [
+        'It reverses 180° to point backward and doubles in length',
+        'It rotates 90° clockwise',
+        'It collapses to zero length',
+        'It shrinks to half its length in the same direction',
+      ],
+      correctIndex: 0,
+      explanation: 'Negative λ flips direction opposite (-180°) and scales length by |λ| = 2.',
+      figureHint: 'Click Flip Axis (λ<0) and Snap e₂ to watch Av shoot straight backward behind v.',
+    },
+    {
+      id: 'eig-q4',
+      kind: 'mcq',
+      text: 'If a square matrix A has an eigenvalue equal to λ = 0, what must be true about A?',
+      options: [
+        'det(A) = 0, meaning A is singular and has NO inverse',
+        'A must be the zero matrix with all entries equal to 0',
+        'A must have complex eigenvalues',
+        'A leaves every vector unchanged',
+      ],
+      correctIndex: 0,
+      explanation: 'Since det(A) equals the product of all eigenvalues, having even one λ = 0 forces det(A) = 0! That eigenvector lies in the null space crushed to 0.',
+      figureHint: 'Click Singular (λ₂=0) and click Snap e₂—watch Av vanish straight into the origin.',
+    },
+    {
+      id: 'eig-q5',
+      kind: 'mcq',
+      text: 'Why does the 90° rotation matrix R = [[0, -1], [1, 0]] have COMPLEX (non-real) eigenvalues?',
+      options: [
+        'Every non-zero vector in the 2D plane gets turned 90° off its own line, so no real line stays invariant',
+        'Because R has negative entries',
+        'Because det(R) = 0',
+        'Because R is not a square matrix',
+      ],
+      correctIndex: 0,
+      explanation: 'Solving λ² + 1 = 0 yields ±i. Visually, rotating an entire flat sheet by 90° leaves zero rays pointing along their old direction.',
+      figureHint: 'Click Rotation (Complex) and drag v all 360°—notice Av stays permanently perpendicular to v!',
+    },
+    {
+      id: 'eig-q6',
+      kind: 'mcq',
+      text: 'Why is the zero vector 0 = [0, 0]ᵀ NEVER considered an eigenvector?',
+      options: [
+        'Because A·0 = λ·0 holds trivially for any λ, giving no unique direction or eigenvalue',
+        'Because matrices cannot multiply the zero vector',
+        'Because zero has infinite Euclidean length',
+        'Because det(0) = 1',
+      ],
+      correctIndex: 0,
+      explanation: 'An eigenvector must specify an invariant directional line. Since 0 has no direction and satisfies A0 = λ0 for every scalar λ, it is excluded by definition.',
+    },
+    {
+      id: 'eig-q7',
+      kind: 'mcq',
+      text: 'Using the trace and determinant shortcuts, what are the sum and product of the eigenvalues of A = [[5, 2], [2, 3]]?',
+      options: [
+        'Sum = 8 and Product = 11',
+        'Sum = 11 and Product = 8',
+        'Sum = 4 and Product = 15',
+        'Sum = 8 and Product = 15',
+      ],
+      correctIndex: 0,
+      explanation: 'Sum of eigenvalues = trace(A) = 5 + 3 = 8. Product of eigenvalues = det(A) = 5(3) - 2(2) = 15 - 4 = 11.',
+    },
+    {
+      id: 'eig-q8',
+      kind: 'mcq',
+      text: 'What two major guarantees hold for EVERY real symmetric matrix (A = Aᵀ), such as an ML covariance matrix?',
+      options: [
+        'All eigenvalues are real, and eigenvectors from distinct eigenvalues are strictly orthogonal (90°)',
+        'All eigenvalues equal +1, and the determinant is always negative',
+        'All entries on the diagonal are zero',
+        'The matrix is never invertible',
+      ],
+      correctIndex: 0,
+      explanation: 'By the Spectral Theorem, real symmetric matrices never produce complex rotations and always yield perpendicular principal axes.',
+    },
+    {
+      id: 'eig-q9',
+      kind: 'mcq',
+      text: 'In Principal Component Analysis (PCA), what do the eigenvectors and eigenvalues of the covariance matrix represent?',
+      options: [
+        'Eigenvectors give the perpendicular principal feature axes; eigenvalues measure how much data variance lies along each axis',
+        'Eigenvectors give the raw data labels; eigenvalues give the learning rate',
+        'Eigenvectors represent outliers; eigenvalues represent missing values',
+        'PCA sets all eigenvalues to zero to remove variance',
+      ],
+      correctIndex: 0,
+      explanation: 'Sorting covariance eigenvectors by descending eigenvalue puts the direction of maximum dataset spread (PC1) first!',
+    },
+    {
+      id: 'eig-q10',
+      kind: 'mcq',
+      text: 'If Av = 4v, what is A³v (applying matrix A three times to v)?',
+      options: ['64 v (since 4³ = 64)', '12 v (since 4 × 3 = 12)', '4 v', '7 v'],
+      correctIndex: 0,
+      explanation: 'A²v = A(Av) = A(4v) = 4(Av) = 4²v. Continuing once more gives A³v = 4³v = 64v!',
+    },
+    {
+      id: 'eig-q11',
+      kind: 'mcq',
+      text: 'For A = [[2, 1], [1, 2]], we found eigenvectors v₁ = [1, 1]ᵀ (λ₁ = 3) and v₂ = [1, -1]ᵀ (λ₂ = 1). Check A([1, 1]ᵀ):',
+      options: [
+        '[3, 3]ᵀ = 3 · [1, 1]ᵀ',
+        '[2, 2]ᵀ = 2 · [1, 1]ᵀ',
+        '[1, -1]ᵀ = -1 · [1, 1]ᵀ',
+        '[3, 1]ᵀ',
+      ],
+      correctIndex: 0,
+      explanation: 'Row 1: 2(1) + 1(1) = 3. Row 2: 1(1) + 2(1) = 3. So A([1, 1]ᵀ) = 3 · [1, 1]ᵀ, confirming λ₁ = 3.',
+    },
+    {
+      id: 'eig-q12',
+      kind: 'mcq',
+      text: 'If an invertible matrix A has an eigenvalue λ = 5 for eigenvector v, what is the eigenvalue of A⁻¹ for that same eigenvector v?',
+      options: ['1/5 = 0.2', '-5', '25', '0'],
+      correctIndex: 0,
+      explanation: 'If A stretches v by 5×, then the undo matrix A⁻¹ must shrink v by 1/5×: A⁻¹(Av) = v = A⁻¹(5v) => A⁻¹v = (1/5)v.',
+    },
+    {
+      id: 'eig-q13',
+      kind: 'mcq',
+      text: 'Why do we set det(A - λI) = 0 to solve for eigenvalues?',
+      options: [
+        'Because (A - λI)v = 0 only has non-zero solutions v ≠ 0 when (A - λI) collapses space (singular, det = 0)',
+        'Because all matrices have determinant zero',
+        'Because det(A) always equals λ',
+        'To ensure all eigenvectors have length zero',
+      ],
+      correctIndex: 0,
+      explanation: 'If (A - λI) were invertible, multiplying both sides by (A - λI)⁻¹ would force v = 0, violating v ≠ 0.',
+    },
+    {
+      id: 'eig-q14',
+      kind: 'mcq',
+      text: 'During Ridge Regression regularization, adding +λ_ridge I shifts all eigenvalues d_i of XᵀX to (d_i + λ_ridge). Why does this fix invertibility?',
+      options: [
+        'Even if a collinear feature makes d_i = 0, adding λ_ridge > 0 pushes every eigenvalue strictly above 0',
+        'It turns all eigenvectors into zero vectors',
+        'It makes XᵀX non-symmetric',
+        'It forces the determinant to equal zero',
+      ],
+      correctIndex: 0,
+      explanation: 'Since det(M) is the product of its eigenvalues, keeping every eigenvalue strictly positive guarantees det(XᵀX + λI) > 0!',
+    },
+    {
+      id: 'eig-q15',
+      kind: 'mcq',
+      text: 'Can you compute ordinary eigenvalues and eigenvectors for a rectangular 100 × 5 dataset matrix X directly?',
+      options: [
+        'No — standard eigendecomposition Av = λv only applies to square matrices; rectangular matrices require SVD or XᵀX',
+        'Yes, every rectangular matrix has exact square eigenvectors',
+        'Yes, simply drop 95 rows first',
+        'Only if all entries are integers',
+      ],
+      correctIndex: 0,
+      explanation: 'For Av and λv to live in the same dimension so they can be equal, A MUST be square (n × n). Next lesson, SVD generalizes this idea to ANY m × n matrix!',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Eigenvalues and Eigenvectors"
+  oneLiner="An eigenvector is a special direction that stays straight on its own line under matrix transformation A, while its eigenvalue λ is how much it stretches or flips."
+  takeaways={[
+    'Core equation: Av = λv (v ≠ 0), found via det(A - λI) = 0.',
+    'Sign & size of λ tell the story: λ > 1 stretches, 0 < λ < 1 shrinks, λ < 0 flips backward, λ = 0 means singular (det = 0).',
+    'Symmetric matrices (like ML covariance matrices XᵀX) always have real eigenvalues and mutually orthogonal eigenvectors.',
+    'Standard eigendecomposition only works on square matrices; PCA uses symmetric covariance eigenvectors to find maximum-variance axes.',
+  ]}
+  commonTrap="Confusing λ = 0 (completely valid eigenvalue indicating space collapse!) with v = 0 (the zero vector, which is NEVER an eigenvector)."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="eigenvalues-eigenvectors"
+  topicTitle="Eigenvalues and Eigenvectors"
+  referenceChecklist={[
+    'Explained Av = λv intuitively as directions that stay on their own span line when transformed.',
+    'Described what positive, negative, zero, and complex eigenvalues look like geometrically.',
+    'Highlighted why symmetric matrices always produce real eigenvalues and perpendicular eigenvectors.',
+    'Connected eigenvectors to finding principal variance directions in PCA.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/math-foundations/linear-algebra/eigenvalues-eigenvectors"
+  items={[
+    {
+      title: "GitHub Resource Folder & Study Notes",
+      type: "github",
+      description: "Characteristic polynomial walkthroughs, 2x2 proofs, and NumPy PCA scripts in mltheta/resources.",
+      url: "https://github.com/mltheta/resources/tree/main/math-foundations/linear-algebra/eigenvalues-eigenvectors"
+    },
+    {
+      title: "Essence of Linear Algebra: Eigenvectors and Eigenvalues",
+      type: "video",
+      description: "3Blue1Brown classic animation visualizing invariant spans, rotations, and eigenbases.",
+      url: "https://www.youtube.com/watch?v=PFDu9oVAE-g"
+    },
+    {
+      title: "StatQuest: Principal Component Analysis (PCA) Step-by-Step",
+      type: "video",
+      description: "Beginner-friendly walkthrough of how covariance eigenvectors reduce data dimensions.",
+      url: "https://www.youtube.com/watch?v=FgakZw6K1QQ"
+    },
+    {
+      title: "Mathematics for Machine Learning — Chapter 4.2: Eigenvalues",
+      type: "book",
+      description: "Textbook chapter covering spectral theorem, diagonalization, and positive definiteness.",
+      url: "https://mml-book.github.io/"
+    }
+  ]}
+/>
+
+</Section>

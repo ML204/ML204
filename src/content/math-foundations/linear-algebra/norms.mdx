@@ -1,0 +1,479 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { NormsFigure } from '@/components/figures/NormsFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Norms — L1 and L2',
+  description: 'Measuring vector length and distance in different geometries: Manhattan L1, Euclidean L2, Max L∞, unit balls, and Lasso vs Ridge sparsity.',
+};
+
+<Section label="What is it?">
+
+A **vector norm** is a mathematical ruler that assigns a single non-negative number to any vector to measure its **size (length)** or the **distance** between two data points.
+
+Because there is more than one way to walk from corner A to corner B—along city streets versus flying straight across rooftops—machine learning uses several different norms, especially the **$L_1$ (Manhattan)** norm and the **$L_2$ (Euclidean)** norm.
+
+</Section>
+
+<Section label="Why we need it">
+
+Choosing *how* you measure distance or parameter size completely changes how a machine learning model behaves:
+
+- **Measuring Prediction Error (Loss Functions)**: Mean Absolute Error (MAE) relies on the $L_1$ norm and resists extreme outliers, while Mean Squared Error (MSE) uses the squared $L_2$ norm and penalizes huge mistakes heavily.
+- **Regularization & Model Simplicity**: Adding an $L_1$ penalty (**Lasso**) drives useless feature weights all the way to **exact zero** (automatic feature selection), while an $L_2$ penalty (**Ridge**) shrinks weights smoothly toward zero without discarding features.
+- **Nearest Neighbors & Search ($k$-NN, Clustering)**: K-Means and $k$-Nearest Neighbors depend directly on distance metrics ($\|\mathbf{x}_a - \mathbf{x}_b\|_2$ or $\|\mathbf{x}_a - \mathbf{x}_b\|_1$) to decide which customers or images look alike.
+- **Gradient Clipping in Deep Learning**: Prevents exploding gradients in neural networks by rescaling weight updates whenever $\|\nabla \mathcal{L}\|_2$ grows beyond a safe threshold.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The City Grid vs The Helicopter: $L_1$ and $L_2$ Intuition
+
+Suppose you stand at the origin $(0, 0)$ and need to travel to $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$—three blocks East and four blocks North.
+
+![Comparing L1 city block walk against L2 straight helicopter line for vector [3, 4]](/images/norms/01_city_blocks_vs_crow.png)
+
+1. **$L_1$ Norm (Manhattan / Taxicab Distance)**: You must stick to perpendicular streets. Total blocks driven = sum of absolute steps:
+   $$
+   \|\mathbf{v}\|_1 = |3| + |4| = 7
+   $$
+2. **$L_2$ Norm (Euclidean Distance)**: You fly diagonally "as the crow flies" using the Pythagorean theorem:
+   $$
+   \begin{aligned}
+   \|\mathbf{v}\|_2 &= \sqrt{3^2 + 4^2} \\
+   &= \sqrt{25} = 5
+   \end{aligned}
+   $$
+3. **$L_\infty$ Norm (Max / Chebyshev Distance)**: Only the single largest coordinate matters:
+   $$
+   \|\mathbf{v}\|_\infty = \max(|3|, |4|) = 4
+   $$
+
+<Analogy>
+  If a warehouse robot can only roll along North–South and East–West aisles, travel time equals the **$L_1$ distance**. If an aerial drone flies straight over the shelves, travel distance equals the **$L_2$ distance**. If two motors run simultaneously—one moving $x$ and one moving $y$—the total time until arrival equals the slower axis: the **$L_\infty$ distance**!
+</Analogy>
+
+Notice an important inequality that *always* holds for every vector $\mathbf{v}$:
+
+$$
+\|\mathbf{v}\|_\infty \le \|\mathbf{v}\|_2 \le \|\mathbf{v}\|_1
+$$
+
+In our worked example: $4 \le 5 \le 7$. The three norms only become equal when all coordinates except one are zero (e.g. $[5, 0]^T$).
+
+---
+
+### 2. The General $L_p$ Norm & Distance Between Points
+
+All of these belong to one unified family called **$L_p$ norms** (for $p \ge 1$):
+
+$$
+\|\mathbf{x}\|_p = \left( \sum_{i=1}^{n} |x_i|^p \right)^{1/p}
+$$
+
+- Set $p = 1 \implies \|\mathbf{x}\|_1 = \sum |x_i|$
+- Set $p = 2 \implies \|\mathbf{x}\|_2 = \sqrt{\sum x_i^2}$
+- Let $p \to \infty \implies \|\mathbf{x}\|_\infty = \max_i |x_i|$
+
+#### Turning a Norm Into a Distance Metric
+To measure distance between two vectors $\mathbf{a}$ and $\mathbf{b}$, simply subtract them first and take the norm of the difference:
+
+$$
+\text{dist}_p(\mathbf{a}, \mathbf{b}) = \|\mathbf{a} - \mathbf{b}\|_p
+$$
+
+Worked example with $\mathbf{a} = [1, 5]^T$ and $\mathbf{b} = [4, 1]^T$:
+
+$$
+\begin{aligned}
+\mathbf{a} - \mathbf{b} &= \begin{bmatrix} 1 - 4 \\ 5 - 1 \end{bmatrix} = \begin{bmatrix} -3 \\ 4 \end{bmatrix} \\
+\|\mathbf{a} - \mathbf{b}\|_1 &= |-3| + |4| = 7 \\
+\|\mathbf{a} - \mathbf{b}\|_2 &= \sqrt{(-3)^2 + 4^2} = 5
+\end{aligned}
+$$
+
+---
+
+### 3. Unit Balls: Why Shape Matters So Much in ML
+
+What does the set of all points with norm $\le 1$ look like? Those shapes—called **unit balls**—explain one of the most famous results in all of Machine Learning!
+
+![L1 diamond, L2 circle, and L-infinity square unit balls compared side by side](/images/norms/02_unit_balls_comparison.png)
+
+- **$L_1$ Unit Ball**: A **diamond** with sharp corners poking out along the coordinate axes!
+- **$L_2$ Unit Ball**: A perfectly smooth **circle** (sphere in higher dimensions) with zero corners.
+- **$L_\infty$ Unit Ball**: A **square** aligned with the coordinate grid.
+
+#### Why $L_1$ Creates Sparse Models (Lasso) While $L_2$ Keeps Everything Smooth (Ridge)
+
+Suppose your training loss contours (dashed ellipses) expand outward until they first touch your budget constraint shape:
+
+![Geometric comparison showing L1 diamond corner intersecting axis at zero weight while L2 circle touches smoothly off-axis](/images/norms/03_l1_sparsity_vs_l2_ridge.png)
+
+Because the $L_1$ diamond has **pointy corners sitting directly on the axes** ($w_2 = 0$ or $w_1 = 0$), an expanding loss ellipse almost always collides with a corner first—snapping unimportant feature weights cleanly to **exact zero**! Meanwhile, a smooth $L_2$ circle touches the ellipse along its curved rim, shrinking both weights gently while keeping both non-zero.
+
+---
+
+### 4. Frobenius Norm ($\|\mathbf{A}\|_F$): Measuring Whole Matrices
+
+What if you want to measure the total "size" of an entire **matrix** instead of a single vector (for instance, checking reconstruction error $\|\mathbf{A} - \mathbf{A}_k\|_F$ in SVD compression)?
+
+The **Frobenius norm** simply flattens the matrix into one long vector, squares every cell, adds them all together, and takes the square root:
+
+$$
+\begin{aligned}
+\|\mathbf{A}\|_F &= \sqrt{\sum_{i=1}^{m}\sum_{j=1}^{n} A_{ij}^2} \\
+&= \sqrt{\text{tr}(\mathbf{A}^T\mathbf{A})}
+\end{aligned}
+$$
+
+Worked example for $\mathbf{A} = \begin{bmatrix} 1 & 2 \\ 2 & 4 \end{bmatrix}$:
+
+$$
+\begin{aligned}
+\|\mathbf{A}\|_F &= \sqrt{1^2 + 2^2 + 2^2 + 4^2} \\
+&= \sqrt{1 + 4 + 4 + 16} = \sqrt{25} = 5
+\end{aligned}
+$$
+
+---
+
+### 5. Unit Vectors & Normalization
+
+Dividing any non-zero vector $\mathbf{v}$ by its own $L_2$ norm creates a **unit vector** ($\hat{\mathbf{v}}$) pointing in the *exact same direction* with length equal to $1$:
+
+$$
+\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|_2}, \qquad \|\hat{\mathbf{v}}\|_2 = 1
+$$
+
+Worked example with $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$ ($\|\mathbf{v}\|_2 = 5$):
+
+$$
+\hat{\mathbf{v}} = \frac{1}{5}\begin{bmatrix} 3 \\ 4 \end{bmatrix} = \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix}
+$$
+
+ML pipelines use normalization constantly before computing cosine similarity or stabilizing neural network layers!
+
+---
+
+### 6. What Makes a Function a Valid Norm? (3 Rules)
+
+Mathematicians call $\|\cdot\|$ a valid norm only if it satisfies three sanity checks:
+1. **Non-negativity**: $\|\mathbf{v}\| \ge 0$, and $\|\mathbf{v}\| = 0$ *only* when $\mathbf{v} = \mathbf{0}$.
+2. **Homogeneity (Scaling)**: $\|c\mathbf{v}\| = |c| \, \|\mathbf{v}\|$ (doubling a vector doubles its length).
+3. **Triangle Inequality**: $\|\mathbf{u} + \mathbf{v}\| \le \|\mathbf{u}\| + \|\mathbf{v}\|$ (taking a detour through two arrows can never be shorter than going straight).
+
+</Section>
+
+<NormsFigure />
+
+<Section label="What to try">
+
+- **Drag the blue dot ($\mathbf{v}$)** around the grid and compare the **orange $L_1$ taxi path** against the **blue $L_2$ straight arrow**.
+- Click the **"Axis-Aligned (L₁=L₂=L∞)"** preset: notice all three live norms become identical (`3.50`) because you only travel along one axis!
+- Click **"Diagonal (2.5, 2.5)"**: see how $L_1 = 5.00$ jumps way above $L_2 \approx 3.54$ and $L_\infty = 2.50$.
+- Toggle **"L₁ Diamond"**, **"L₂ Circle"**, and **"L∞ Square"** together to see why they nest tightly inside one another through the exact same point $\mathbf{v}$.
+- Slide the **Custom $L_p$ Shape ($p$)** from $1.0$ up to $8.0$ (or lock $p = \infty$): watch the diamond morph smoothly into a circle at $p = 2$, and then puff outward into a rounded square!
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="L1, L2, and Max Norms">
+  $\|\mathbf{x}\|_1 = \sum_{i=1}^{n} |x_i|$
+  <br />
+  $\|\mathbf{x}\|_2 = \sqrt{\sum_{i=1}^{n} x_i^2}$
+  <br />
+  $\|\mathbf{x}\|_\infty = \max_{1 \le i \le n} |x_i|$
+</Formula>
+
+<Formula label="General Lp Norm & Frobenius Norm">
+  $\|\mathbf{x}\|_p = \left(\sum_{i=1}^{n} |x_i|^p\right)^{1/p}$
+  <br />
+  $\|\mathbf{A}\|_F = \sqrt{\sum_{i,j} A_{ij}^2}$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: '‖v‖₁',    meaning: 'L1 (Manhattan) norm: sum of absolute entries' },
+    { symbol: '‖v‖₂',    meaning: 'L2 (Euclidean) norm: square root of sum of squares' },
+    { symbol: '‖v‖∞',    meaning: 'L-infinity (Max) norm: largest absolute entry' },
+    { symbol: '‖A‖_F',   meaning: 'Frobenius norm: Euclidean root sum of all squared matrix entries' },
+    { symbol: 'v̂ = v/‖v‖', meaning: 'Normalized unit vector pointing along v with length 1' },
+  ]}
+/>
+
+<Callout kind="warning">
+  **Common Confusion: $L_0$ "Norm"**: You will often hear ML papers talk about the "$L_0$ norm" as a count of non-zero entries. Technically it is *not* a true mathematical norm because scaling $[1, 0]$ by $5$ keeps $1$ non-zero entry (violating homogeneity $\|c\mathbf{v}\| = |c|\|\mathbf{v}\|$). That's why we use the **$L_1$ norm** as the closest convex proxy for counting non-zero weights!
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'norm-q1',
+      kind: 'mcq',
+      text: 'Given v = [3, -4]ᵀ, what is its L₁ (Manhattan) norm ‖v‖₁?',
+      options: ['7', '5', '1', '-1'],
+      correctIndex: 0,
+      explanation: 'The L₁ norm sums absolute values of all components: |3| + |-4| = 3 + 4 = 7. Never forget the absolute value on negative numbers!',
+      figureHint: 'Drag v to (3, -4) in the figure and inspect ‖v‖₁ and ‖v‖₂ in the live panel.',
+    },
+    {
+      id: 'norm-q2',
+      kind: 'mcq',
+      text: 'For the same vector v = [3, -4]ᵀ, what are its L₂ and L∞ norms?',
+      options: [
+        '‖v‖₂ = 5 and ‖v‖∞ = 4',
+        '‖v‖₂ = 25 and ‖v‖∞ = 3',
+        '‖v‖₂ = 7 and ‖v‖∞ = 4',
+        '‖v‖₂ = 5 and ‖v‖∞ = 7',
+      ],
+      correctIndex: 0,
+      explanation: 'L₂ = √(3² + (-4)²) = √25 = 5, while L∞ = max(|3|, |-4|) = 4.',
+    },
+    {
+      id: 'norm-q3',
+      kind: 'mcq',
+      text: 'Which inequality ALWAYS holds for every vector v in ℝⁿ?',
+      options: [
+        '‖v‖∞ ≤ ‖v‖₂ ≤ ‖v‖₁',
+        '‖v‖₁ ≤ ‖v‖₂ ≤ ‖v‖∞',
+        '‖v‖₂ ≤ ‖v‖∞ ≤ ‖v‖₁',
+        '‖v‖₁ = ‖v‖₂ = ‖v‖∞ always',
+      ],
+      correctIndex: 0,
+      explanation: 'Walking strictly along streets (L₁) is always at least as long as flying straight (L₂), which is always at least as large as the single largest coordinate step (L∞).',
+    },
+    {
+      id: 'norm-q4',
+      kind: 'mcq',
+      text: 'When do ‖v‖₁, ‖v‖₂, and ‖v‖∞ all return the EXACT same number for a non-zero vector v?',
+      options: [
+        'When only a single entry of v is non-zero (aligned with one coordinate axis)',
+        'When all entries of v are equal',
+        'When the entries sum to zero',
+        'Never; they are always strictly different',
+      ],
+      correctIndex: 0,
+      explanation: 'If v = [c, 0, ..., 0]ᵀ, then |c| + 0 = √(c²) = max(|c|, 0) = |c|.',
+      figureHint: 'Click the Axis-Aligned preset and check that ‖v‖₁, ‖v‖₂, and ‖v‖∞ all equal 3.50.',
+    },
+    {
+      id: 'norm-q5',
+      kind: 'mcq',
+      text: 'What shape does the 2D L₁ unit ball {x : ‖x‖₁ ≤ 1} form?',
+      options: [
+        'A rotated square / diamond with pointy corners on the coordinate axes',
+        'A smooth circle of radius 1',
+        'An axis-aligned square with corners at (±1, ±1)',
+        'A parabola opening upward',
+      ],
+      correctIndex: 0,
+      explanation: '|x₁| + |x₂| ≤ 1 connects vertices (1,0), (0,1), (-1,0), and (0,-1) with straight diagonal edges—a diamond!',
+      figureHint: 'Toggle L₁ Diamond on and observe its four corners sitting strictly on the x₁ and x₂ axes.',
+    },
+    {
+      id: 'norm-q6',
+      kind: 'mcq',
+      text: 'Why does L₁ regularization (Lasso) zero out irrelevant weights whereas L₂ regularization (Ridge) usually leaves them small but non-zero?',
+      options: [
+        'The L₁ diamond has sharp corners along the coordinate axes where loss contours tend to intersect first',
+        'L₂ regularization forbids weights from getting smaller than 1',
+        'L₁ regularization only works on negative numbers',
+        'Ridge uses the L∞ norm instead of L₂',
+      ],
+      correctIndex: 0,
+      explanation: 'At any axis corner of the L₁ diamond, one or more weight coordinates equal exact zero, enabling automatic feature selection.',
+    },
+    {
+      id: 'norm-q7',
+      kind: 'mcq',
+      text: 'What happens to a vector norm if you multiply vector v by c = -3?',
+      options: [
+        'The norm multiplies by |-3| = 3 (always remains positive)',
+        'The norm multiplies by -3 and becomes negative',
+        'The norm multiplies by 9',
+        'The norm stays unchanged',
+      ],
+      correctIndex: 0,
+      explanation: 'By homogeneity of norms, ‖c v‖ = |c| ‖v‖. Norms measure length and are never negative!',
+    },
+    {
+      id: 'norm-q8',
+      kind: 'mcq',
+      text: 'Which norm should you check if you want to measure Euclidean distance between two feature vectors a = [2, 1]ᵀ and b = [5, 5]ᵀ?',
+      options: ['‖a - b‖₂ = 5', '‖a + b‖₂ = √85', '‖a - b‖₁ = 5', '‖a - b‖∞ = 7'],
+      correctIndex: 0,
+      explanation: 'a - b = [-3, -4]ᵀ, whose L₂ norm is √((-3)² + (-4)²) = 5.',
+    },
+    {
+      id: 'norm-q9',
+      kind: 'mcq',
+      text: 'What is the unit vector v̂ obtained by normalizing v = [6, 8]ᵀ with its L₂ norm?',
+      options: [
+        '[0.6, 0.8]ᵀ',
+        '[0.3, 0.4]ᵀ',
+        '[0.43, 0.57]ᵀ',
+        '[1.0, 1.0]ᵀ',
+      ],
+      correctIndex: 0,
+      explanation: '‖v‖₂ = √(6² + 8²) = √100 = 10. Dividing by 10 gives [6/10, 8/10]ᵀ = [0.6, 0.8]ᵀ, which has length √(0.36 + 0.64) = 1.',
+    },
+    {
+      id: 'norm-q10',
+      kind: 'mcq',
+      text: 'Why does the Triangle Inequality ‖u + v‖ ≤ ‖u‖ + ‖v‖ make intuitive geometric sense?',
+      options: [
+        'Walking straight from start to finish (u + v) is never longer than walking u and then taking a detour along v',
+        'Every vector forms a 90° right triangle',
+        'Lengths always decrease when you add vectors',
+        'Only L₂ obeys this rule while L₁ violates it',
+      ],
+      correctIndex: 0,
+      explanation: 'The straight shortcut side of any triangle cannot exceed the sum of the other two sides (equality holds only when u and v point in the exact same direction).',
+    },
+    {
+      id: 'norm-q11',
+      kind: 'mcq',
+      text: 'Which loss metric is more robust (less pulled off course) by a few corrupted outlier labels, and why?',
+      options: [
+        'MAE (L₁ error), because errors grow linearly rather than quadratically',
+        'MSE (L₂² error), because squaring ignores outliers',
+        'L∞ error, because it averages all errors equally',
+        'Both L₁ and L₂ treat outliers identically',
+      ],
+      correctIndex: 0,
+      explanation: 'An outlier with error 10 contributes 10 to L₁ loss vs 10² = 100 to L₂² loss! Thus squared L₂ error focuses aggressively on huge outliers.',
+    },
+    {
+      id: 'norm-q12',
+      kind: 'mcq',
+      text: 'As p increases from 1 → 2 → 8 → ∞, how does the 2D L_p ball contour evolve visually?',
+      options: [
+        'It expands smoothly from a diamond (p=1) to a circle (p=2) to a square (p=∞)',
+        'It shrinks from a square to a triangle to a point',
+        'It rotates 45° at every integer p',
+        'It collapses into a straight horizontal line',
+      ],
+      correctIndex: 0,
+      explanation: 'Watching the custom L_p contour shows p=1 forms a rotated diamond, p=2 forms a circle, and large p flattens sides outward into an axis-aligned square.',
+      figureHint: 'Drag the Custom Lₚ Shape slider smoothly from p=1.0 to p=8.0 and click Lock p=∞.',
+    },
+    {
+      id: 'norm-q13',
+      kind: 'mcq',
+      text: 'Why is the "L₀ norm" (counting non-zero elements) NOT mathematically a true norm?',
+      options: [
+        'Multiplying a non-zero vector by 5 leaves the non-zero count unchanged, violating ‖cv‖ = |c|‖v‖',
+        'It can return negative numbers',
+        'It only works for 2D vectors',
+        'It violates non-negativity',
+      ],
+      correctIndex: 0,
+      explanation: 'A true norm must scale linearly with |c|, whereas counting non-zero entries stays constant for any c ≠ 0.',
+    },
+    {
+      id: 'norm-q14',
+      kind: 'mcq',
+      text: 'Why is L₂ regularization often computed using ‖w‖₂² (without the square root) in optimization objectives?',
+      options: [
+        'Removing the square root keeps the penalty smooth and easily differentiable at w = 0',
+        'Square roots change the sign of gradients',
+        '‖w‖₂² produces sparse zero weights unlike ‖w‖₂',
+        'Computers cannot differentiate polynomials',
+      ],
+      correctIndex: 0,
+      explanation: 'The gradient of ∑ wⱼ² is simply 2w—completely smooth everywhere—whereas √(∑ wⱼ²) is not differentiable at the origin 0.',
+    },
+    {
+      id: 'norm-q15',
+      kind: 'mcq',
+      text: 'In `gradient clipping` during neural network training, what does clipping a gradient vector g when ‖g‖₂ > M do?',
+      options: [
+        'Scales g down to (M / ‖g‖₂) · g so its length becomes M while preserving its exact direction',
+        'Sets every gradient coordinate to 0',
+        'Flips the gradient direction 180°',
+        'Replaces ‖g‖₂ with ‖g‖₁',
+      ],
+      correctIndex: 0,
+      explanation: 'Scaling g by M / ‖g‖₂ caps the step length at M without distorting the descent direction!',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Norms — L1 and L2"
+  oneLiner="A vector norm is a ruler for size: L1 counts city-block steps (creating sparse models), while L2 measures the straight Euclidean line (creating smooth shrinkage)."
+  takeaways={[
+    'L1 norm ‖v‖₁ = Σ |vᵢ| (Manhattan walk); L2 norm ‖v‖₂ = √(Σ vᵢ²) (Pythagorean straight line); L∞ norm = max |vᵢ|.',
+    'Distance between data points a and b is simply the norm of their difference: ‖a - b‖ₚ.',
+    'The L1 unit ball has sharp diamond corners along the axes, which is why L1 penalties set useless ML weights to exact zero.',
+    'Dividing any non-zero vector by its L2 norm normalizes it to unit length 1 while preserving direction.',
+  ]}
+  commonTrap="Forgetting the absolute values inside the L1 norm (e.g. writing 3 + (-4) = -1 instead of |3| + |-4| = 7), or thinking norms can ever be negative."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="norms"
+  topicTitle="Norms — L1 and L2"
+  referenceChecklist={[
+    'Contrasted Manhattan L1 distance (sum of absolute components) with Euclidean L2 distance (straight-line hypotenuse).',
+    'Described the unit ball shapes: L1 diamond vs L2 circle vs L-infinity square.',
+    'Explained geometrically why L1 penalties drive weights to exact zero (sparsity) while L2 spreads shrinkage smoothly.',
+    'Stated how norms measure distance between vectors via ‖a - b‖.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/math-foundations/linear-algebra/norms"
+  items={[
+    {
+      title: "GitHub Resource Folder & Study Notes",
+      type: "github",
+      description: "Practice exercises, unit ball comparisons, and regularization code snippets in mltheta/resources.",
+      url: "https://github.com/mltheta/resources/tree/main/math-foundations/linear-algebra/norms"
+    },
+    {
+      title: "Mathematics for Machine Learning — Chapter 3.1: Norms",
+      type: "book",
+      description: "Formal yet accessible treatment of vector norms, inner products, and metric spaces.",
+      url: "https://mml-book.github.io/"
+    },
+    {
+      title: "NumPy Linear Algebra Norm Reference (numpy.linalg.norm)",
+      type: "code",
+      description: "Official documentation showing how to compute L1, L2, Frobenius, and L∞ norms via the `ord` argument.",
+      url: "https://numpy.org/doc/stable/reference/generated/numpy.linalg.norm.html"
+    }
+  ]}
+/>
+
+</Section>

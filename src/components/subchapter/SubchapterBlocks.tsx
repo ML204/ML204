@@ -75,7 +75,7 @@ export function Formula({ children, label }: { children: React.ReactNode; label?
           {label}
         </div>
       )}
-      <div className="px-6 py-4 text-center text-lg">{children}</div>
+      <div className="px-3 sm:px-6 py-3.5 sm:py-4 text-center text-base sm:text-lg leading-relaxed">{children}</div>
     </div>
   );
 }

@@ -64,6 +64,16 @@ export const contentRegistry: Record<string, Loader> = {
   // Part 1: Math Foundations
   'math-foundations/linear-algebra/vectors-and-matrices': () =>
     import('@/content/math-foundations/linear-algebra/vectors-and-matrices.mdx'),
+  'math-foundations/linear-algebra/dot-product-matrix-multiply': () =>
+    import('@/content/math-foundations/linear-algebra/dot-product-matrix-multiply.mdx'),
+  'math-foundations/linear-algebra/transpose-inverse-determinant': () =>
+    import('@/content/math-foundations/linear-algebra/transpose-inverse-determinant.mdx'),
+  'math-foundations/linear-algebra/norms': () =>
+    import('@/content/math-foundations/linear-algebra/norms.mdx'),
+  'math-foundations/linear-algebra/eigenvalues-eigenvectors': () =>
+    import('@/content/math-foundations/linear-algebra/eigenvalues-eigenvectors.mdx'),
+  'math-foundations/linear-algebra/svd': () =>
+    import('@/content/math-foundations/linear-algebra/svd.mdx'),
   'math-foundations/calculus/what-is-optimization': () =>
     import('@/content/math-foundations/calculus/what-is-optimization.mdx'),
   'math-foundations/calculus/loss-functions': () =>

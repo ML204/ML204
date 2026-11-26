@@ -1,0 +1,469 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { DeterminantInverseFigure } from '@/components/figures/DeterminantInverseFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Transpose, Inverse and Determinant',
+  description: 'Flipping rows and columns with Transpose, measuring signed area scaling via Determinant, and undoing matrix transformations with the Inverse.',
+};
+
+<Section label="What is it?">
+
+These three operations tell us how to **reorient**, **measure**, and **reverse** matrices:
+
+- **Transpose ($\mathbf{A}^T$)**: Mirrors a matrix over its main diagonal, swapping its rows and columns.
+- **Determinant ($\det(\mathbf{A})$)**: A single number telling you how much a square matrix stretches (or shrinks) **area/volume**, and whether it flips space inside-out like a mirror.
+- **Inverse ($\mathbf{A}^{-1}$)**: The mathematical **"Undo button"** that reverses whatever transformation $\mathbf{A}$ just performed—existing **if and only if** $\det(\mathbf{A}) \neq 0$.
+
+</Section>
+
+<Section label="Why we need it">
+
+Understanding transpose, determinant, and invertibility stops countless silent bugs and crashes in ML algorithms:
+
+- **Normal Equation & Covariance Matrices**: Forming $\mathbf{X}^T\mathbf{X}$ pairs every pair of dataset columns using the **transpose** to measure feature correlations cleanly.
+- **Multicollinearity Detection**: If two columns carry duplicate information (e.g., weight in kg and weight in lbs), $\det(\mathbf{X}^T\mathbf{X}) \approx 0$—the matrix is **singular** and OLS Regression explodes! Ridge Regression specifically adds $\lambda \mathbf{I}$ to pull the determinant safely away from zero.
+- **Change-of-Variables in Generative AI (Normalizing Flows)**: Computing probability densities after warping data through neural layers requires multiplying by the Jacobian $|\det(\mathbf{J})|$ to account for volume stretching.
+- **Numerical Stability**: Knowing *why* `np.linalg.solve(A, b)` beats computing explicit `np.linalg.inv(A) @ b` makes ML pipelines faster and far more accurate.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. Transpose ($\mathbf{A}^T$) & Matrix Trace ($\text{tr}(\mathbf{A})$)
+
+#### Transpose: Swapping Rows and Columns
+To compute the transpose $\mathbf{A}^T$, flip every element across the top-left-to-bottom-right diagonal so entry $(i, j)$ moves to $(j, i)$:
+
+$$
+\begin{aligned}
+\mathbf{A} &= \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix}_{2 \times 3} \\[4pt]
+\mathbf{A}^T &= \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}_{3 \times 2}
+\end{aligned}
+$$
+
+![Transpose flips a 2x3 matrix over its diagonal into a 3x2 matrix](/images/transpose-inverse-determinant/01_transpose_mirror.png)
+
+#### Symmetric Matrices ($\mathbf{A}^T = \mathbf{A}$)
+A square matrix that remains identical after transposing is called **symmetric**—its upper-right triangle mirrors its lower-left triangle. Notice how covariance matrices $\mathbf{X}^T\mathbf{X}$ are always symmetric because feature $i$'s covariance with $j$ equals $j$'s covariance with $i$!
+
+#### Matrix Trace: Sum Along the Main Diagonal
+For any square $n \times n$ matrix, the **trace** ($\text{tr}(\mathbf{A})$) simply sums the numbers running down the top-left-to-bottom-right diagonal:
+
+$$
+\begin{aligned}
+\mathbf{A} &= \begin{bmatrix} 5 & 2 \\ 1 & 3 \end{bmatrix} \\
+\text{tr}(\mathbf{A}) &= 5 + 3 = 8
+\end{aligned}
+$$
+
+Two handy superpowers of trace in ML calculus:
+- **Cyclic Shift**: $\text{tr}(\mathbf{A}\mathbf{B}) = \text{tr}(\mathbf{B}\mathbf{A})$ (even when $\mathbf{A}\mathbf{B} \neq \mathbf{B}\mathbf{A}$!).
+- **Eigenvalue Link**: $\text{tr}(\mathbf{A})$ always equals the sum of all eigenvalues of $\mathbf{A}$.
+
+#### Essential Properties of Matrix Operations
+
+| Property | Mathematical Rule | Note |
+| :--- | :--- | :--- |
+| **Associativity** | $\mathbf{A}(\mathbf{B}\mathbf{C}) = (\mathbf{A}\mathbf{B})\mathbf{C}$ | Grouping order does not change result |
+| **Distributivity** | $\mathbf{A}(\mathbf{B} + \mathbf{C}) = \mathbf{A}\mathbf{B} + \mathbf{A}\mathbf{C}$ | Expands like scalar algebra |
+| **Non-Commutative** | $\mathbf{A}\mathbf{B} \neq \mathbf{B}\mathbf{A}$ | Swapping order changes output! |
+| **Transpose Product** | $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T$ | Socks-and-shoes order reversal |
+| **Inverse Product** | $(\mathbf{A}\mathbf{B})^{-1} = \mathbf{B}^{-1}\mathbf{A}^{-1}$ | Order reverses when undoing |
+
+---
+
+### 2. Determinant ($\det(\mathbf{A})$): How Much Does Area Stretch?
+
+Imagine painting a $1 \times 1$ unit square (Area $= 1$) on a rubber sheet. Now stretch, shear, or rotate the entire sheet using a $2 \times 2$ matrix $\mathbf{A} = \begin{bmatrix} a & b \\ c & d \end{bmatrix}$. The old square morphs into a parallelogram whose **signed area** is the determinant:
+
+$$
+\det\begin{pmatrix} a & b \\ c & d \end{pmatrix} = ad - bc
+$$
+
+![Three determinant cases: area tripled (+3), flipped orientation (-2), and squashed flat (0)](/images/transpose-inverse-determinant/02_determinant_area.png)
+
+Read the three possibilities directly from $\det(\mathbf{A})$:
+1. **$\det(\mathbf{A}) > 0$**: Areas scale by $|\det(\mathbf{A})|$ and grid orientation stays the same.
+   $$
+   \mathbf{A} = \begin{bmatrix} 2 & 0 \\ 0 & 1.5 \end{bmatrix} \implies \det(\mathbf{A}) = +3.0
+   $$
+   (the unit square grows $3\times$ bigger).
+2. **$\det(\mathbf{A}) < 0$**: Space gets **flipped upside-down** like looking in a mirror (negative signed area).
+   $$
+   \mathbf{A} = \begin{bmatrix} -1 & 0.4 \\ 0 & 2 \end{bmatrix} \implies \det(\mathbf{A}) = -2.0
+   $$
+3. **$\det(\mathbf{A}) = 0$ (Singular Matrix!)**: One dimension collapses completely! A 2D square gets squashed flat into a 1D line or 0D point (Area $= 0$).
+
+<Analogy>
+  If matrix $\mathbf{A}$ is a camera lens zooming a photo: $|\det(\mathbf{A})| = 4$ zooms $4\times$ larger in area, $|\det(\mathbf{A})| = 0.25$ shrinks to a quarter area, and $\det(\mathbf{A}) = 0$ crushes the entire 2D photo into a 1-pixel-thin line—deleting pixel information forever!
+</Analogy>
+
+---
+
+### 3. Matrix Inverse ($\mathbf{A}^{-1}$): The Exact Undo Button
+
+For a regular non-zero scalar like $5$, multiplying by $\frac{1}{5}$ returns $1$. For a square matrix $\mathbf{A}$, its **inverse** $\mathbf{A}^{-1}$ satisfies:
+
+$$
+\mathbf{A}^{-1}\mathbf{A} = \mathbf{A}\mathbf{A}^{-1} = \mathbf{I}
+$$
+
+![Matrix inverse A^-1 reverses A when det is non-zero, but is impossible when det equals zero](/images/transpose-inverse-determinant/03_inverse_undo_machine.png)
+
+#### Explicit $2 \times 2$ Inverse Formula
+Swap the main diagonal ($a \leftrightarrow d$), negate the off-diagonal ($-b, -c$), and divide by $\det(\mathbf{A}) = ad - bc$:
+
+$$
+\mathbf{A}^{-1} = \frac{1}{ad - bc} \begin{bmatrix} d & -b \\ -c & a \end{bmatrix}
+$$
+
+Notice immediately why $\det(\mathbf{A}) = 0$ breaks everything: **you cannot divide by zero!** Geometrically, once $\mathbf{A}$ crushes 2D space onto a 1D line, multiple inputs land on the exact same spot—no function can possibly tell which original point came from where, so **singular matrices have no inverse**.
+
+Worked example with $\mathbf{A} = \begin{bmatrix} 3 & 1 \\ 2 & 2 \end{bmatrix}$:
+
+$$
+\begin{aligned}
+\det(\mathbf{A}) &= 3(2) - 1(2) = 4 \\
+\mathbf{A}^{-1} &= \frac{1}{4} \begin{bmatrix} 2 & -1 \\ -2 & 3 \end{bmatrix} \\
+&= \begin{bmatrix} 0.5 & -0.25 \\ -0.5 & 0.75 \end{bmatrix}
+\end{aligned}
+$$
+
+Check that multiplying $\mathbf{A}$ by $\mathbf{A}^{-1}$ returns the identity:
+
+$$
+\begin{aligned}
+\mathbf{A}\mathbf{A}^{-1} &= \begin{bmatrix} 3 & 1 \\ 2 & 2 \end{bmatrix}\begin{bmatrix} 0.5 & -0.25 \\ -0.5 & 0.75 \end{bmatrix} \\
+&= \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = \mathbf{I}
+\end{aligned}
+$$
+
+#### Why ML Engineers Prefer `solve(A, b)` Over `inv(A) @ b`
+Computing an explicit inverse $\mathbf{A}^{-1}$ is slow ($\mathcal{O}(n^3)$ with large constant overhead) and magnifies floating-point rounding noise whenever $\det(\mathbf{A})$ is tiny. Solving $\mathbf{A}\mathbf{x} = \mathbf{b}$ directly via **LU decomposition** (`np.linalg.solve(A, b)`) is both faster and numerically cleaner!
+
+---
+
+### 4. Singular vs Non-Singular, Rank, and Null Space
+
+Every square matrix falls into one of two camps:
+- **Non-Singular (Invertible)**: $\det(\mathbf{A}) \neq 0$, full rank, no dimensions crushed, $\mathbf{A}^{-1}$ exists.
+- **Singular (Non-Invertible)**: $\det(\mathbf{A}) = 0$, at least one redundant column collapses a dimension flat, $\mathbf{A}^{-1}$ does not exist.
+
+This leads directly to two fundamental subspaces for *any* $m \times n$ matrix $\mathbf{A}$:
+- **Rank ($\text{rank}(\mathbf{A})$)**: Number of linearly independent columns (equals the number of surviving dimensions in the **Column Space** output).
+- **Null Space (Kernel)**: Set of all input vectors $\mathbf{x}$ flattened straight to zero ($\mathbf{A}\mathbf{x} = \mathbf{0}$). Its dimension is the **nullity**. A matrix is non-singular if and only if its null space contains *only* the trivial zero vector $\mathbf{0}$!
+
+![Diagram showing Rank as surviving Column Space dimensions and Null Space as directions crushed to zero](/images/transpose-inverse-determinant/04_rank_and_nullspace.png)
+
+$$
+\text{rank}(\mathbf{A}) + \text{nullity}(\mathbf{A}) = n
+$$
+
+where $n$ is the total number of columns (features) of $\mathbf{A}$.
+
+</Section>
+
+<DeterminantInverseFigure />
+
+<Section label="What to try">
+
+- Click the **"Scale (det=3)"** and **"Shear (det=1)"** presets: watch how shearing tilts the unit square sideways *without* changing its area ($\det = 1$)!
+- Click **"Flip (det=-2)"** to see the shaded parallelogram turn **rose red**, signaling orientation reversal across an axis.
+- Drag the **Transform Progress slider** or click **"Apply A⁻¹ (Undo)"** and watch every warped grid line smoothly snap back to the clean identity grid $\mathbf{I}$!
+- Now click **"Singular (det=0)"**: watch both columns $\text{col}_1$ and $\text{col}_2$ collapse onto the same line, driving Area Scale to $0.00\times$ and disabling the Undo button!
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="2×2 Determinant">
+  $\det(\mathbf{A}) = ad - bc$
+</Formula>
+
+<Formula label="2×2 Matrix Inverse (det ≠ 0)">
+  $\mathbf{A}^{-1} = \frac{1}{ad - bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}$
+</Formula>
+
+<Formula label="Key Algebraic Identities">
+  $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T$
+  <br />
+  $(\mathbf{A}\mathbf{B})^{-1} = \mathbf{B}^{-1}\mathbf{A}^{-1}$
+  <br />
+  $\det(\mathbf{A}\mathbf{B}) = \det(\mathbf{A})\det(\mathbf{B})$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'Aᵀ',      meaning: 'Transpose of A: rows become columns, (Aᵀ)ᵢⱼ = Aⱼᵢ' },
+    { symbol: 'det(A)',  meaning: 'Determinant: signed area/volume scaling factor of A' },
+    { symbol: 'A⁻¹',     meaning: 'Matrix inverse satisfying A⁻¹A = AA⁻¹ = I' },
+    { symbol: 'I',       meaning: 'Identity matrix with 1s on diagonal and 0s elsewhere' },
+    { symbol: 'Singular', meaning: 'Square matrix with det(A) = 0; non-invertible' },
+  ]}
+/>
+
+<Callout kind="warning">
+  **Common Trap**: Calling `np.linalg.inv(X.T @ X)` blindly on real datasets. If features are collinear or $p > n$, $\det(\mathbf{X}^T\mathbf{X}) = 0$ and inversion fails or explodes! Either add Ridge regularization ($\lambda \mathbf{I}$) or use `np.linalg.lstsq` / SVD.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'tid-q1',
+      kind: 'mcq',
+      text: 'If matrix A has shape 3 × 7, what is the shape of its transpose Aᵀ?',
+      options: ['7 × 3', '3 × 7', '7 × 7', '3 × 3'],
+      correctIndex: 0,
+      explanation: 'Transposing swaps rows and columns: an m × n matrix always becomes n × m, so 3 × 7 becomes 7 × 3.',
+    },
+    {
+      id: 'tid-q2',
+      kind: 'mcq',
+      text: 'What defines a symmetric matrix S?',
+      options: [
+        'Sᵀ = S (identical when mirrored across the main diagonal)',
+        'det(S) = 0',
+        'All entries equal 1',
+        'It has more rows than columns',
+      ],
+      correctIndex: 0,
+      explanation: 'A symmetric matrix must be square and satisfy S_ij = S_ji for all indices, meaning transposing leaves it completely unchanged.',
+    },
+    {
+      id: 'tid-q3',
+      kind: 'mcq',
+      text: 'What is the determinant of A = [[4, 2], [3, 5]]?',
+      options: ['14', '26', '-14', '6'],
+      correctIndex: 0,
+      explanation: 'Use ad - bc: (4)(5) - (2)(3) = 20 - 6 = 14.',
+      figureHint: 'Type [[4, 2], [3, 5]] or scale down cleanly in the Determinant figure—recall ad - bc!',
+    },
+    {
+      id: 'tid-q4',
+      kind: 'mcq',
+      text: 'Geometrically, what does a determinant of det(A) = 0 mean for a 2×2 matrix?',
+      options: [
+        'The matrix squashes 2D space onto a 1D line or 0D point (zero area)',
+        'The matrix acts like the Identity matrix and leaves everything unchanged',
+        'The matrix rotates vectors 90° counterclockwise',
+        'The matrix doubles all vector lengths',
+      ],
+      correctIndex: 0,
+      explanation: 'Because |det(A)| equals the area of the transformed unit square, det(A) = 0 means the square collapsed flat with zero enclosed area.',
+      figureHint: 'Click the Singular (det=0) preset and watch both column vectors collapse onto a single line.',
+    },
+    {
+      id: 'tid-q5',
+      kind: 'mcq',
+      text: 'What does a NEGATIVE determinant (det(A) < 0) reveal geometrically in 2D?',
+      options: [
+        'Space has been flipped inside-out (reversed orientation, like a mirror reflection)',
+        'Every entry inside matrix A must be negative',
+        'The matrix cannot be inverted',
+        'All vectors shrink to the origin',
+      ],
+      correctIndex: 0,
+      explanation: 'A negative determinant flips handedness/orientation (turning counterclockwise ordering into clockwise) while scaling area by |det(A)|.',
+      figureHint: 'Click the Flip (det=-2) preset and observe the rose-colored flipped parallelogram.',
+    },
+    {
+      id: 'tid-q6',
+      kind: 'mcq',
+      text: 'Why does a singular matrix (det(A) = 0) NOT have an inverse A⁻¹?',
+      options: [
+        'Because collapsing space onto a lower dimension destroys information so distinct inputs map to the same output',
+        'Because singular matrices are always non-square',
+        'Because det(A) = 0 means all entries are positive',
+        'Because matrix addition is undefined when det(A) = 0',
+      ],
+      correctIndex: 0,
+      explanation: 'Algebraically you cannot divide by det(A) = 0; geometrically multiple input vectors get flattened to the same spot, making reversal impossible.',
+    },
+    {
+      id: 'tid-q7',
+      kind: 'mcq',
+      text: 'Why does shearing a square with A = [[1, 1.2], [0, 1]] keep det(A) = 1.00?',
+      options: [
+        'A parallelogram has the same Area = base × height regardless of sideways slant',
+        'Shearing adds 1 to every determinant automatically',
+        'Off-diagonal entries never affect determinants',
+        'Because all entries are non-negative',
+      ],
+      correctIndex: 0,
+      explanation: 'For [[1, 1.2], [0, 1]], base = 1 and height = 1, so ad - bc = (1)(1) - (1.2)(0) = 1. Sliding the top edge sideways keeps area constant.',
+      figureHint: 'Click Shear (det=1) and check that Area Scale stays exactly 1.00×.',
+    },
+    {
+      id: 'tid-q8',
+      kind: 'mcq',
+      text: 'Which identity correctly gives the inverse of a product (A B)⁻¹ (assuming A and B are invertible)?',
+      options: ['B⁻¹ A⁻¹', 'A⁻¹ B⁻¹', 'Aᵀ Bᵀ', '1 / (A B)'],
+      correctIndex: 0,
+      explanation: 'Just like undoing putting on socks (A) then shoes (B), you must take off shoes (B⁻¹) BEFORE taking off socks (A⁻¹): (AB)⁻¹ = B⁻¹ A⁻¹.',
+    },
+    {
+      id: 'tid-q9',
+      kind: 'mcq',
+      text: 'What is the inverse of the diagonal scaling matrix D = [[2, 0], [0, 4]]?',
+      options: [
+        '[[0.5, 0], [0, 0.25]]',
+        '[[-2, 0], [0, -4]]',
+        '[[4, 0], [0, 2]]',
+        '[[0.25, 0], [0, 0.5]]',
+      ],
+      correctIndex: 0,
+      explanation: 'To undo stretching x by 2 and y by 4, simply divide by 2 (×0.5) and divide by 4 (×0.25)!',
+    },
+    {
+      id: 'tid-q10',
+      kind: 'mcq',
+      text: 'If you scale EVERY entry of a 2×2 matrix A by factor 3 (so you form 3A), how does the determinant change?',
+      options: [
+        'It multiplies by 3² = 9',
+        'It multiplies by 3',
+        'It stays unchanged',
+        'It multiplies by 6',
+      ],
+      correctIndex: 0,
+      explanation: 'Scaling each axis by 3 multiplies 2D area by 3 × 3 = 9! In n dimensions, det(c A) = cⁿ det(A).',
+    },
+    {
+      id: 'tid-q11',
+      kind: 'mcq',
+      text: 'For any design matrix X of shape (n × d), what shape is Xᵀ X and what special property does it always have?',
+      options: [
+        'Square (d × d) and strictly symmetric',
+        'Square (n × n) and diagonal',
+        'Rectangular (n × d) and singular',
+        'Scalar (1 × 1)',
+      ],
+      correctIndex: 0,
+      explanation: '(d × n) · (n × d) = (d × d), and (XᵀX)ᵀ = Xᵀ(Xᵀ)ᵀ = XᵀX, proving it is always symmetric.',
+    },
+    {
+      id: 'tid-q12',
+      kind: 'mcq',
+      text: 'Given two invertible matrices A and B with det(A) = 3 and det(B) = -2, what is det(A B)?',
+      options: ['-6', '1', '-1.5', '6'],
+      correctIndex: 0,
+      explanation: 'Determinants multiply across matrix products: det(AB) = det(A) · det(B) = 3 × (-2) = -6.',
+    },
+    {
+      id: 'tid-q13',
+      kind: 'mcq',
+      text: 'What is det(A⁻¹) when det(A) = 4?',
+      options: ['0.25 (1/4)', '-4', '16', '0'],
+      correctIndex: 0,
+      explanation: 'Since A · A⁻¹ = I and det(I) = 1, we have det(A) · det(A⁻¹) = 1, so det(A⁻¹) = 1 / det(A) = 1/4.',
+    },
+    {
+      id: 'tid-q14',
+      kind: 'mcq',
+      text: 'Why should ML code avoid writing `np.linalg.inv(A) @ b` to solve A x = b?',
+      options: [
+        'Explicit matrix inversion is slower and magnifies floating-point rounding errors compared to `np.linalg.solve(A, b)`',
+        'NumPy does not support multiplying by an inverse',
+        '`np.linalg.inv` only works on 2×2 matrices',
+        'Explicit inversion sets negative values to zero',
+      ],
+      correctIndex: 0,
+      explanation: '`np.linalg.solve` uses direct LU/Cholesky factorization without materializing the numerically sensitive explicit inverse matrix.',
+    },
+    {
+      id: 'tid-q15',
+      kind: 'mcq',
+      text: 'For a symmetric matrix A, what is the relation between its columns and its rows?',
+      options: [
+        'Row i is identical to Column i for every index i',
+        'Row i is the negative of Column i',
+        'Every row sums to 1',
+        'Its determinant is always 1',
+      ],
+      correctIndex: 0,
+      explanation: 'Because Aᵀ = A flips rows into columns without changing any entries, every row equals the corresponding column.',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Transpose, Inverse and Determinant"
+  oneLiner="Transpose flips a matrix across its diagonal, the determinant measures how much area scales (and flips), and the inverse undoes a non-collapsed transform."
+  takeaways={[
+    'Transpose (Aᵀ) turns rows into columns and reverses product order: (AB)ᵀ = BᵀAᵀ.',
+    'Determinant det(A) = signed area scaling factor of the unit square (positive = same handedness, negative = mirror flip, zero = squashed flat).',
+    'Matrix inverse A⁻¹ only exists when det(A) ≠ 0 (non-singular) and satisfies A⁻¹A = I.',
+    'In ML practice, check for collinear features (det ≈ 0) and solve Ax = b directly with np.linalg.solve rather than forming A⁻¹.',
+  ]}
+  commonTrap="Thinking every square matrix has an inverse—or writing (AB)⁻¹ = A⁻¹B⁻¹ instead of reversing the order to B⁻¹A⁻¹."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="transpose-inverse-determinant"
+  topicTitle="Transpose, Inverse and Determinant"
+  referenceChecklist={[
+    'Explained how transpose swaps rows and columns and what makes a matrix symmetric.',
+    'Described the determinant geometrically as signed area/volume scaling.',
+    'Explained why det(A) = 0 prevents a matrix from having an inverse.',
+    'Connected matrix singularity (det ≈ 0) to collinear features or numerical instability in ML.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/math-foundations/linear-algebra/transpose-inverse-determinant"
+  items={[
+    {
+      title: "GitHub Resource Folder & Study Notes",
+      type: "github",
+      description: "Summary formulas, inverse proofs, and Python stability checks in mltheta/resources.",
+      url: "https://github.com/mltheta/resources/tree/main/math-foundations/linear-algebra/transpose-inverse-determinant"
+    },
+    {
+      title: "Essence of Linear Algebra: The Determinant",
+      type: "video",
+      description: "3Blue1Brown visual exploration of determinants as signed area and volume scaling.",
+      url: "https://www.youtube.com/watch?v=Ip3X9LOh2dk"
+    },
+    {
+      title: "Inverse Matrices, Column Space and Null Space",
+      type: "video",
+      description: "Geometric intuition for why linear systems have unique solutions iff det ≠ 0.",
+      url: "https://www.youtube.com/watch?v=uQhTuRlWMxw"
+    },
+    {
+      title: "Mathematics for Machine Learning — Chapter 2.2: Inverses & Transposes",
+      type: "book",
+      description: "Clear textbook reference covering invertibility, symmetry, and matrix identities.",
+      url: "https://mml-book.github.io/"
+    }
+  ]}
+/>
+
+</Section>

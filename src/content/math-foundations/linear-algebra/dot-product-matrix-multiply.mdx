@@ -1,0 +1,503 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { DotProductMatrixFigure } from '@/components/figures/DotProductMatrixFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Dot Product and Matrix Multiplication',
+  description: 'Understand alignment, cosine similarity, orthogonal projections, and how matrix multiplication acts as stacked linear transformations.',
+};
+
+<Section label="What is it?">
+
+The **dot product** takes two vectors of the same length and reduces them to **one single number** measuring how strongly they point in the same direction.
+
+**Matrix multiplication** extends that idea to entire grids of numbers: each entry in the resulting matrix is just a dot product between one row on the left and one column on the right. Instead of transforming one number at a time, a matrix transforms an entire coordinate space—rotating, stretching, or shearing every vector simultaneously.
+
+</Section>
+
+<Section label="Why we need it">
+
+Nearly every computation inside modern AI systems boils down to chained dot products and matrix multiplications:
+
+- **Search & Semantic Similarity**: Search engines and vector databases score how closely a user query matches millions of documents using **cosine similarity**—a normalized dot product between embedding vectors.
+- **Neural Network Layers**: Every dense layer and Transformer attention head computes weighted sums of inputs via $\mathbf{y} = \mathbf{W}\mathbf{x} + \mathbf{b}$, which is literally one dot product per output neuron executed in parallel on GPUs.
+- **Attention Mechanisms**: Large Language Models decide which words should attend to which earlier words by taking dot products between **Query** and **Key** vectors ($\mathbf{Q}\mathbf{K}^T$).
+- **Linear Regression Predictions**: Computing predicted house prices for $10\,000$ homes at once is a single matrix-vector multiply $\hat{\mathbf{y}} = \mathbf{X}\mathbf{w}$.
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The Dot Product: Two Views That Mean the Exact Same Thing
+
+Suppose you have two 2D vectors $\mathbf{a} = \begin{bmatrix} 3 \\ 2 \end{bmatrix}$ and $\mathbf{b} = \begin{bmatrix} 4 \\ 1 \end{bmatrix}$.
+
+#### View A: Pairwise Multiply & Add (Algebraic)
+Multiply matching slots together and sum the products:
+
+$$
+\begin{aligned}
+\mathbf{a} \cdot \mathbf{b} &= a_1 b_1 + a_2 b_2 \\
+&= (3)(4) + (2)(1) \\
+&= 12 + 2 = 14
+\end{aligned}
+$$
+
+<Analogy>
+  Think of a grocery shopping receipt: $\mathbf{a} = [3, 2]^T$ is the quantity of items you bought (3 apples, 2 coffees) and $\mathbf{b} = [4, 1]^T$ is the price of each item (\$4, \$1). Their dot product $3 \times 4 + 2 \times 1 = 14$ gives your total bill of **\$14**!
+</Analogy>
+
+#### View B: Alignment & Shadow (Geometric)
+Geometrically, the dot product measures how much one vector helps push along another:
+
+$$
+\mathbf{a} \cdot \mathbf{b} = \|\mathbf{a}\| \, \|\mathbf{b}\| \cos(\theta)
+$$
+
+where $\theta$ is the angle between the two arrows.
+
+![Three dot product cases: positive alignment, orthogonal zero, and negative opposite](/images/dot-product-matrix-multiply/01_dot_product_angles.png)
+
+Look at what the sign of $\mathbf{a} \cdot \mathbf{b}$ immediately tells you:
+- **Positive ($\theta < 90^\circ$)**: Vectors point roughly the same way.
+- **Zero ($\theta = 90^\circ$)**: Vectors are **orthogonal** (perpendicular)—neither has any shadow along the other!
+- **Negative ($\theta > 90^\circ$)**: Vectors point in opposing directions.
+
+#### Orthogonal Projection (Shining a Flashlight)
+Imagine shining a flashlight perpendicular onto vector $\mathbf{b}$. The shadow that $\mathbf{a}$ casts onto the line of $\mathbf{b}$ is its **orthogonal projection**:
+
+$$
+\text{proj}_{\mathbf{b}}(\mathbf{a}) = \left( \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{b}\|^2} \right) \mathbf{b}
+$$
+
+Notice that $\mathbf{a} \cdot \mathbf{b}$ equals **(signed length of $\mathbf{a}$'s shadow along $\mathbf{b}$) $\times$ $\|\mathbf{b}\|$**.
+
+![Orthogonal shadow projection of vector a onto vector b](/images/dot-product-matrix-multiply/02_shadow_projection.png)
+
+---
+
+### 2. Cosine Similarity: Pure Direction Without Length Bias
+
+Suppose Document A repeats every word $10$ times compared to Document B, even though both talk about the exact same topic (Machine Learning). Document A's vector is $10\times$ longer, so its raw dot product gets inflated $10\times$!
+
+To compare **direction (meaning) alone**, divide by both vector lengths so length scales out completely:
+
+$$
+\begin{aligned}
+\text{cos\_sim}(\mathbf{a}, \mathbf{b}) &= \cos(\theta) \\
+&= \frac{\mathbf{a} \cdot \mathbf{b}}{\|\mathbf{a}\| \, \|\mathbf{b}\|} \in [-1, 1]
+\end{aligned}
+$$
+
+- **$+1$**: Identical direction ($\theta = 0^\circ$).
+- **$0$**: Unrelated / orthogonal ($\theta = 90^\circ$).
+- **$-1$**: Opposite meaning ($\theta = 180^\circ$).
+
+---
+
+### 3. Matrix-Vector Multiplication ($\mathbf{A}\mathbf{x}$): How Matrices Warp Space
+
+What does multiplying a $2 \times 2$ matrix $\mathbf{A}$ by a vector $\mathbf{x}$ actually *do*? There are two equally important views:
+
+1. **Row View (Stacked Dot Products)**: Each output coordinate is the dot product between one row of $\mathbf{A}$ and $\mathbf{x}$.
+2. **Column View (Moving the Grid Basis)**: Every 2D vector $\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}$ is built from $x_1$ steps East ($\hat{\mathbf{i}} = [1,0]^T$) plus $x_2$ steps North ($\hat{\mathbf{j}} = [0,1]^T$). When $\mathbf{A}$ multiplies $\mathbf{x}$, **$\mathbf{A}$'s columns tell you exactly where those two unit basis arrows land**:
+
+$$
+\begin{aligned}
+\mathbf{A}\mathbf{x} &= \begin{bmatrix} a & b \\ c & d \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} \\
+&= x_1 \begin{bmatrix} a \\ c \end{bmatrix} + x_2 \begin{bmatrix} b \\ d \end{bmatrix}
+\end{aligned}
+$$
+
+Once $\hat{\mathbf{i}}$ and $\hat{\mathbf{j}}$ move to their new spots (keeping grid lines straight, parallel, and evenly spaced), **every point $\mathbf{x}$ simply rides along with the warped grid**!
+
+![Before and after grid transformation showing basis arrows i-hat and j-hat landing on the columns of matrix A](/images/dot-product-matrix-multiply/05_basis_transformation.png)
+
+#### Four Classic $2 \times 2$ Matrix Transformations at a Glance
+
+| Matrix $\mathbf{A}$ | Where $\hat{\mathbf{i}}$ & $\hat{\mathbf{j}}$ land | Geometric transformation |
+| :--- | :--- | :--- |
+| $\begin{bmatrix} 2 & 0 \\ 0 & 1 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [2, 0]^T$<br />$\hat{\mathbf{j}} \to [0, 1]^T$ | **Stretch** space $2\times$ wider horizontally |
+| $\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [0, 1]^T$<br />$\hat{\mathbf{j}} \to [-1, 0]^T$ | **Rotate** the whole plane $90^\circ$ counterclockwise |
+| $\begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [1, 0]^T$<br />$\hat{\mathbf{j}} \to [1, 1]^T$ | **Shear** sideways (tilts squares into parallelograms) |
+| $\begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [1, 0]^T$<br />$\hat{\mathbf{j}} \to [0, 0]^T$ | **Flatten** all of 2D space onto the $x_1$-axis |
+
+Worked numerical example with $\mathbf{A} = \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix}$ and $\mathbf{x} = \begin{bmatrix} 4 \\ 5 \end{bmatrix}$:
+
+$$
+\begin{aligned}
+\mathbf{A}\mathbf{x} &= \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix} \begin{bmatrix} 4 \\ 5 \end{bmatrix} \\
+&= 4\begin{bmatrix} 2 \\ 0 \end{bmatrix} + 5\begin{bmatrix} 1 \\ 3 \end{bmatrix} \\
+&= \begin{bmatrix} 2(4) + 1(5) \\ 0(4) + 3(5) \end{bmatrix} = \begin{bmatrix} 13 \\ 15 \end{bmatrix}
+\end{aligned}
+$$
+
+---
+
+### 4. Matrix-Matrix Multiplication & Chaining Transformations
+
+When you compute $(\mathbf{B}\mathbf{A})\mathbf{x} = \mathbf{B}(\mathbf{A}\mathbf{x})$, you chain **two geometric moves back-to-back, right to left**: first $\mathbf{A}$ moves $\hat{\mathbf{i}}$ and $\hat{\mathbf{j}}$ into $\mathbf{A}\hat{\mathbf{i}}$ and $\mathbf{A}\hat{\mathbf{j}}$; next $\mathbf{B}$ takes those transformed arrows and warps them again into $\mathbf{B}(\mathbf{A}\hat{\mathbf{i}})$ and $\mathbf{B}(\mathbf{A}\hat{\mathbf{j}})$—which become the columns of $\mathbf{B}\mathbf{A}$.
+
+Algebraically, every entry $(i, j)$ of a matrix product is the dot product of **row $i$ on the left** with **column $j$ on the right**, so the inner shapes must match:
+
+![Domino shape rule showing inner dimensions matching and row-by-column dot products](/images/dot-product-matrix-multiply/03_matrix_multiply_shapes.png)
+
+Let's multiply a $2 \times 3$ matrix by a $3 \times 2$ matrix step by step:
+- **Entry $(1,1)$**: $1(2) + 2(0) + 0(5) = 2$
+- **Entry $(1,2)$**: $1(1) + 2(3) + 0(2) = 7$
+- **Entry $(2,1)$**: $3(2) + 1(0) + 4(5) = 26$
+- **Entry $(2,2)$**: $3(1) + 1(3) + 4(2) = 14$
+
+$$
+\begin{aligned}
+\mathbf{A}\mathbf{B} &= \begin{bmatrix} 1 & 2 & 0 \\ 3 & 1 & 4 \end{bmatrix} \begin{bmatrix} 2 & 1 \\ 0 & 3 \\ 5 & 2 \end{bmatrix} \\
+&= \begin{bmatrix} 2{+}0{+}0 & 1{+}6{+}0 \\ 6{+}0{+}20 & 3{+}3{+}8 \end{bmatrix} \\
+&= \begin{bmatrix} 2 & 7 \\ 26 & 14 \end{bmatrix}
+\end{aligned}
+$$
+
+#### Why Order Matters: $\mathbf{A}\mathbf{B} \neq \mathbf{B}\mathbf{A}$!
+
+With regular numbers, $3 \times 5 = 5 \times 3$. With matrices, **order is NOT interchangeable**! Think of putting on socks then shoes versus shoes then socks—or geometrically, **rotating then shearing** lands somewhere completely different from **shearing then rotating**:
+
+![Visual proof that rotating then shearing ends at a different point than shearing then rotating](/images/dot-product-matrix-multiply/04_non_commutativity.png)
+
+---
+
+### 5. Vector Spaces, Span, Linear Independence & Linear Transformations
+
+Understanding *where* vectors can reach unlocks the deeper structure behind Linear Algebra:
+
+#### Linear Combinations & Span
+Given vectors $\mathbf{v}_1, \mathbf{v}_2$ and scalars $c_1, c_2$, forming $c_1\mathbf{v}_1 + c_2\mathbf{v}_2$ is a **linear combination**—stretching each arrow and summing them tip-to-tail. The **span** of a set of vectors is the entire collection of points you can possibly reach using every choice of $c_1, c_2$.
+
+#### Vector Space, Linear Independence, Basis & Dimension
+A **vector space** (such as $\mathbb{R}^2$ or $\mathbb{R}^n$) is a playground of vectors that is *closed*: adding any two vectors or scaling by any scalar keeps you strictly inside the space (and always includes the origin $\mathbf{0}$).
+
+- **Linear Independence**: No vector in the set is redundant (none can be built by combining the others). Two independent vectors in $\mathbb{R}^2$ point in non-parallel directions and span the **entire 2D plane**.
+- **Linear Dependence**: At least one vector lies in the span of the others (e.g., $\mathbf{v}_2 = 2\mathbf{v}_1$). Their span collapses onto a trapped **1D line**.
+- **Basis & Dimension**: A **basis** is a minimal set of linearly independent vectors that spans the whole space (like standard basis $\{\hat{\mathbf{i}}, \hat{\mathbf{j}}\}$). The number of vectors in the basis defines the space's **dimension** ($\dim(\mathbb{R}^2) = 2$).
+
+![Linearly independent basis spanning 2D space vs linearly dependent vectors trapped on a 1D line](/images/dot-product-matrix-multiply/06_span_and_independence.png)
+
+#### What Makes a Function a "Linear Transformation"?
+Matrix multiplication $\mathbf{x} \mapsto \mathbf{A}\mathbf{x}$ is the exact algebraic representation of a **linear transformation** $T$: it keeps parallel grid lines straight & evenly spaced and pins the origin at $\mathbf{0}$ by obeying two golden rules:
+
+$$
+\begin{aligned}
+T(\mathbf{u} + \mathbf{v}) &= T(\mathbf{u}) + T(\mathbf{v}) \\
+T(c\mathbf{v}) &= c\,T(\mathbf{v})
+\end{aligned}
+$$
+
+</Section>
+
+<DotProductMatrixFigure />
+
+<Section label="What to try">
+
+- In **Dot Product & Shadow** mode, drag the **blue dot ($\mathbf{a}$)** and **orange dot ($\mathbf{b}$)** around the origin.
+- Watch the **green shadow arrow** $\text{proj}_{\mathbf{b}}(\mathbf{a})$ shrink to zero when the two arrows meet at $90^\circ$, and flip behind the origin when the angle exceeds $90^\circ$!
+- Click the **"Orthogonal (90°)"** preset and verify that both `a · b = 0.00` and `cos(θ) = 0.00`.
+- Switch to **Matrix × Vector (Ax)** mode, drag input vector $\mathbf{x}$, and notice how $\mathbf{A}\hat{\mathbf{i}}$ (teal) and $\mathbf{A}\hat{\mathbf{j}}$ (amber) warp the entire coordinate grid.
+- Try the **"Rotate 90° CCW"** and **"X-Axis Shadow"** presets to see geometric transformations live.
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="Algebraic Dot Product">
+  $\mathbf{a} \cdot \mathbf{b} = \mathbf{a}^T \mathbf{b} = \sum_{i=1}^{n} a_i b_i$
+</Formula>
+
+<Formula label="Geometric Dot Product">
+  $\mathbf{a} \cdot \mathbf{b} = \|\mathbf{a}\| \, \|\mathbf{b}\| \cos(\theta)$
+</Formula>
+
+<Formula label="Shape Compatibility & Output Entry">
+  $(\mathbf{A}_{m \times k})(\mathbf{B}_{k \times n}) = \mathbf{C}_{m \times n}$
+  <br />
+  $C_{ij} = \sum_{r=1}^{k} A_{ir} B_{rj}$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'a · b',       meaning: 'Scalar dot product measuring directional alignment' },
+    { symbol: 'cos(θ)',      meaning: 'Cosine similarity in [-1, 1], independent of vector lengths' },
+    { symbol: 'proj_b(a)',   meaning: 'Shadow (orthogonal projection) of vector a cast onto b' },
+    { symbol: 'Aᵢ, Bʲ',     meaning: 'Row i of matrix A dotted with column j of matrix B' },
+    { symbol: '(m×k)(k×n)', meaning: 'Inner dimensions k must match; output shape is outer (m × n)' },
+  ]}
+/>
+
+<Callout kind="warning">
+  **Element-wise (`A * B`) vs Matrix Multiply (`A @ B`)**: In NumPy and PyTorch, `*` multiplies corresponding cells one by one (Hadamard product), whereas `@` executes true row-by-column matrix multiplication. Mixing these up is one of the most common bugs in beginner ML code!
+</Callout>
+
+<Callout kind="tip">
+  Always read matrix composition **right to left**: in $\mathbf{B}(\mathbf{A}\mathbf{x})$, transformation $\mathbf{A}$ happens to $\mathbf{x}$ *first*, and transformation $\mathbf{B}$ happens *second*.
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'dot-q1',
+      kind: 'mcq',
+      text: 'Given a = [2, 3]ᵀ and b = [4, -1]ᵀ, what is their dot product a · b?',
+      options: ['5', '11', '[8, -3]ᵀ', '-5'],
+      correctIndex: 0,
+      explanation: 'Multiply matching entries and sum: (2)(4) + (3)(-1) = 8 - 3 = 5. Notice the dot product returns a single scalar number, never a vector.',
+      figureHint: 'In Dot Product mode, drag a to (2, 3) and b to (4, -1) to see a · b = 5.00.',
+    },
+    {
+      id: 'dot-q2',
+      kind: 'mcq',
+      text: 'Which two vectors are strictly orthogonal (perpendicular at 90°)?',
+      options: [
+        'u = [3, 1]ᵀ and v = [-1, 3]ᵀ',
+        'u = [3, 1]ᵀ and v = [6, 2]ᵀ',
+        'u = [2, 2]ᵀ and v = [-2, -2]ᵀ',
+        'u = [1, 0]ᵀ and v = [1, 1]ᵀ',
+      ],
+      correctIndex: 0,
+      explanation: 'Two non-zero vectors are orthogonal if and only if their dot product equals zero: (3)(-1) + (1)(3) = -3 + 3 = 0.',
+      figureHint: 'Click the Orthogonal (90°) preset and watch the angle read 90.0° and a · b read 0.00.',
+    },
+    {
+      id: 'dot-q3',
+      kind: 'mcq',
+      text: 'Why do search engines often prefer cosine similarity over the raw dot product when comparing text embeddings?',
+      options: [
+        'Cosine similarity divides out vector lengths, comparing pure topic angle rather than document word count',
+        'Cosine similarity can only return positive integers',
+        'Cosine similarity does not require vectors to share the same dimension',
+        'Raw dot products are slower because they use square roots',
+      ],
+      correctIndex: 0,
+      explanation: 'A long article repeats keywords many times, creating a large magnitude ‖a‖ that inflates raw a · b. Normalizing by ‖a‖‖b‖ keeps scores strictly in [-1, 1] based only on directional angle θ.',
+    },
+    {
+      id: 'dot-q4',
+      kind: 'mcq',
+      text: 'If vector b = [1, 1]ᵀ and vector a = [5, 5]ᵀ, what is their cosine similarity?',
+      options: ['1.0', '10.0', '0.5', '0.0'],
+      correctIndex: 0,
+      explanation: 'Both vectors point at the exact same 45° angle (θ = 0°), so cos(0°) = 1.0 despite vector a being 5 times longer!',
+      figureHint: 'Click the Parallel (0°) preset and verify cos(θ) = 1.00.',
+    },
+    {
+      id: 'dot-q5',
+      kind: 'mcq',
+      text: 'When can you multiply matrix A (shape 5 × 4) by matrix B to form A B?',
+      options: [
+        'When B has 4 rows (shape 4 × n for any n ≥ 1)',
+        'When B has 5 rows (shape 5 × n)',
+        'Only when B is also 5 × 4',
+        'Only when B is 4 × 5',
+      ],
+      correctIndex: 0,
+      explanation: 'The Domino Rule requires the inner dimensions to match: columns of A (4) must equal rows of B (4). B can have any number of columns n.',
+    },
+    {
+      id: 'dot-q6',
+      kind: 'mcq',
+      text: 'If X has shape (1000 × 12) and W has shape (12 × 64), what is the shape of X W?',
+      options: ['1000 × 64', '12 × 12', '64 × 1000', 'Multiplication is invalid'],
+      correctIndex: 0,
+      explanation: 'Matching inner dimensions (12 = 12) collapse together, leaving the outer dimensions: 1000 rows × 64 columns. This corresponds to running a batch of 1000 examples through a 64-neuron neural layer.',
+    },
+    {
+      id: 'dot-q7',
+      kind: 'mcq',
+      text: 'How is entry C₂₃ (row 2, column 3) of the product C = A B calculated?',
+      options: [
+        'Dot product of row 2 of A with column 3 of B',
+        'Dot product of column 2 of A with row 3 of B',
+        'Element-wise multiplication A₂₃ × B₂₃',
+        'Sum of row 2 of A plus column 3 of B',
+      ],
+      correctIndex: 0,
+      explanation: 'Every entry C_ij in a matrix product pairs the i-th row of the left matrix with the j-th column of the right matrix via a dot product.',
+    },
+    {
+      id: 'dot-q8',
+      kind: 'mcq',
+      text: 'If you multiply A = [[0, -1], [1, 0]] by vector x = [3, 2]ᵀ, what is A x?',
+      options: ['[-2, 3]ᵀ', '[3, -2]ᵀ', '[2, 3]ᵀ', '[-3, -2]ᵀ'],
+      correctIndex: 0,
+      explanation: 'Row 1 dot x = 0(3) + (-1)(2) = -2. Row 2 dot x = 1(3) + 0(2) = 3. Geometrically, this matrix rotates any vector 90° counterclockwise!',
+      figureHint: 'Switch to Matrix × Vector mode, select Rotate 90° CCW, and drag x to (3, 2).',
+    },
+    {
+      id: 'dot-q9',
+      kind: 'mcq',
+      text: 'What do the two columns of a 2×2 matrix A represent geometrically when computing A x?',
+      options: [
+        'Where the standard unit basis arrows î = [1, 0]ᵀ and ĵ = [0, 1]ᵀ land after transformation',
+        'The minimum and maximum coordinates allowed in the grid',
+        'The eigenvalues of AᵀA',
+        'Two unrelated bias offsets added to x',
+      ],
+      correctIndex: 0,
+      explanation: 'Since A[1, 0]ᵀ gives column 1 and A[0, 1]ᵀ gives column 2, tracking where just î and ĵ land completely determines where every point in 2D space goes!',
+      figureHint: 'Look at the teal (Aî) and amber (Aĵ) arrows in Matrix × Vector mode as you change presets.',
+    },
+    {
+      id: 'dot-q10',
+      kind: 'mcq',
+      text: 'Given two non-zero vectors a and b, what happens to proj_b(a) when a · b < 0?',
+      options: [
+        'The shadow points in the opposite direction of b (behind the origin)',
+        'The shadow disappears to the zero vector',
+        'The shadow grows longer than both a and b combined',
+        'Projection becomes undefined for negative dot products',
+      ],
+      correctIndex: 0,
+      explanation: 'Because proj_b(a) = ((a · b) / ‖b‖²) b, a negative scalar factor (a · b) flips the projected arrow along the negative direction of b.',
+      figureHint: 'In Dot Product mode, drag vector a past 90° away from b and watch the green shadow arrow flip behind the origin.',
+    },
+    {
+      id: 'dot-q11',
+      kind: 'mcq',
+      text: 'Why is matrix multiplication generally non-commutative (A B ≠ B A)?',
+      options: [
+        'Applying two geometric operations in reverse order (like rotating then shearing vs shearing then rotating) yields different destinations',
+        'Matrices only support addition in reverse order',
+        'Row-by-column dot products always double when reversed',
+        'Non-commutativity only happens when matrices contain negative numbers',
+      ],
+      correctIndex: 0,
+      explanation: 'Function composition is order-dependent: B(A(x)) applies A first and B second, whereas A(B(x)) applies B first and A second. Even when both products have the same shape, their numbers usually differ.',
+    },
+    {
+      id: 'dot-q12',
+      kind: 'mcq',
+      text: 'Which expression shifts the algebraic computation of Linear Regression predictions ŷ = X w for n samples and d features?',
+      options: [
+        'X has shape (n × d) and w has shape (d × 1), giving ŷ of shape (n × 1)',
+        'X has shape (d × n) and w has shape (n × 1), giving ŷ of shape (1 × 1)',
+        'X * w element-wise multiplication without summing',
+        'w @ X where w is (d × 1) and X is (n × d)',
+      ],
+      correctIndex: 0,
+      explanation: 'By the Domino Rule, (n × d) · (d × 1) produces an (n × 1) column vector containing one scalar dot-product prediction for each of the n samples.',
+    },
+    {
+      id: 'dot-q13',
+      kind: 'mcq',
+      text: 'What is the dot product of a vector v = [3, 4]ᵀ with itself (v · v)?',
+      options: ['25 (which equals ‖v‖²)', '5 (which equals ‖v‖)', '7', '12'],
+      correctIndex: 0,
+      explanation: 'v · v = 3² + 4² = 9 + 16 = 25 = ‖v‖². Taking the square root recovers the Euclidean length 5.',
+    },
+    {
+      id: 'dot-q14',
+      kind: 'mcq',
+      text: 'In Python/NumPy, what is the crucial difference between A * B and A @ B for two 2×2 matrices?',
+      options: [
+        'A * B multiplies corresponding cells element-wise, while A @ B executes algebraic matrix multiplication',
+        'A * B computes the determinant while A @ B computes the trace',
+        'Both operators do identical matrix multiplication',
+        'A @ B only works on 1D lists, not 2D arrays',
+      ],
+      correctIndex: 0,
+      explanation: 'The asterisk (*) performs the element-wise Hadamard product (matching cell by matching cell), whereas (@) performs row-by-column matrix multiplication.',
+    },
+    {
+      id: 'dot-q15',
+      kind: 'mcq',
+      text: 'What is the geometric result when the "X-Axis Shadow" matrix [[1, 0], [0, 0]] multiplies any 2D vector x = [x₁, x₂]ᵀ?',
+      options: [
+        'It projects x flat onto the horizontal x₁-axis: [x₁, 0]ᵀ',
+        'It doubles the vertical component',
+        'It swaps x₁ and x₂',
+        'It rotates x by 180°',
+      ],
+      correctIndex: 0,
+      explanation: 'Row 1 keeps x₁ unchanged (1·x₁ + 0·x₂ = x₁), while Row 2 zeroes out x₂ (0·x₁ + 0·x₂ = 0), flattening all of 2D space onto the x₁-axis.',
+      figureHint: 'Try the X-Axis Shadow preset in Matrix × Vector mode and drag x anywhere—notice Ax stays pinned to the horizontal axis!',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Dot Product and Matrix Multiplication"
+  oneLiner="The dot product measures how much two vectors point the same way as a single score; matrix multiplication applies many row dot products at once to transform whole spaces."
+  takeaways={[
+    'Dot product a · b = Σ aᵢbᵢ = ‖a‖‖b‖cos(θ): positive if aligned, zero if perpendicular (90°), negative if opposite.',
+    'Cosine similarity normalizes the dot product by both lengths so document length or vector scale does not skew similarity.',
+    'Matrix product shape rule: inner dimensions must match — (m × k) · (k × n) produces an (m × n) matrix.',
+    'Order matters! Matrix multiplication transforms right-to-left and is generally non-commutative (AB ≠ BA).',
+  ]}
+  commonTrap="Assuming A B = B A like regular scalar multiplication, or using element-wise `*` instead of matrix multiply `@` in NumPy/PyTorch."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="dot-product-matrix-multiply"
+  topicTitle="Dot Product and Matrix Multiplication"
+  referenceChecklist={[
+    'Explained what positive, zero, and negative dot products mean geometrically (angle & alignment).',
+    'Described orthogonal projection as casting a perpendicular shadow from one vector onto another.',
+    'Applied the inner-dimension matching rule (m × k) · (k × n) -> (m × n) and row-times-column calculation.',
+    'Explained why changing matrix multiplication order (AB vs BA) gives different results.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/math-foundations/linear-algebra/dot-product-matrix-multiply"
+  items={[
+    {
+      title: "GitHub Resource Folder & Study Notes",
+      type: "github",
+      description: "Summary sheets, worked matrix examples, and Python practice notebooks in mltheta/resources.",
+      url: "https://github.com/mltheta/resources/tree/main/math-foundations/linear-algebra/dot-product-matrix-multiply"
+    },
+    {
+      title: "Essence of Linear Algebra: Matrix Multiplication as Composition",
+      type: "video",
+      description: "3Blue1Brown visual explanation of why matrices compose right-to-left and transform grid basis vectors.",
+      url: "https://www.youtube.com/watch?v=XkY2DOUCWMU"
+    },
+    {
+      title: "Essence of Linear Algebra: Dot Products and Duality",
+      type: "video",
+      description: "Intuitive geometric connection between shadows, projections, and linear transformations to the number line.",
+      url: "https://www.youtube.com/watch?v=LyGKycYT2v0"
+    },
+    {
+      title: "Mathematics for Machine Learning — Chapter 2.2: Matrices",
+      type: "book",
+      description: "Free university textbook covering matrix multiplication, associativity, and inner products.",
+      url: "https://mml-book.github.io/"
+    }
+  ]}
+/>
+
+</Section>
