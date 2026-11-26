@@ -42,7 +42,10 @@ Understanding transpose, determinant, and invertibility stops countless silent b
 To compute the transpose $\mathbf{A}^T$, flip every element across the top-left-to-bottom-right diagonal so entry $(i, j)$ moves to $(j, i)$:
 
 $$
-\text{If } \mathbf{A} = \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix}_{2 \times 3}, \quad \text{then } \mathbf{A}^T = \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}_{3 \times 2}
+\begin{aligned}
+\mathbf{A} &= \begin{bmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \end{bmatrix}_{2 \times 3} \\[4pt]
+\mathbf{A}^T &= \begin{bmatrix} 1 & 4 \\ 2 & 5 \\ 3 & 6 \end{bmatrix}_{3 \times 2}
+\end{aligned}
 $$
 
 ![Transpose flips a 2x3 matrix over its diagonal into a 3x2 matrix](/images/transpose-inverse-determinant/01_transpose_mirror.png)
@@ -68,9 +71,14 @@ $$
 
 Read the three possibilities directly from $\det(\mathbf{A})$:
 1. **$\det(\mathbf{A}) > 0$**: Areas scale by $|\det(\mathbf{A})|$ and grid orientation stays the same.
-   - Example: $\mathbf{A} = \begin{bmatrix} 2 & 0 \\ 0 & 1.5 \end{bmatrix} \implies \det(\mathbf{A}) = 2(1.5) - 0 = +3.0$ (unit square grows $3\times$ bigger!).
+   $$
+   \mathbf{A} = \begin{bmatrix} 2 & 0 \\ 0 & 1.5 \end{bmatrix} \implies \det(\mathbf{A}) = +3.0
+   $$
+   (the unit square grows $3\times$ bigger).
 2. **$\det(\mathbf{A}) < 0$**: Space gets **flipped upside-down** like looking in a mirror (negative signed area).
-   - Example: $\mathbf{A} = \begin{bmatrix} -1 & 0.4 \\ 0 & 2 \end{bmatrix} \implies \det(\mathbf{A}) = (-1)(2) - 0 = -2.0$.
+   $$
+   \mathbf{A} = \begin{bmatrix} -1 & 0.4 \\ 0 & 2 \end{bmatrix} \implies \det(\mathbf{A}) = -2.0
+   $$
 3. **$\det(\mathbf{A}) = 0$ (Singular Matrix!)**: One dimension collapses completely! A 2D square gets squashed flat into a 1D line or 0D point (Area $= 0$).
 
 <Analogy>
@@ -102,12 +110,20 @@ Worked example with $\mathbf{A} = \begin{bmatrix} 3 & 1 \\ 2 & 2 \end{bmatrix}$:
 
 $$
 \begin{aligned}
-\det(\mathbf{A}) &= (3)(2) - (1)(2) = 6 - 2 = 4 \neq 0 \\
-\mathbf{A}^{-1} &= \frac{1}{4} \begin{bmatrix} 2 & -1 \\ -2 & 3 \end{bmatrix} = \begin{bmatrix} 0.5 & -0.25 \\ -0.5 & 0.75 \end{bmatrix}
+\det(\mathbf{A}) &= 3(2) - 1(2) = 4 \\
+\mathbf{A}^{-1} &= \frac{1}{4} \begin{bmatrix} 2 & -1 \\ -2 & 3 \end{bmatrix} \\
+&= \begin{bmatrix} 0.5 & -0.25 \\ -0.5 & 0.75 \end{bmatrix}
 \end{aligned}
 $$
 
-Check: $\mathbf{A}\mathbf{A}^{-1} = \begin{bmatrix} 3 & 1 \\ 2 & 2 \end{bmatrix}\begin{bmatrix} 0.5 & -0.25 \\ -0.5 & 0.75 \end{bmatrix} = \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = \mathbf{I}$.
+Check that multiplying $\mathbf{A}$ by $\mathbf{A}^{-1}$ returns the identity:
+
+$$
+\begin{aligned}
+\mathbf{A}\mathbf{A}^{-1} &= \begin{bmatrix} 3 & 1 \\ 2 & 2 \end{bmatrix}\begin{bmatrix} 0.5 & -0.25 \\ -0.5 & 0.75 \end{bmatrix} \\
+&= \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} = \mathbf{I}
+\end{aligned}
+$$
 
 #### Why ML Engineers Prefer `solve(A, b)` Over `inv(A) @ b`
 Computing an explicit inverse $\mathbf{A}^{-1}$ is slow ($\mathcal{O}(n^3)$ with large constant overhead) and magnifies floating-point rounding noise whenever $\det(\mathbf{A})$ is tiny. Solving $\mathbf{A}\mathbf{x} = \mathbf{b}$ directly via **LU decomposition** (`np.linalg.solve(A, b)`) is both faster and numerically cleaner!
@@ -129,12 +145,20 @@ Computing an explicit inverse $\mathbf{A}^{-1}$ is slow ($\mathcal{O}(n^3)$ with
 
 <Section label="Notes & Formula">
 
-<Formula label="2×2 Determinant & Inverse">
-  $\det(\mathbf{A}) = ad - bc, \qquad \mathbf{A}^{-1} = \frac{1}{ad - bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix} \quad (\det(\mathbf{A}) \neq 0)$
+<Formula label="2×2 Determinant">
+  $\det(\mathbf{A}) = ad - bc$
+</Formula>
+
+<Formula label="2×2 Matrix Inverse (det ≠ 0)">
+  $\mathbf{A}^{-1} = \frac{1}{ad - bc}\begin{bmatrix} d & -b \\ -c & a \end{bmatrix}$
 </Formula>
 
 <Formula label="Key Algebraic Identities">
-  $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T, \qquad (\mathbf{A}\mathbf{B})^{-1} = \mathbf{B}^{-1}\mathbf{A}^{-1}, \qquad \det(\mathbf{A}\mathbf{B}) = \det(\mathbf{A})\det(\mathbf{B})$
+  $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T$
+  <br />
+  $(\mathbf{A}\mathbf{B})^{-1} = \mathbf{B}^{-1}\mathbf{A}^{-1}$
+  <br />
+  $\det(\mathbf{A}\mathbf{B}) = \det(\mathbf{A})\det(\mathbf{B})$
 </Formula>
 
 <SymbolTable

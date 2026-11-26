@@ -25,7 +25,7 @@ A **matrix** is a 2D rectangular grid of numbers organized into rows and columns
 Computers cannot look at a picture of a cat or read a patient's medical history directly. They only process numbers.
 
 Linear algebra allows us to turn any real-world object into numbers:
-- A house is represented as a feature vector: $[\text{bedrooms}, \text{square feet}, \text{age}]^T$.
+- A house is represented as a feature vector: $[\text{bedrooms}, \text{sqft}, \text{age}]^T$.
 - An entire dataset of $10\,000$ houses is organized into a matrix of shape $10\,000 \times 3$.
 - An image is a matrix of pixel brightness values (or a 3D tensor with red, green, and blue channels).
 - Neural network weights that transform input features into predictions are stored as matrices.
@@ -62,7 +62,10 @@ $$
 When you add two vectors $\mathbf{v}$ and $\mathbf{u}$, you add their matching components:
 
 $$
-\mathbf{v} + \mathbf{u} = \begin{bmatrix} v_1 \\ v_2 \end{bmatrix} + \begin{bmatrix} u_1 \\ u_2 \end{bmatrix} = \begin{bmatrix} v_1 + u_1 \\ v_2 + u_2 \end{bmatrix}
+\begin{aligned}
+\mathbf{v} + \mathbf{u} &= \begin{bmatrix} v_1 \\ v_2 \end{bmatrix} + \begin{bmatrix} u_1 \\ u_2 \end{bmatrix} \\
+&= \begin{bmatrix} v_1 + u_1 \\ v_2 + u_2 \end{bmatrix}
+\end{aligned}
 $$
 
 Geometrically, this is "tip-to-tail" addition. Take vector $\mathbf{u}$, place its tail at the tip of $\mathbf{v}$, and the combined journey from origin to final destination is $\mathbf{v} + \mathbf{u}$. This forms a parallelogram.
@@ -84,7 +87,10 @@ $$
 When we stack multiple column vectors side by side, we get a **matrix**:
 
 $$
-\mathbf{A} = \begin{bmatrix} \mathbf{u} & \mathbf{v} \end{bmatrix} = \begin{bmatrix} u_1 & v_1 \\ u_2 & v_2 \end{bmatrix}
+\begin{aligned}
+\mathbf{A} &= \begin{bmatrix} \mathbf{u} & \mathbf{v} \end{bmatrix} \\
+&= \begin{bmatrix} u_1 & v_1 \\ u_2 & v_2 \end{bmatrix}
+\end{aligned}
 $$
 
 A matrix with $m$ rows and $n$ columns has dimension $m \times n$.
@@ -114,11 +120,15 @@ In ML:
 <Section label="Notes & Formula">
 
 <Formula label="Vector Norm (Euclidean / L2 Length)">
-  $\|\mathbf{v}\|_2 = \sqrt{\sum_{i=1}^{n} v_i^2} = \sqrt{v_1^2 + v_2^2 + \dots + v_n^2}$
+  $\|\mathbf{v}\|_2 = \sqrt{\sum_{i=1}^{n} v_i^2}$
+  <br />
+  $= \sqrt{v_1^2 + v_2^2 + \dots + v_n^2}$
 </Formula>
 
 <Formula label="Matrix Dimensions">
-  $\mathbf{X} \in \mathbb{R}^{m \times n} \quad (m \text{ rows}, \; n \text{ columns})$
+  $\mathbf{X} \in \mathbb{R}^{m \times n}$
+  <br />
+  <span className="text-sm text-stone-600">($m$ rows, $n$ columns)</span>
 </Formula>
 
 <SymbolTable

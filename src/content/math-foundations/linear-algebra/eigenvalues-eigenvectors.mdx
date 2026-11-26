@@ -86,30 +86,37 @@ $$
 #### Step 1: Solve the Characteristic Equation for $\lambda$
 $$
 \begin{aligned}
-\det\begin{pmatrix} 2 - \lambda & 1 \\ 1 & 2 - \lambda \end{pmatrix} &= (2 - \lambda)^2 - (1)(1) = 0 \\
+\det\begin{pmatrix} 2 - \lambda & 1 \\ 1 & 2 - \lambda \end{pmatrix} &= 0 \\
+(2 - \lambda)^2 - 1 &= 0 \\
 \lambda^2 - 4\lambda + 3 &= 0 \\
-(\lambda - 3)(\lambda - 1) &= 0 \implies \lambda_1 = 3, \quad \lambda_2 = 1
+(\lambda - 3)(\lambda - 1) &= 0 \\
+\implies \lambda_1 = 3, &\quad \lambda_2 = 1
 \end{aligned}
 $$
 
-*(Shortcut check for $2 \times 2$ matrices: $\lambda_1 + \lambda_2 = 3 + 1 = 4 = \text{trace}(\mathbf{A})$, and $\lambda_1 \cdot \lambda_2 = 3 \times 1 = 3 = \det(\mathbf{A})$!)*
+*(Shortcut check for $2 \times 2$ matrices: $\lambda_1 + \lambda_2 = 4 = \text{tr}(\mathbf{A})$, and $\lambda_1 \cdot \lambda_2 = 3 = \det(\mathbf{A})$.)*
 
 #### Step 2: Plug Each $\lambda$ Back In to Find Its Eigenvector
 - **For $\lambda_1 = 3$**:
   $$
   \begin{aligned}
-  (\mathbf{A} - 3\mathbf{I})\mathbf{v} = \begin{bmatrix} -1 & 1 \\ 1 & -1 \end{bmatrix}\begin{bmatrix} v_1 \\ v_2 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies v_1 = v_2
+  (\mathbf{A} - 3\mathbf{I})\mathbf{v} &= \begin{bmatrix} -1 & 1 \\ 1 & -1 \end{bmatrix}\begin{bmatrix} v_1 \\ v_2 \end{bmatrix} \\
+  &= \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies v_1 = v_2
   \end{aligned}
   $$
-  Any multiple of $\begin{bmatrix} 1 \\ 1 \end{bmatrix}$ works! Check: $\begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 3 \\ 3 \end{bmatrix} = 3\begin{bmatrix} 1 \\ 1 \end{bmatrix}$.
+  Any multiple of $\begin{bmatrix} 1 \\ 1 \end{bmatrix}$ works! Check:
+  $$
+  \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}\begin{bmatrix} 1 \\ 1 \end{bmatrix} = \begin{bmatrix} 3 \\ 3 \end{bmatrix} = 3\begin{bmatrix} 1 \\ 1 \end{bmatrix}
+  $$
 
 - **For $\lambda_2 = 1$**:
   $$
   \begin{aligned}
-  (\mathbf{A} - 1\mathbf{I})\mathbf{v} = \begin{bmatrix} 1 & 1 \\ 1 & 1 \end{bmatrix}\begin{bmatrix} v_1 \\ v_2 \end{bmatrix} = \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies v_1 = -v_2
+  (\mathbf{A} - 1\mathbf{I})\mathbf{v} &= \begin{bmatrix} 1 & 1 \\ 1 & 1 \end{bmatrix}\begin{bmatrix} v_1 \\ v_2 \end{bmatrix} \\
+  &= \begin{bmatrix} 0 \\ 0 \end{bmatrix} \implies v_1 = -v_2
   \end{aligned}
   $$
-  Any multiple of $\begin{bmatrix} 1 \\ -1 \end{bmatrix}$ works! Notice $\begin{bmatrix} 1 \\ 1 \end{bmatrix} \cdot \begin{bmatrix} 1 \\ -1 \end{bmatrix} = 0$—they are **perpendicular**!
+  Any multiple of $\begin{bmatrix} 1 \\ -1 \end{bmatrix}$ works! Notice $[1, 1]^T \cdot [1, -1]^T = 0$—they are **perpendicular**!
 
 ---
 
@@ -142,12 +149,18 @@ Because a dataset's covariance matrix $\boldsymbol{\Sigma} = \frac{1}{n}\mathbf{
 
 <Section label="Notes & Formula">
 
-<Formula label="Eigenvalue Equation & Characteristic Determinant">
-  $\mathbf{A}\mathbf{v} = \lambda \mathbf{v} \quad (\mathbf{v} \neq \mathbf{0}) \iff \det(\mathbf{A} - \lambda \mathbf{I}) = 0$
+<Formula label="Eigenvalue Equation">
+  $\mathbf{A}\mathbf{v} = \lambda \mathbf{v} \quad (\mathbf{v} \neq \mathbf{0})$
+  <br />
+  $\det(\mathbf{A} - \lambda \mathbf{I}) = 0$
 </Formula>
 
-<Formula label="Trace, Determinant & Spectral Decomposition (Symmetric A)">
-  $\sum_{i=1}^{n} \lambda_i = \text{tr}(\mathbf{A}), \qquad \prod_{i=1}^{n} \lambda_i = \det(\mathbf{A}), \qquad \mathbf{A} = \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^T$
+<Formula label="Trace, Determinant & Spectral Form">
+  $\sum_{i=1}^{n} \lambda_i = \text{tr}(\mathbf{A})$
+  <br />
+  $\prod_{i=1}^{n} \lambda_i = \det(\mathbf{A})$
+  <br />
+  $\mathbf{A} = \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^T \quad (\mathbf{A} = \mathbf{A}^T)$
 </Formula>
 
 <SymbolTable

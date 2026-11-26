@@ -19,7 +19,10 @@ export const metadata = {
 It reveals a stunning geometric secret: **every linear transformation on Earth**—no matter how twisted, rectangular, or sheared—can always be broken into just three ultra-clean steps:
 
 $$
-\mathbf{A} = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T \quad (\text{Rotate } \to \text{ Stretch along axes } \to \text{ Rotate})
+\begin{aligned}
+\mathbf{A} &= \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T \\
+&(\text{Rotate} \to \text{Stretch} \to \text{Rotate})
+\end{aligned}
 $$
 
 </Section>
@@ -72,8 +75,11 @@ Consider $\mathbf{A} = \begin{bmatrix} 3 & 0 & 0 \\ 4 & 0 & 0 \end{bmatrix}$ ($2
 Notice only column 1 is non-zero ($\begin{bmatrix} 3 \\ 4 \end{bmatrix}$, length $\sqrt{3^2+4^2} = 5$):
 $$
 \begin{aligned}
-\sigma_1 &= 5, \quad \mathbf{u}_1 = \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix}, \quad \mathbf{v}_1 = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix} \\[4pt]
-\mathbf{A} &= \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T = 5 \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 3 & 0 & 0 \\ 4 & 0 & 0 \end{bmatrix}
+\sigma_1 &= 5, \quad \mathbf{u}_1 = \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix} \\[4pt]
+\mathbf{v}_1 &= \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix} \\[4pt]
+\mathbf{A} &= \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T \\
+&= 5 \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} \\
+&= \begin{bmatrix} 3 & 0 & 0 \\ 4 & 0 & 0 \end{bmatrix}
 \end{aligned}
 $$
 
@@ -86,7 +92,10 @@ All extra singular values ($\sigma_2 = 0$) vanish! Even a rectangular matrix rev
 How do singular values relate to eigenvalues if $\mathbf{A}$ isn't even symmetric? Compute $\mathbf{A}^T\mathbf{A}$—which is *always* symmetric positive semi-definite!
 
 $$
-\mathbf{A}^T\mathbf{A} = (\mathbf{V}\boldsymbol{\Sigma}^T\mathbf{U}^T)(\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T) = \mathbf{V}(\boldsymbol{\Sigma}^T\boldsymbol{\Sigma})\mathbf{V}^T
+\begin{aligned}
+\mathbf{A}^T\mathbf{A} &= (\mathbf{V}\boldsymbol{\Sigma}^T\mathbf{U}^T)(\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T) \\
+&= \mathbf{V}(\boldsymbol{\Sigma}^T\boldsymbol{\Sigma})\mathbf{V}^T
+\end{aligned}
 $$
 
 That means:
@@ -101,7 +110,10 @@ That means:
 Because $\boldsymbol{\Sigma}$ is sorted from largest ($\sigma_1$) to smallest ($\sigma_r$), we can rewrite **every matrix** as a sum of simple rank-1 "layers":
 
 $$
-\mathbf{A} = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T + \sigma_2 \mathbf{u}_2 \mathbf{v}_2^T + \dots + \sigma_r \mathbf{u}_r \mathbf{v}_r^T
+\begin{aligned}
+\mathbf{A} &= \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T + \sigma_2 \mathbf{u}_2 \mathbf{v}_2^T \\
+&\quad + \dots + \sigma_r \mathbf{u}_r \mathbf{v}_r^T
+\end{aligned}
 $$
 
 - Layer 1 ($\sigma_1 \mathbf{u}_1 \mathbf{v}_1^T$) paints the single boldest overall pattern in the matrix.
@@ -127,12 +139,16 @@ Look at what happens with storage: an $800 \times 800$ grayscale photo holds $64
 
 <Section label="Notes & Formula">
 
-<Formula label="Singular Value Decomposition & Outer-Product Expansion">
-  $\mathbf{A}_{m \times n} = \mathbf{U}_{m \times m} \boldsymbol{\Sigma}_{m \times n} \mathbf{V}^T_{n \times n} = \sum_{i=1}^{r} \sigma_i \mathbf{u}_i \mathbf{v}_i^T$
+<Formula label="SVD Factorization">
+  $\mathbf{A} = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T$
+  <br />
+  $= \sum_{i=1}^{r} \sigma_i \mathbf{u}_i \mathbf{v}_i^T$
 </Formula>
 
-<Formula label="Orthogonality & Energy Fraction Kept at Rank k">
-  $\mathbf{U}^T\mathbf{U} = \mathbf{I}_m, \qquad \mathbf{V}^T\mathbf{V} = \mathbf{I}_n, \qquad \text{Energy}(k) = \frac{\sum_{i=1}^{k} \sigma_i^2}{\sum_{i=1}^{r} \sigma_i^2}$
+<Formula label="Orthogonality & Energy Ratio">
+  $\mathbf{U}^T\mathbf{U} = \mathbf{I}_m, \quad \mathbf{V}^T\mathbf{V} = \mathbf{I}_n$
+  <br />
+  $\text{Energy}(k) = \frac{\sum_{i=1}^{k} \sigma_i^2}{\sum_{i=1}^{r} \sigma_i^2}$
 </Formula>
 
 <SymbolTable

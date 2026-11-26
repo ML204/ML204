@@ -47,7 +47,10 @@ Suppose you stand at the origin $(0, 0)$ and need to travel to $\mathbf{v} = \be
    $$
 2. **$L_2$ Norm (Euclidean Distance)**: You fly diagonally "as the crow flies" using the Pythagorean theorem:
    $$
-   \|\mathbf{v}\|_2 = \sqrt{3^2 + 4^2} = \sqrt{9 + 16} = \sqrt{25} = 5
+   \begin{aligned}
+   \|\mathbf{v}\|_2 &= \sqrt{3^2 + 4^2} \\
+   &= \sqrt{25} = 5
+   \end{aligned}
    $$
 3. **$L_\infty$ Norm (Max / Chebyshev Distance)**: Only the single largest coordinate matters:
    $$
@@ -149,11 +152,17 @@ Mathematicians call $\|\cdot\|$ a valid norm only if it satisfies three sanity c
 <Section label="Notes & Formula">
 
 <Formula label="L1, L2, and Max Norms">
-  $\|\mathbf{x}\|_1 = \sum_{i=1}^{n} |x_i|, \qquad \|\mathbf{x}\|_2 = \sqrt{\sum_{i=1}^{n} x_i^2}, \qquad \|\mathbf{x}\|_\infty = \max_{1 \le i \le n} |x_i|$
+  $\|\mathbf{x}\|_1 = \sum_{i=1}^{n} |x_i|$
+  <br />
+  $\|\mathbf{x}\|_2 = \sqrt{\sum_{i=1}^{n} x_i^2}$
+  <br />
+  $\|\mathbf{x}\|_\infty = \max_{1 \le i \le n} |x_i|$
 </Formula>
 
 <Formula label="General Lp Norm & Triangle Inequality">
-  $\|\mathbf{x}\|_p = \left(\sum_{i=1}^{n} |x_i|^p\right)^{1/p}, \qquad \|\mathbf{u} + \mathbf{v}\|_p \le \|\mathbf{u}\|_p + \|\mathbf{v}\|_p$
+  $\|\mathbf{x}\|_p = \left(\sum_{i=1}^{n} |x_i|^p\right)^{1/p}$
+  <br />
+  $\|\mathbf{u} + \mathbf{v}\|_p \le \|\mathbf{u}\|_p + \|\mathbf{v}\|_p$
 </Formula>
 
 <SymbolTable
