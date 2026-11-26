@@ -98,27 +98,48 @@ $$
 
 ---
 
-### 3. Matrix-Vector Multiplication ($\mathbf{A}\mathbf{x}$)
+### 3. Matrix-Vector Multiplication ($\mathbf{A}\mathbf{x}$): How Matrices Warp Space
 
-What does multiplying a $2 \times 2$ matrix $\mathbf{A}$ by a vector $\mathbf{x}$ really do? There are two complementary ways to see it:
+What does multiplying a $2 \times 2$ matrix $\mathbf{A}$ by a vector $\mathbf{x}$ actually *do*? There are two equally important views:
 
-1. **Row View (Dot Products)**: Each coordinate of the output is the dot product of a row of $\mathbf{A}$ with $\mathbf{x}$.
-2. **Column View (Linear Combination)**: $\mathbf{A}\mathbf{x}$ blends the columns of $\mathbf{A}$ weighted by the entries $x_1, x_2$. Since $\mathbf{A}$'s columns tell you where the unit basis arrows $\hat{\mathbf{i}} = [1,0]^T$ and $\hat{\mathbf{j}} = [0,1]^T$ land, **every matrix encodes a geometric transformation of space!**
+1. **Row View (Stacked Dot Products)**: Each output coordinate is the dot product between one row of $\mathbf{A}$ and $\mathbf{x}$.
+2. **Column View (Moving the Grid Basis)**: Every 2D vector $\mathbf{x} = \begin{bmatrix} x_1 \\ x_2 \end{bmatrix}$ is built from $x_1$ steps East ($\hat{\mathbf{i}} = [1,0]^T$) plus $x_2$ steps North ($\hat{\mathbf{j}} = [0,1]^T$). When $\mathbf{A}$ multiplies $\mathbf{x}$, **$\mathbf{A}$'s columns tell you exactly where those two unit basis arrows land**:
 
-Worked example with $\mathbf{A} = \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix}$ and $\mathbf{x} = \begin{bmatrix} 4 \\ 5 \end{bmatrix}$:
+$$
+\begin{aligned}
+\mathbf{A}\mathbf{x} = \begin{bmatrix} a & b \\ c & d \end{bmatrix} \begin{bmatrix} x_1 \\ x_2 \end{bmatrix} &= x_1 \underbrace{\begin{bmatrix} a \\ c \end{bmatrix}}_{\text{new }\hat{\mathbf{i}}\text{ (Col 1)}} + x_2 \underbrace{\begin{bmatrix} b \\ d \end{bmatrix}}_{\text{new }\hat{\mathbf{j}}\text{ (Col 2)}}
+\end{aligned}
+$$
+
+Once $\hat{\mathbf{i}}$ and $\hat{\mathbf{j}}$ move to their new spots (keeping grid lines straight, parallel, and evenly spaced), **every point $\mathbf{x}$ simply rides along with the warped grid**!
+
+![Before and after grid transformation showing basis arrows i-hat and j-hat landing on the columns of matrix A](/images/dot-product-matrix-multiply/05_basis_transformation.png)
+
+#### Four Classic $2 \times 2$ Matrix Transformations at a Glance
+
+| Matrix $\mathbf{A}$ | Where $\hat{\mathbf{i}}$ & $\hat{\mathbf{j}}$ land | Geometric transformation |
+| :--- | :--- | :--- |
+| $\begin{bmatrix} 2 & 0 \\ 0 & 1 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [2, 0]^T,\; \hat{\mathbf{j}} \to [0, 1]^T$ | **Stretch** space $2\times$ wider horizontally |
+| $\begin{bmatrix} 0 & -1 \\ 1 & 0 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [0, 1]^T,\; \hat{\mathbf{j}} \to [-1, 0]^T$ | **Rotate** the whole plane $90^\circ$ counterclockwise |
+| $\begin{bmatrix} 1 & 1 \\ 0 & 1 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [1, 0]^T,\; \hat{\mathbf{j}} \to [1, 1]^T$ | **Shear** sideways (tilts squares into parallelograms) |
+| $\begin{bmatrix} 1 & 0 \\ 0 & 0 \end{bmatrix}$ | $\hat{\mathbf{i}} \to [1, 0]^T,\; \hat{\mathbf{j}} \to [0, 0]^T$ | **Flatten** all of 2D space onto the $x_1$-axis |
+
+Worked numerical example with $\mathbf{A} = \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix}$ and $\mathbf{x} = \begin{bmatrix} 4 \\ 5 \end{bmatrix}$:
 
 $$
 \begin{aligned}
 \mathbf{A}\mathbf{x} &= \begin{bmatrix} 2 & 1 \\ 0 & 3 \end{bmatrix} \begin{bmatrix} 4 \\ 5 \end{bmatrix} \\
-&= \begin{bmatrix} (2)(4) + (1)(5) \\ (0)(4) + (3)(5) \end{bmatrix} = \begin{bmatrix} 13 \\ 15 \end{bmatrix}
+&= 4\begin{bmatrix} 2 \\ 0 \end{bmatrix} + 5\begin{bmatrix} 1 \\ 3 \end{bmatrix} = \begin{bmatrix} (2)(4) + (1)(5) \\ (0)(4) + (3)(5) \end{bmatrix} = \begin{bmatrix} 13 \\ 15 \end{bmatrix}
 \end{aligned}
 $$
 
 ---
 
-### 4. Matrix-Matrix Multiplication & The Domino Rule
+### 4. Matrix-Matrix Multiplication & Chaining Transformations
 
-When you multiply $\mathbf{A}$ by $\mathbf{B}$, you apply transformation $\mathbf{B}$ first and then transformation $\mathbf{A}$ to every column of $\mathbf{B}$. Because every entry $(i, j)$ of $\mathbf{A}\mathbf{B}$ is the dot product of **row $i$ of $\mathbf{A}$** with **column $j$ of $\mathbf{B}$**, the number of columns in $\mathbf{A}$ must match the number of rows in $\mathbf{B}$!
+When you compute $(\mathbf{B}\mathbf{A})\mathbf{x} = \mathbf{B}(\mathbf{A}\mathbf{x})$, you chain **two geometric moves back-to-back, right to left**: first $\mathbf{A}$ moves $\hat{\mathbf{i}}$ and $\hat{\mathbf{j}}$ into $\mathbf{A}\hat{\mathbf{i}}$ and $\mathbf{A}\hat{\mathbf{j}}$; next $\mathbf{B}$ takes those transformed arrows and warps them again into $\mathbf{B}(\mathbf{A}\hat{\mathbf{i}})$ and $\mathbf{B}(\mathbf{A}\hat{\mathbf{j}})$—which become the columns of $\mathbf{B}\mathbf{A}$.
+
+Algebraically, every entry $(i, j)$ of a matrix product is the dot product of **row $i$ on the left** with **column $j$ on the right**, so the inner shapes must match:
 
 ![Domino shape rule showing inner dimensions matching and row-by-column dot products](/images/dot-product-matrix-multiply/03_matrix_multiply_shapes.png)
 
