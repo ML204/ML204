@@ -98,12 +98,12 @@ export const toc: Part[] = [
         slug: 'linear-algebra',
         title: 'Linear Algebra',
         subchapters: [
-          { slug: 'vectors-and-matrices',          title: 'Vectors and Matrices',              estimatedMinutes: 7 },
-          { slug: 'dot-product-matrix-multiply',   title: 'Dot Product and Matrix Multiplication', estimatedMinutes: 7 },
-          { slug: 'transpose-inverse-determinant', title: 'Transpose, Inverse and Determinant', estimatedMinutes: 7 },
-          { slug: 'norms',                         title: 'Norms — L1 and L2',                 estimatedMinutes: 6 },
-          { slug: 'eigenvalues-eigenvectors',      title: 'Eigenvalues and Eigenvectors',      estimatedMinutes: 8 },
-          { slug: 'svd',                           title: 'Singular Value Decomposition',       estimatedMinutes: 8 },
+          { slug: 'vectors-and-matrices',          title: 'Vectors and Matrices',              estimatedMinutes: 7, done: true },
+          { slug: 'dot-product-matrix-multiply',   title: 'Dot Product and Matrix Multiplication', estimatedMinutes: 7, done: true },
+          { slug: 'transpose-inverse-determinant', title: 'Transpose, Inverse and Determinant', estimatedMinutes: 7, done: true },
+          { slug: 'norms',                         title: 'Norms — L1 and L2',                 estimatedMinutes: 6, done: true },
+          { slug: 'eigenvalues-eigenvectors',      title: 'Eigenvalues and Eigenvectors',      estimatedMinutes: 8, done: true },
+          { slug: 'svd',                           title: 'Singular Value Decomposition',       estimatedMinutes: 8, done: true },
         ],
       },
       {

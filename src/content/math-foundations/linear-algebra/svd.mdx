@@ -1,0 +1,409 @@
+import { Quiz } from '@/components/quiz/Quiz';
+import {
+  Section, Callout, Analogy, Formula, SymbolTable, Divider
+} from '@/components/subchapter/SubchapterBlocks';
+import { SVDFigure } from '@/components/figures/SVDFigure';
+import { TeachThisCard } from '@/components/subchapter/TeachThisCard';
+import { ExplainInOwnWords } from '@/components/subchapter/ExplainInOwnWords';
+import { ResourcesSection } from '@/components/subchapter/ResourcesSection';
+
+export const metadata = {
+  title: 'Singular Value Decomposition',
+  description: 'Factoring any m×n matrix into Rotate → Stretch → Rotate (A = UΣVᵀ), geometric intuition, singular values vs eigenvalues, and low-rank ML compression.',
+};
+
+<Section label="What is it?">
+
+**Singular Value Decomposition (SVD)** is the Swiss Army knife of Linear Algebra. While standard eigenvalues only work on **square** matrices (and fail on pure rotations), SVD works on **every single matrix in existence—any shape $m \times n$!**
+
+It reveals a stunning geometric secret: **every linear transformation on Earth**—no matter how twisted, rectangular, or sheared—can always be broken into just three ultra-clean steps:
+
+$$
+\mathbf{A} = \mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T \quad (\text{Rotate } \to \text{ Stretch along axes } \to \text{ Rotate})
+$$
+
+</Section>
+
+<Section label="Why we need it">
+
+SVD powers some of the most impactful algorithms across classic ML, data compression, and modern Generative AI:
+
+- **Image Compression & Denoising**: Keeping only the largest $k$ singular values strips away background noise while compressing massive pixel matrices to a fraction of their memory size.
+- **Recommender Systems (Collaborative Filtering)**: Factorizes huge sparse `Users × Movies` rating matrices into compact latent user-taste ($\mathbf{U}$) and movie-genre ($\mathbf{V}^T$) vectors.
+- **Numerically Stable PCA & Pseudoinverse**: Computes Principal Components directly from raw data matrix $\mathbf{X}$ without squaring condition numbers via $\mathbf{X}^T\mathbf{X}$, and solves ill-conditioned least-squares via the Moore–Penrose pseudoinverse.
+- **LoRA (Low-Rank Adaptation for LLMs)**: Inspires parameter-efficient fine-tuning by updating massive weight matrices $\Delta \mathbf{W} \approx \mathbf{B}\mathbf{A}$ using tiny low-rank bottlenecks instead of billions of parameters!
+
+</Section>
+
+<Divider />
+
+<Section label="Explained in detail">
+
+### 1. The 3-Step Geometric Recipe: Rotate → Stretch → Rotate
+
+Take a plain unit circle and mark two perpendicular input vectors $\mathbf{v}_1$ and $\mathbf{v}_2$ on it. Even when matrix $\mathbf{A}$ tilts or shears the plane into a slanted ellipse, SVD always finds an **orthogonal pair** in input space ($\mathbf{v}_1 \perp \mathbf{v}_2$) that lands on the **perpendicular major/minor ellipse axes** ($\mathbf{u}_1 \perp \mathbf{u}_2$)!
+
+![Four-panel SVD transformation sequence: unit circle, V-transpose rotation, Sigma axis scaling, and U output rotation](/images/svd/01_svd_three_steps.png)
+
+Read $\mathbf{A}\mathbf{x} = \mathbf{U}(\boldsymbol{\Sigma}(\mathbf{V}^T\mathbf{x}))$ from **right to left** (the order operations hit $\mathbf{x}$):
+1. **$\mathbf{V}^T$ (First Rotation/Reflection)**: Turns space so the special perpendicular directions $\mathbf{v}_1, \mathbf{v}_2$ line up neatly along the horizontal and vertical coordinate axes.
+2. **$\boldsymbol{\Sigma}$ (Pure Axis Stretch)**: Scales the horizontal axis by $\sigma_1 \ge 0$ and vertical axis by $\sigma_2 \ge 0$ (turning the circle into a clean axis-aligned ellipse!).
+3. **$\mathbf{U}$ (Final Rotation/Reflection)**: Rotates the stretched ellipse into its final tilted orientation in output space, mapping axes onto $\mathbf{u}_1, \mathbf{u}_2$.
+
+<Analogy>
+  Imagine tailoring a square piece of clay into an oval badge tilted at $35^\circ$: first rotate the square on a turntable so its fibers face you ($\mathbf{V}^T$), roll it wider lengthwise and thinner sideways ($\boldsymbol{\Sigma}$), and finally turn it on the display table to its finished angle ($\mathbf{U}$)!
+</Analogy>
+
+---
+
+### 2. Why SVD Works on ANY Rectangular Matrix ($\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T$)
+
+For an arbitrary dataset or weight matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$:
+
+![Color-coded shape breakdown of SVD A = U Sigma V^T holding for arbitrary rectangular m x n matrices](/images/svd/02_svd_matrix_shapes.png)
+
+- **$\mathbf{U}$ ($m \times m$)**: **Orthogonal** matrix ($\mathbf{U}^T\mathbf{U} = \mathbf{I}$) whose columns are the **left singular vectors** $\mathbf{u}_i$.
+- **$\boldsymbol{\Sigma}$ ($m \times n$)**: **Diagonal** rectangular matrix holding the **singular values** $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_r > 0$ sorted largest to smallest!
+- **$\mathbf{V}^T$ ($n \times n$)**: **Orthogonal** matrix ($\mathbf{V}^T\mathbf{V} = \mathbf{I}$) whose rows are the transposed **right singular vectors** $\mathbf{v}_i^T$.
+
+#### Concrete Rectangular Worked Example ($2 \times 3$)
+Consider $\mathbf{A} = \begin{bmatrix} 3 & 0 & 0 \\ 4 & 0 & 0 \end{bmatrix}$ ($2$ rows, $3$ columns — eigendecomposition cannot even run here!).
+
+Notice only column 1 is non-zero ($\begin{bmatrix} 3 \\ 4 \end{bmatrix}$, length $\sqrt{3^2+4^2} = 5$):
+$$
+\begin{aligned}
+\sigma_1 &= 5, \quad \mathbf{u}_1 = \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix}, \quad \mathbf{v}_1 = \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix} \\[4pt]
+\mathbf{A} &= \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T = 5 \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix} \begin{bmatrix} 1 & 0 & 0 \end{bmatrix} = \begin{bmatrix} 3 & 0 & 0 \\ 4 & 0 & 0 \end{bmatrix}
+\end{aligned}
+$$
+
+All extra singular values ($\sigma_2 = 0$) vanish! Even a rectangular matrix reveals its exact rank ($r = 1$) and strength ($\sigma_1 = 5$) immediately.
+
+---
+
+### 3. Singular Values vs Eigenvalues
+
+How do singular values relate to eigenvalues if $\mathbf{A}$ isn't even symmetric? Compute $\mathbf{A}^T\mathbf{A}$—which is *always* symmetric positive semi-definite!
+
+$$
+\mathbf{A}^T\mathbf{A} = (\mathbf{V}\boldsymbol{\Sigma}^T\mathbf{U}^T)(\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T) = \mathbf{V}(\boldsymbol{\Sigma}^T\boldsymbol{\Sigma})\mathbf{V}^T
+$$
+
+That means:
+- The **right singular vectors** $\mathbf{v}_i$ of $\mathbf{A}$ are the **eigenvectors** of $\mathbf{A}^T\mathbf{A}$.
+- Each **singular value** is literally $\sigma_i = \sqrt{\lambda_i(\mathbf{A}^T\mathbf{A})} \ge 0$.
+- The **left singular vectors** $\mathbf{u}_i$ are the **eigenvectors** of $\mathbf{A}\mathbf{A}^T$.
+
+---
+
+### 4. Low-Rank Approximation & Compression
+
+Because $\boldsymbol{\Sigma}$ is sorted from largest ($\sigma_1$) to smallest ($\sigma_r$), we can rewrite **every matrix** as a sum of simple rank-1 "layers":
+
+$$
+\mathbf{A} = \sigma_1 \mathbf{u}_1 \mathbf{v}_1^T + \sigma_2 \mathbf{u}_2 \mathbf{v}_2^T + \dots + \sigma_r \mathbf{u}_r \mathbf{v}_r^T
+$$
+
+- Layer 1 ($\sigma_1 \mathbf{u}_1 \mathbf{v}_1^T$) paints the single boldest overall pattern in the matrix.
+- Keeping just the top $k \ll r$ terms gives $\mathbf{A}_k = \sum_{i=1}^{k} \sigma_i \mathbf{u}_i \mathbf{v}_i^T$, proven by the **Eckart–Young Theorem** to be the **mathematically best possible** rank-$k$ approximation!
+
+![Low-rank SVD reconstruction of an 8x8 pixel letter A showing Rank-1, Rank-2, Rank-3 vs Full Rank](/images/svd/03_low_rank_compression.png)
+
+Look at what happens with storage: an $800 \times 800$ grayscale photo holds $640\,000$ numbers. Keeping Rank $k = 40$ stores only $40 \times (800 + 800 + 1) \approx 64\,040$ numbers—a **$10\times$ compression ratio** with barely visible loss!
+
+</Section>
+
+<SVDFigure />
+
+<Section label="What to try">
+
+- In **3-Step Geometry ($U\Sigma V^T$)** mode, press **▶ Play** (or click stage pills `0` → `1` → `2` → `3` one by one) to watch the unit circle rotate via $\mathbf{V}^T$, stretch along axes via $\boldsymbol{\Sigma}$, and rotate into the tilted ellipse via $\mathbf{U}$!
+- Watch the blue ($\mathbf{v}_1$) and orange ($\mathbf{v}_2$) arrows carefully: even when the matrix is skewed/non-symmetric, they start $90^\circ$ apart AND end up $90^\circ$ apart as the ellipse's exact semi-axes!
+- Switch to **🗜️ Rank-k Image Compression**, pick **"Letter A"** or **"Smiley"**, and drag **Rank $k$ Cutoff** down from $8 \to 3 \to 2 \to 1$. Notice how `k = 2` or `k = 3` already captures well over $90\%$ of the energy in the singular value spectrum!
+
+</Section>
+
+<Divider />
+
+<Section label="Notes & Formula">
+
+<Formula label="Singular Value Decomposition & Outer-Product Expansion">
+  $\mathbf{A}_{m \times n} = \mathbf{U}_{m \times m} \boldsymbol{\Sigma}_{m \times n} \mathbf{V}^T_{n \times n} = \sum_{i=1}^{r} \sigma_i \mathbf{u}_i \mathbf{v}_i^T$
+</Formula>
+
+<Formula label="Orthogonality & Energy Fraction Kept at Rank k">
+  $\mathbf{U}^T\mathbf{U} = \mathbf{I}_m, \qquad \mathbf{V}^T\mathbf{V} = \mathbf{I}_n, \qquad \text{Energy}(k) = \frac{\sum_{i=1}^{k} \sigma_i^2}{\sum_{i=1}^{r} \sigma_i^2}$
+</Formula>
+
+<SymbolTable
+  rows={[
+    { symbol: 'U',      meaning: 'm × m orthogonal matrix of left singular vectors (output directions)' },
+    { symbol: 'Σ',      meaning: 'm × n diagonal matrix of sorted non-negative singular values σ₁ ≥ σ₂ ≥ …' },
+    { symbol: 'Vᵀ',     meaning: 'n × n orthogonal matrix of right singular vectors (input directions)' },
+    { symbol: 'σᵢ',     meaning: 'i-th singular value: √λᵢ(AᵀA), geometric semi-axis stretch factor' },
+    { symbol: 'Rank k', meaning: 'Number of top singular layers retained for compression / denoising' },
+  ]}
+/>
+
+<Callout kind="tip">
+  **Rule of Thumb in NumPy (`np.linalg.svd(A, full_matrices=False)`)**: For a tall $10\,000 \times 20$ data matrix, `full_matrices=True` tries to build a giant $10\,000 \times 10\,000$ matrix $\mathbf{U}$ (800 MB!). Passing `full_matrices=False` (called **Thin/Economy SVD**) returns only the useful $10\,000 \times 20$ columns, running orders of magnitude faster!
+</Callout>
+
+</Section>
+
+<Divider />
+
+<Section label="Quiz">
+
+<Quiz
+  questions={[
+    {
+      id: 'svd-q1',
+      kind: 'mcq',
+      text: 'Why is SVD strictly more general than standard Eigendecomposition (Av = λv)?',
+      options: [
+        'SVD exists for EVERY matrix of any rectangular shape m × n, whereas eigendecomposition requires square matrices',
+        'SVD only works on 2×2 symmetric matrices',
+        'SVD allows complex singular values whereas eigenvalues are always real',
+        'Eigendecomposition produces three matrices while SVD produces one',
+      ],
+      correctIndex: 0,
+      explanation: 'Real datasets usually have n_samples ≠ n_features (rectangular matrices), where Av = λv is undefined. SVD always succeeds for any shape m × n.',
+    },
+    {
+      id: 'svd-q2',
+      kind: 'mcq',
+      text: 'In the equation Ax = U Σ Vᵀ x, in what geometric order do the three operations hit vector x?',
+      options: [
+        'Vᵀ rotates input → Σ stretches coordinate axes → U rotates output',
+        'U rotates input → Σ stretches → Vᵀ rotates output',
+        'Σ stretches first → Vᵀ rotates → U shifts',
+        'Order does not matter because matrices commute',
+      ],
+      correctIndex: 0,
+      explanation: 'Remember right-to-left composition: Vᵀ acts on x first, then Σ scales the aligned axes, and finally U rotates into output space.',
+      figureHint: 'Press ▶ Play in 3-Step Geometry mode and watch stages 1 (Vᵀ) → 2 (Σ) → 3 (U).',
+    },
+    {
+      id: 'svd-q3',
+      kind: 'mcq',
+      text: 'If matrix A has shape 100 × 25, what are the shapes of U, Σ, and Vᵀ in Full SVD?',
+      options: [
+        'U is 100 × 100, Σ is 100 × 25, Vᵀ is 25 × 25',
+        'U is 25 × 25, Σ is 25 × 100, Vᵀ is 100 × 100',
+        'All three matrices are 100 × 25',
+        'U is 100 × 25, Σ is 25 × 25, Vᵀ is 25 × 100',
+      ],
+      correctIndex: 0,
+      explanation: 'Check the Domino Rule: (100 × 100) · (100 × 25) · (25 × 25) multiplies cleanly down to (100 × 25)!',
+    },
+    {
+      id: 'svd-q4',
+      kind: 'mcq',
+      text: 'What special property do BOTH matrices U and V satisfy?',
+      options: [
+        'They are orthogonal matrices (UᵀU = I and VᵀV = I), meaning their columns are mutually perpendicular unit vectors',
+        'All entries in U and V are positive integers',
+        'They are strictly diagonal',
+        'Their determinants equal zero',
+      ],
+      correctIndex: 0,
+      explanation: 'Orthogonal matrices perform rigid rotations/reflections without stretching lengths or skewing angles.',
+    },
+    {
+      id: 'svd-q5',
+      kind: 'mcq',
+      text: 'How are singular values σᵢ always ordered and signed in standard SVD?',
+      options: [
+        'Non-negative real numbers sorted descending: σ₁ ≥ σ₂ ≥ … ≥ 0',
+        'Signed numbers that can be negative or complex',
+        'Sorted ascending from smallest to largest',
+        'All singular values equal 1',
+      ],
+      correctIndex: 0,
+      explanation: 'Because singular values represent geometric stretch lengths of the ellipse semi-axes (√λᵢ(AᵀA)), they are never negative and always ordered largest-first.',
+    },
+    {
+      id: 'svd-q6',
+      kind: 'mcq',
+      text: 'What is the exact relationship between the singular values σᵢ of A and the eigenvalues λᵢ of AᵀA?',
+      options: [
+        'σᵢ = √λᵢ(AᵀA)  (so σᵢ² = λᵢ)',
+        'σᵢ = λᵢ²',
+        'σᵢ = 1 / λᵢ',
+        'There is no mathematical relationship',
+      ],
+      correctIndex: 0,
+      explanation: 'Since AᵀA = V(ΣᵀΣ)Vᵀ, the diagonal entries of ΣᵀΣ are σᵢ², which match the eigenvalues of AᵀA.',
+    },
+    {
+      id: 'svd-q7',
+      kind: 'mcq',
+      text: 'When SVD maps a 2D unit circle into a stretched ellipse with semi-axes of length 4.0 and 1.2, what are σ₁ and σ₂?',
+      options: ['σ₁ = 4.0 and σ₂ = 1.2', 'σ₁ = 16.0 and σ₂ = 1.44', 'σ₁ = 2.0 and σ₂ = 0.6', 'Cannot tell without knowing U'],
+      correctIndex: 0,
+      explanation: 'By definition, singular values are the half-axis lengths (stretch factors along the major and minor axes) of the transformed unit circle!',
+    },
+    {
+      id: 'svd-q8',
+      kind: 'mcq',
+      text: 'How many non-zero singular values does a matrix A have?',
+      options: [
+        'Exactly equal to the rank r of matrix A',
+        'Always equal to m + n',
+        'Always equal to 1',
+        'Equal to the trace of A',
+      ],
+      correctIndex: 0,
+      explanation: 'Each strictly positive singular value adds one independent dimension to the output space, so the count of σᵢ > 0 equals rank(A).',
+    },
+    {
+      id: 'svd-q9',
+      kind: 'mcq',
+      text: 'In SVD image compression, how is a Rank-k approximation A_k built?',
+      options: [
+        'Keep only the largest k singular values and vectors: Σᵢ₌₁ᵏ σᵢ uᵢ vᵢᵀ',
+        'Keep the smallest k singular values near zero',
+        'Zero out U and V and keep only Σ',
+        'Keep only the top-left k×k pixels of the image',
+      ],
+      correctIndex: 0,
+      explanation: 'Keeping the top k outer-product layers captures the dominant global structure (most of Σ σᵢ² energy) while discarding tiny noise components.',
+      figureHint: 'In Rank-k Image Compression mode, test k = 1, 2, 3 on Letter A and watch the Energy % readout.',
+    },
+    {
+      id: 'svd-q10',
+      kind: 'mcq',
+      text: 'How many numbers must you store to represent a Rank-k SVD approximation of an m × n matrix?',
+      options: [
+        'k · (m + n + 1) numbers (instead of m · n)',
+        'm · n · k numbers',
+        '(m + n) numbers total regardless of k',
+        'k² numbers',
+      ],
+      correctIndex: 0,
+      explanation: 'Each layer needs an m-vector uᵢ, an n-vector vᵢ, and 1 scalar σᵢ—making k(m + n + 1) total values! For k ≪ min(m, n), storage drops dramatically.',
+    },
+    {
+      id: 'svd-q11',
+      kind: 'mcq',
+      text: 'Why is computing PCA via SVD of the centered data matrix X generally safer than forming XᵀX and taking eigenvalues?',
+      options: [
+        'Forming XᵀX squares the matrix condition number, magnifying floating-point precision loss for correlated features',
+        'XᵀX cannot be computed in Python',
+        'SVD runs without centering the data',
+        'SVD gives complex numbers that are more accurate',
+      ],
+      correctIndex: 0,
+      explanation: 'Squaring small singular values (10⁻⁸ → 10⁻¹⁶) can wipe out small feature directions in double precision; SVD computes σᵢ directly without squaring.',
+    },
+    {
+      id: 'svd-q12',
+      kind: 'mcq',
+      text: 'For A = [[3, 0, 0], [4, 0, 0]], how many non-zero singular values exist and what is σ₁?',
+      options: ['One non-zero singular value: σ₁ = 5', 'Two non-zero singular values: 3 and 4', 'Zero singular values', 'Three singular values: 3, 4, 0'],
+      correctIndex: 0,
+      explanation: 'All columns except column 1 are zeros, so rank = 1 and σ₁ = √(3² + 4²) = 5.',
+    },
+    {
+      id: 'svd-q13',
+      kind: 'mcq',
+      text: 'How does SVD explain recommender systems like predicting user movie ratings?',
+      options: [
+        'It discovers hidden latent factors (like Action vs Romance) linking user vector u_user and movie vector v_movie',
+        'It deletes users who watched fewer than 10 movies',
+        'It sorts movies alphabetically',
+        'It converts star ratings into binary images',
+      ],
+      correctIndex: 0,
+      explanation: 'Factoring a sparse User × Movie matrix compresses preferences into low-dimensional latent concept axes where predictions come from dot products.',
+    },
+    {
+      id: 'svd-q14',
+      kind: 'mcq',
+      text: 'How do you invert a matrix via its SVD (or compute the Moore–Penrose Pseudoinverse A⁺ when A is rectangular/singular)?',
+      options: [
+        'Take V Σ⁺ Uᵀ, where non-zero singular values σᵢ are replaced by 1/σᵢ and zero singular values stay 0',
+        'Negate every entry of Σ and keep U and V unchanged',
+        'Divide U by V element-wise',
+        'Pseudoinverse is undefined when any σᵢ = 0',
+      ],
+      correctIndex: 0,
+      explanation: 'Since U and V are orthogonal (U⁻¹ = Uᵀ, V⁻¹ = Vᵀ), reversing U Σ Vᵀ simply flips order and reciprocates each non-zero σᵢ → 1/σᵢ!',
+    },
+    {
+      id: 'svd-q15',
+      kind: 'mcq',
+      text: 'Why is `full_matrices=False` (Economy SVD) recommended in `np.linalg.svd` for a 10,000 × 10 matrix?',
+      options: [
+        'It avoids allocating a massive redundant 10,000 × 10,000 matrix U when only 10 columns pair with non-zero Σ rows',
+        'It skips computing singular values',
+        'It multiplies memory usage by 10',
+        'It forces all singular values to be integers',
+      ],
+      correctIndex: 0,
+      explanation: 'With only 10 columns, at most 10 singular values exist; Economy SVD trims U down to 10,000 × 10 while representing A with zero loss!',
+    },
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Teach & Solidify">
+
+<TeachThisCard
+  topic="Singular Value Decomposition (SVD)"
+  oneLiner="SVD breaks ANY m×n matrix into Rotate (Vᵀ) → Stretch along perpendicular axes (Σ) → Rotate (U), giving the ultimate tool for compression and latent factors."
+  takeaways={[
+    'Works for EVERY matrix shape m × n: A = U Σ Vᵀ, where U and V are orthogonal and Σ holds σ₁ ≥ σ₂ ≥ … ≥ 0.',
+    'Geometrically decomposes any linear warp into pure rotation, orthogonal axis scaling, and final rotation.',
+    'Singular values equal the square roots of eigenvalues of AᵀA (σᵢ = √λᵢ) and count the matrix rank.',
+    'Truncating to the top k singular layers gives the mathematically best Rank-k approximation for compression, denoising, and recommender systems.',
+  ]}
+  commonTrap="Reading A = U Σ Vᵀ left-to-right! Remember input vectors meet Vᵀ FIRST, then get scaled by Σ, and rotate out through U LAST."
+/>
+
+<ExplainInOwnWords
+  subchapterSlug="svd"
+  topicTitle="Singular Value Decomposition"
+  referenceChecklist={[
+    'Explained the 3-step geometry: Vᵀ rotates input, Σ scales axes by singular values, U rotates output.',
+    'Stated why SVD works on any m × n rectangular matrix unlike square-only eigendecomposition.',
+    'Connected singular values to √λ(AᵀA) and matrix rank.',
+    'Described how keeping only the top k singular layers creates low-rank compression and noise removal.',
+  ]}
+/>
+
+</Section>
+
+<Divider />
+
+<Section label="Resources & GitHub">
+
+<ResourcesSection
+  githubPath="mltheta/resources/math-foundations/linear-algebra/svd"
+  items={[
+    {
+      title: "GitHub Resource Folder & Study Notes",
+      type: "github",
+      description: "Worked rectangular SVD examples, image compression demos, and NumPy Economy SVD notes in mltheta/resources.",
+      url: "https://github.com/mltheta/resources/tree/main/math-foundations/linear-algebra/svd"
+    },
+    {
+      title: "Visualizing SVD Step by Step (MIT / Strang Intuition)",
+      type: "video",
+      description: "Classic Stanford/MIT intuition connecting four fundamental subspaces and ellipse semi-axes.",
+      url: "https://www.youtube.com/watch?v=rYz83XPxiZo"
+    },
+    {
+      title: "Mathematics for Machine Learning — Chapter 4.5: SVD",
+      type: "book",
+      description: "Step-by-step theorem, proof, and low-rank Eckart–Young approximation treatment.",
+      url: "https://mml-book.github.io/"
+    }
+  ]}
+/>
+
+</Section>
