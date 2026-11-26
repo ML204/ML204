@@ -37,8 +37,9 @@ Understanding transpose, determinant, and invertibility stops countless silent b
 
 <Section label="Explained in detail">
 
-### 1. Transpose ($\mathbf{A}^T$): Swapping Rows and Columns
+### 1. Transpose ($\mathbf{A}^T$) & Matrix Trace ($\text{tr}(\mathbf{A})$)
 
+#### Transpose: Swapping Rows and Columns
 To compute the transpose $\mathbf{A}^T$, flip every element across the top-left-to-bottom-right diagonal so entry $(i, j)$ moves to $(j, i)$:
 
 $$
@@ -53,9 +54,29 @@ $$
 #### Symmetric Matrices ($\mathbf{A}^T = \mathbf{A}$)
 A square matrix that remains identical after transposing is called **symmetric**—its upper-right triangle mirrors its lower-left triangle. Notice how covariance matrices $\mathbf{X}^T\mathbf{X}$ are always symmetric because feature $i$'s covariance with $j$ equals $j$'s covariance with $i$!
 
-<Callout kind="info">
-  **Socks-and-Shoes Rule for Product Transposes**: When taking the transpose of a product, the order reverses: $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T$. Always double-check shapes to see why this must hold!
-</Callout>
+#### Matrix Trace: Sum Along the Main Diagonal
+For any square $n \times n$ matrix, the **trace** ($\text{tr}(\mathbf{A})$) simply sums the numbers running down the top-left-to-bottom-right diagonal:
+
+$$
+\begin{aligned}
+\mathbf{A} &= \begin{bmatrix} 5 & 2 \\ 1 & 3 \end{bmatrix} \\
+\text{tr}(\mathbf{A}) &= 5 + 3 = 8
+\end{aligned}
+$$
+
+Two handy superpowers of trace in ML calculus:
+- **Cyclic Shift**: $\text{tr}(\mathbf{A}\mathbf{B}) = \text{tr}(\mathbf{B}\mathbf{A})$ (even when $\mathbf{A}\mathbf{B} \neq \mathbf{B}\mathbf{A}$!).
+- **Eigenvalue Link**: $\text{tr}(\mathbf{A})$ always equals the sum of all eigenvalues of $\mathbf{A}$.
+
+#### Essential Properties of Matrix Operations
+
+| Property | Mathematical Rule | Note |
+| :--- | :--- | :--- |
+| **Associativity** | $\mathbf{A}(\mathbf{B}\mathbf{C}) = (\mathbf{A}\mathbf{B})\mathbf{C}$ | Grouping order does not change result |
+| **Distributivity** | $\mathbf{A}(\mathbf{B} + \mathbf{C}) = \mathbf{A}\mathbf{B} + \mathbf{A}\mathbf{C}$ | Expands like scalar algebra |
+| **Non-Commutative** | $\mathbf{A}\mathbf{B} \neq \mathbf{B}\mathbf{A}$ | Swapping order changes output! |
+| **Transpose Product** | $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T$ | Socks-and-shoes order reversal |
+| **Inverse Product** | $(\mathbf{A}\mathbf{B})^{-1} = \mathbf{B}^{-1}\mathbf{A}^{-1}$ | Order reverses when undoing |
 
 ---
 
@@ -127,6 +148,26 @@ $$
 
 #### Why ML Engineers Prefer `solve(A, b)` Over `inv(A) @ b`
 Computing an explicit inverse $\mathbf{A}^{-1}$ is slow ($\mathcal{O}(n^3)$ with large constant overhead) and magnifies floating-point rounding noise whenever $\det(\mathbf{A})$ is tiny. Solving $\mathbf{A}\mathbf{x} = \mathbf{b}$ directly via **LU decomposition** (`np.linalg.solve(A, b)`) is both faster and numerically cleaner!
+
+---
+
+### 4. Singular vs Non-Singular, Rank, and Null Space
+
+Every square matrix falls into one of two camps:
+- **Non-Singular (Invertible)**: $\det(\mathbf{A}) \neq 0$, full rank, no dimensions crushed, $\mathbf{A}^{-1}$ exists.
+- **Singular (Non-Invertible)**: $\det(\mathbf{A}) = 0$, at least one redundant column collapses a dimension flat, $\mathbf{A}^{-1}$ does not exist.
+
+This leads directly to two fundamental subspaces for *any* $m \times n$ matrix $\mathbf{A}$:
+- **Rank ($\text{rank}(\mathbf{A})$)**: Number of linearly independent columns (equals the number of surviving dimensions in the **Column Space** output).
+- **Null Space (Kernel)**: Set of all input vectors $\mathbf{x}$ flattened straight to zero ($\mathbf{A}\mathbf{x} = \mathbf{0}$). Its dimension is the **nullity**. A matrix is non-singular if and only if its null space contains *only* the trivial zero vector $\mathbf{0}$!
+
+![Diagram showing Rank as surviving Column Space dimensions and Null Space as directions crushed to zero](/images/transpose-inverse-determinant/04_rank_and_nullspace.png)
+
+$$
+\text{rank}(\mathbf{A}) + \text{nullity}(\mathbf{A}) = n
+$$
+
+where $n$ is the total number of columns (features) of $\mathbf{A}$.
 
 </Section>
 

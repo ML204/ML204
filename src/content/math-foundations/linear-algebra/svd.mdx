@@ -42,7 +42,25 @@ SVD powers some of the most impactful algorithms across classic ML, data compres
 
 <Section label="Explained in detail">
 
-### 1. The 3-Step Geometric Recipe: Rotate → Stretch → Rotate
+### 1. Orthogonality, Orthonormal Vectors & Orthogonal Matrices
+
+Before unpacking SVD, meet its building blocks—**orthogonal matrices**:
+
+- **Orthogonal vectors**: Two vectors meet at a $90^\circ$ right angle ($\mathbf{u} \cdot \mathbf{v} = 0$).
+- **Orthonormal vectors**: Orthogonal *plus* scaled to unit length $1$ ($\|\mathbf{q}_i\|_2 = 1$).
+- **Orthogonal matrix ($\mathbf{Q}$)**: A square matrix whose columns are mutually orthonormal vectors. Because column dot products equal $0$ (different columns) or $1$ (same column):
+
+$$
+\mathbf{Q}^T\mathbf{Q} = \mathbf{Q}\mathbf{Q}^T = \mathbf{I} \implies \mathbf{Q}^{-1} = \mathbf{Q}^T
+$$
+
+An orthogonal matrix acts as a **rigid rotation or mirror flip**: it never stretches distances or distorts angles, and its inverse is free (just transpose!).
+
+![Diagram comparing standard basis vectors with rotated orthonormal vectors q1 and q2 at 90 degrees](/images/svd/04_orthonormal_vectors.png)
+
+---
+
+### 2. The 3-Step Geometric Recipe: Rotate → Stretch → Rotate
 
 Take a plain unit circle and mark two perpendicular input vectors $\mathbf{v}_1$ and $\mathbf{v}_2$ on it. Even when matrix $\mathbf{A}$ tilts or shears the plane into a slanted ellipse, SVD always finds an **orthogonal pair** in input space ($\mathbf{v}_1 \perp \mathbf{v}_2$) that lands on the **perpendicular major/minor ellipse axes** ($\mathbf{u}_1 \perp \mathbf{u}_2$)!
 
@@ -59,7 +77,7 @@ Read $\mathbf{A}\mathbf{x} = \mathbf{U}(\boldsymbol{\Sigma}(\mathbf{V}^T\mathbf{
 
 ---
 
-### 2. Why SVD Works on ANY Rectangular Matrix ($\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T$)
+### 3. Why SVD Works on ANY Rectangular Matrix ($\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T$)
 
 For an arbitrary dataset or weight matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$:
 
@@ -87,9 +105,9 @@ All extra singular values ($\sigma_2 = 0$) vanish! Even a rectangular matrix rev
 
 ---
 
-### 3. Singular Values vs Eigenvalues
+### 4. Mathematical Derivation: SVD via Eigenvectors of $\mathbf{A}^T\mathbf{A}$
 
-How do singular values relate to eigenvalues if $\mathbf{A}$ isn't even symmetric? Compute $\mathbf{A}^T\mathbf{A}$—which is *always* symmetric positive semi-definite!
+How do we actually calculate $\mathbf{U}$, $\boldsymbol{\Sigma}$, and $\mathbf{V}^T$ for a rectangular $m \times n$ matrix $\mathbf{A}$ where regular eigenvalues don't exist? Form the square symmetric matrix $\mathbf{A}^T\mathbf{A}$!
 
 $$
 \begin{aligned}
@@ -98,14 +116,28 @@ $$
 \end{aligned}
 $$
 
-That means:
-- The **right singular vectors** $\mathbf{v}_i$ of $\mathbf{A}$ are the **eigenvectors** of $\mathbf{A}^T\mathbf{A}$.
-- Each **singular value** is literally $\sigma_i = \sqrt{\lambda_i(\mathbf{A}^T\mathbf{A})} \ge 0$.
-- The **left singular vectors** $\mathbf{u}_i$ are the **eigenvectors** of $\mathbf{A}\mathbf{A}^T$.
+This reveals a clean 3-step analytical recipe:
+1. Compute symmetric matrix $\mathbf{A}^T\mathbf{A}$ and find its eigenvalues $\lambda_i \ge 0$ and orthonormal eigenvectors $\mathbf{v}_i$ (forming $\mathbf{V}$).
+2. Take square roots to get the **singular values**: $\sigma_i = \sqrt{\lambda_i(\mathbf{A}^T\mathbf{A})} \ge 0$.
+3. Recover each **left singular vector** directly for every $\sigma_i > 0$:
+   $$
+   \mathbf{u}_i = \frac{1}{\sigma_i}\mathbf{A}\mathbf{v}_i
+   $$
+   *(Geometrically, $\mathbf{v}_i$ are the input axes; dividing $\mathbf{A}\mathbf{v}_i$ by $\sigma_i$ normalizes each output semi-axis $\mathbf{u}_i$ to unit length $1$!)*
+
+#### SVD vs Eigendecomposition Side-by-Side
+
+| Feature | Eigendecomposition | SVD ($\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T$) |
+| :--- | :--- | :--- |
+| **Matrix shape** | Square $n \times n$ only | **Any** $m \times n$ shape |
+| **Factorization** | $\mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^{-1}$ | $\mathbf{U}\boldsymbol{\Sigma}\mathbf{V}^T$ |
+| **Basis vectors** | Not always orthogonal | **Always orthonormal** ($\mathbf{U}, \mathbf{V}$) |
+| **Scaling numbers** | Eigenvalues $\lambda_i$ (can be $<0$ or complex) | Singular values $\sigma_i \ge 0$ (always real!) |
+| **Always exists?** | No (fails for defective matrices) | **Yes, for every real matrix** |
 
 ---
 
-### 4. Low-Rank Approximation & Compression
+### 5. Low-Rank Approximation & Compression
 
 Because $\boldsymbol{\Sigma}$ is sorted from largest ($\sigma_1$) to smallest ($\sigma_r$), we can rewrite **every matrix** as a sum of simple rank-1 "layers":
 

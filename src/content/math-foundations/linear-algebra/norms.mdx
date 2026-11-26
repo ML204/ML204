@@ -122,16 +122,54 @@ Because the $L_1$ diamond has **pointy corners sitting directly on the axes** ($
 
 ---
 
-### 4. What Makes a Function a Valid Norm? (3 Rules)
+### 4. Frobenius Norm ($\|\mathbf{A}\|_F$): Measuring Whole Matrices
+
+What if you want to measure the total "size" of an entire **matrix** instead of a single vector (for instance, checking reconstruction error $\|\mathbf{A} - \mathbf{A}_k\|_F$ in SVD compression)?
+
+The **Frobenius norm** simply flattens the matrix into one long vector, squares every cell, adds them all together, and takes the square root:
+
+$$
+\begin{aligned}
+\|\mathbf{A}\|_F &= \sqrt{\sum_{i=1}^{m}\sum_{j=1}^{n} A_{ij}^2} \\
+&= \sqrt{\text{tr}(\mathbf{A}^T\mathbf{A})}
+\end{aligned}
+$$
+
+Worked example for $\mathbf{A} = \begin{bmatrix} 1 & 2 \\ 2 & 4 \end{bmatrix}$:
+
+$$
+\begin{aligned}
+\|\mathbf{A}\|_F &= \sqrt{1^2 + 2^2 + 2^2 + 4^2} \\
+&= \sqrt{1 + 4 + 4 + 16} = \sqrt{25} = 5
+\end{aligned}
+$$
+
+---
+
+### 5. Unit Vectors & Normalization
+
+Dividing any non-zero vector $\mathbf{v}$ by its own $L_2$ norm creates a **unit vector** ($\hat{\mathbf{v}}$) pointing in the *exact same direction* with length equal to $1$:
+
+$$
+\hat{\mathbf{v}} = \frac{\mathbf{v}}{\|\mathbf{v}\|_2}, \qquad \|\hat{\mathbf{v}}\|_2 = 1
+$$
+
+Worked example with $\mathbf{v} = \begin{bmatrix} 3 \\ 4 \end{bmatrix}$ ($\|\mathbf{v}\|_2 = 5$):
+
+$$
+\hat{\mathbf{v}} = \frac{1}{5}\begin{bmatrix} 3 \\ 4 \end{bmatrix} = \begin{bmatrix} 0.6 \\ 0.8 \end{bmatrix}
+$$
+
+ML pipelines use normalization constantly before computing cosine similarity or stabilizing neural network layers!
+
+---
+
+### 6. What Makes a Function a Valid Norm? (3 Rules)
 
 Mathematicians call $\|\cdot\|$ a valid norm only if it satisfies three sanity checks:
 1. **Non-negativity**: $\|\mathbf{v}\| \ge 0$, and $\|\mathbf{v}\| = 0$ *only* when $\mathbf{v} = \mathbf{0}$.
 2. **Homogeneity (Scaling)**: $\|c\mathbf{v}\| = |c| \, \|\mathbf{v}\|$ (doubling a vector doubles its length).
 3. **Triangle Inequality**: $\|\mathbf{u} + \mathbf{v}\| \le \|\mathbf{u}\| + \|\mathbf{v}\|$ (taking a detour through two arrows can never be shorter than going straight).
-
-<Callout kind="tip">
-  **Normalization ($\hat{\mathbf{v}} = \mathbf{v} / \|\mathbf{v}\|_2$)**: Dividing a non-zero vector by its own $L_2$ norm creates a **unit vector** pointing in the exact same direction with length equal to $1$. ML pipelines do this constantly before computing cosine similarities!
-</Callout>
 
 </Section>
 
@@ -159,10 +197,10 @@ Mathematicians call $\|\cdot\|$ a valid norm only if it satisfies three sanity c
   $\|\mathbf{x}\|_\infty = \max_{1 \le i \le n} |x_i|$
 </Formula>
 
-<Formula label="General Lp Norm & Triangle Inequality">
+<Formula label="General Lp Norm & Frobenius Norm">
   $\|\mathbf{x}\|_p = \left(\sum_{i=1}^{n} |x_i|^p\right)^{1/p}$
   <br />
-  $\|\mathbf{u} + \mathbf{v}\|_p \le \|\mathbf{u}\|_p + \|\mathbf{v}\|_p$
+  $\|\mathbf{A}\|_F = \sqrt{\sum_{i,j} A_{ij}^2}$
 </Formula>
 
 <SymbolTable
@@ -170,8 +208,8 @@ Mathematicians call $\|\cdot\|$ a valid norm only if it satisfies three sanity c
     { symbol: '‖v‖₁',    meaning: 'L1 (Manhattan) norm: sum of absolute entries' },
     { symbol: '‖v‖₂',    meaning: 'L2 (Euclidean) norm: square root of sum of squares' },
     { symbol: '‖v‖∞',    meaning: 'L-infinity (Max) norm: largest absolute entry' },
-    { symbol: '‖v‖₂²',   meaning: 'Squared L2 norm (sum of squares; avoids square root)' },
-    { symbol: 'v / ‖v‖', meaning: 'Unit vector in the same direction with length 1' },
+    { symbol: '‖A‖_F',   meaning: 'Frobenius norm: Euclidean root sum of all squared matrix entries' },
+    { symbol: 'v̂ = v/‖v‖', meaning: 'Normalized unit vector pointing along v with length 1' },
   ]}
 />
 

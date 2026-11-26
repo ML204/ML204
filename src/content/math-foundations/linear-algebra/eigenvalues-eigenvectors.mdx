@@ -120,11 +120,38 @@ $$
 
 ---
 
-### 4. Symmetric Matrices & PCA: Machine Learning's Best Friend
+### 4. Eigenvalue Decomposition & Diagonalization
+
+Once you have a full set of $n$ linearly independent eigenvectors, pack them side-by-side into columns of matrix $\mathbf{Q}$ and place their matching eigenvalues along diagonal matrix $\boldsymbol{\Lambda}$:
+
+$$
+\begin{aligned}
+\mathbf{A} &= \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^{-1} \\
+\boldsymbol{\Lambda} &= \begin{bmatrix} \lambda_1 & 0 \\ 0 & \lambda_2 \end{bmatrix}
+\end{aligned}
+$$
+
+Factoring $\mathbf{A}$ this way is called **diagonalization**. It breaks any complicated matrix transform into three clean moves:
+1. **$\mathbf{Q}^{-1}$**: Switch coordinates into the special eigenvector directions.
+2. **$\boldsymbol{\Lambda}$**: Simply scale along each axis by $\lambda_i$ (zero cross-mixing!).
+3. **$\mathbf{Q}$**: Switch back to standard coordinates.
+
+#### Superpower: Instant Matrix Powers ($\mathbf{A}^k$)
+Need to simulate $100$ steps of a system ($\mathbf{A}^{100}\mathbf{x}$)? Inside the middle $\mathbf{Q}^{-1}\mathbf{Q} = \mathbf{I}$ cancels out, leaving scalar diagonal powers:
+
+$$
+\mathbf{A}^k = \mathbf{Q}\boldsymbol{\Lambda}^k\mathbf{Q}^{-1}
+$$
+
+Instead of multiplying matrices $100$ times, simply raise each diagonal eigenvalue to $\lambda_i^{100}$!
+
+---
+
+### 5. Symmetric Matrices & PCA: Machine Learning's Best Friend
 
 Notice $\mathbf{A} = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}$ was **symmetric** ($\mathbf{A} = \mathbf{A}^T$). Symmetric matrices satisfy the **Spectral Theorem**, giving two magical guarantees:
 1. All eigenvalues are **guaranteed to be real numbers** (no imaginary swirls!).
-2. Eigenvectors of distinct eigenvalues are **guaranteed to be orthogonal ($90^\circ$ perpendicular)**.
+2. Eigenvectors are **orthogonal**, so normalizing them gives an orthogonal matrix ($\mathbf{Q}^{-1} = \mathbf{Q}^T$) and clean **Orthogonal Diagonalization** $\mathbf{A} = \mathbf{Q}\boldsymbol{\Lambda}\mathbf{Q}^T$.
 
 Because a dataset's covariance matrix $\boldsymbol{\Sigma} = \frac{1}{n}\mathbf{X}^T\mathbf{X}$ is *always* symmetric, **Principal Component Analysis (PCA)** finds perpendicular axes ranked from largest eigenvalue ($\lambda_1$ = direction of widest data spread) to smallest ($\lambda_2$ = narrowest noise axis):
 

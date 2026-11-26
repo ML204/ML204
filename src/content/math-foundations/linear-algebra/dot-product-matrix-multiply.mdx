@@ -169,6 +169,34 @@ With regular numbers, $3 \times 5 = 5 \times 3$. With matrices, **order is NOT i
 
 ![Visual proof that rotating then shearing ends at a different point than shearing then rotating](/images/dot-product-matrix-multiply/04_non_commutativity.png)
 
+---
+
+### 5. Vector Spaces, Span, Linear Independence & Linear Transformations
+
+Understanding *where* vectors can reach unlocks the deeper structure behind Linear Algebra:
+
+#### Linear Combinations & Span
+Given vectors $\mathbf{v}_1, \mathbf{v}_2$ and scalars $c_1, c_2$, forming $c_1\mathbf{v}_1 + c_2\mathbf{v}_2$ is a **linear combination**—stretching each arrow and summing them tip-to-tail. The **span** of a set of vectors is the entire collection of points you can possibly reach using every choice of $c_1, c_2$.
+
+#### Vector Space, Linear Independence, Basis & Dimension
+A **vector space** (such as $\mathbb{R}^2$ or $\mathbb{R}^n$) is a playground of vectors that is *closed*: adding any two vectors or scaling by any scalar keeps you strictly inside the space (and always includes the origin $\mathbf{0}$).
+
+- **Linear Independence**: No vector in the set is redundant (none can be built by combining the others). Two independent vectors in $\mathbb{R}^2$ point in non-parallel directions and span the **entire 2D plane**.
+- **Linear Dependence**: At least one vector lies in the span of the others (e.g., $\mathbf{v}_2 = 2\mathbf{v}_1$). Their span collapses onto a trapped **1D line**.
+- **Basis & Dimension**: A **basis** is a minimal set of linearly independent vectors that spans the whole space (like standard basis $\{\hat{\mathbf{i}}, \hat{\mathbf{j}}\}$). The number of vectors in the basis defines the space's **dimension** ($\dim(\mathbb{R}^2) = 2$).
+
+![Linearly independent basis spanning 2D space vs linearly dependent vectors trapped on a 1D line](/images/dot-product-matrix-multiply/06_span_and_independence.png)
+
+#### What Makes a Function a "Linear Transformation"?
+Matrix multiplication $\mathbf{x} \mapsto \mathbf{A}\mathbf{x}$ is the exact algebraic representation of a **linear transformation** $T$: it keeps parallel grid lines straight & evenly spaced and pins the origin at $\mathbf{0}$ by obeying two golden rules:
+
+$$
+\begin{aligned}
+T(\mathbf{u} + \mathbf{v}) &= T(\mathbf{u}) + T(\mathbf{v}) \\
+T(c\mathbf{v}) &= c\,T(\mathbf{v})
+\end{aligned}
+$$
+
 </Section>
 
 <DotProductMatrixFigure />
